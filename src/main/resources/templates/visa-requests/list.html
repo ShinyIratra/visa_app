@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Demandes de visa</title>
+    <style>
+        :root {
+            --bg: #f4f7fb;
+            --surface: #ffffff;
+            --text: #14213d;
+            --muted: #5b6474;
+            --accent: #0b7285;
+            --danger: #c92a2a;
+            --border: #dde2ea;
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            margin: 0;
+            font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #eef5ff 0%, #f8fbff 45%, #f4f7fb 100%);
+            color: var(--text);
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1080px;
+            margin: 40px auto;
+            padding: 24px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            box-shadow: 0 16px 38px rgba(20, 33, 61, 0.08);
+        }
+
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
+
+        h1 {
+            margin: 0;
+            font-size: 1.6rem;
+        }
+
+        .btn {
+            border: none;
+            border-radius: 10px;
+            padding: 10px 14px;
+            font-weight: 600;
+            text-decoration: none;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .btn-primary {
+            background: var(--accent);
+            color: #fff;
+        }
+
+        .btn-secondary {
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--text);
+        }
+
+        .btn-danger {
+            background: #fff5f5;
+            border: 1px solid #ffc9c9;
+            color: var(--danger);
+        }
+
+        .table-wrapper {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 900px;
+        }
+
+        th,
+        td {
+            text-align: left;
+            padding: 12px;
+            border-bottom: 1px solid var(--border);
+            vertical-align: middle;
+        }
+
+        th {
+            color: var(--muted);
+            font-size: 0.88rem;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+        }
+
+        .actions {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        form {
+            margin: 0;
+        }
+
+        .empty {
+            color: var(--muted);
+            text-align: center;
+            padding: 28px;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="header">
+        <h1>Demandes de visa</h1>
+        <a class="btn btn-primary" th:href="@{/visa-requests/new}">Nouvelle demande</a>
+    </div>
+
+    <div class="table-wrapper">
+        <table>
+            <thead>
+            <tr>
+                <th>ID</th>
+                <th>Nom complet</th>
+                <th>Email</th>
+                <th>Nationalite</th>
+                <th>Pays destination</th>
+                <th>Date depart</th>
+                <th>Statut</th>
+                <th>Actions</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:if="${#lists.isEmpty(visaRequests)}">
+                <td colspan="8" class="empty">Aucune demande enregistree.</td>
+            </tr>
+            <tr th:each="request : ${visaRequests}">
+                <td th:text="${request.id}">1</td>
+                <td th:text="${request.fullName}">John Doe</td>
+                <td th:text="${request.email}">john@demo.com</td>
+                <td th:text="${request.nationality}">Madagascar</td>
+                <td th:text="${request.destinationCountry}">France</td>
+                <td th:text="${request.departureDate}">2026-10-10</td>
+                <td th:text="${request.status}">PENDING</td>
+                <td>
+                    <div class="actions">
+                        <a class="btn btn-secondary" th:href="@{/visa-requests/{id}/edit(id=${request.id})}">Modifier</a>
+                        <form th:action="@{/visa-requests/{id}/delete(id=${request.id})}" method="post"
+                              onsubmit="return confirm('Supprimer cette demande ?');">
+                            <button class="btn btn-danger" type="submit">Supprimer</button>
+                        </form>
+                    </div>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+</body>
+</html>
