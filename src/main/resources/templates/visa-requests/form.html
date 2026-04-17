@@ -131,6 +131,9 @@
         </form>
     </div>
     <script th:src="@{/js/marquage-champ-requis.js}"></script>
+    <script th:src="@{/js/static-data.js}"></script>
+    <script th:src="@{/js/dossiers.js}"></script>
+    <script th:src="@{/js/handle-form-submit.js}"></script>
     <script>
         let donneesStatiques = {}; // Instancie ao @ fonction loadDonneesStatiques
         let typeSelect;
@@ -151,139 +154,6 @@
             loadDonneesStatiques();
             typeSelect.addEventListener('change', updateDossiersAFournir);
             demandeForm.addEventListener('submit', handleFormSubmit);
-        }
-
-        // Aleo eto akaiky eto fa tsy any @ farany ambany fa ito no mety hiasa matetika ?
-        function handleFormSubmit(event) {
-            event.preventDefault();
-
-            const formData = {
-                typeDemandeId: document.getElementById('typesDemande').value,
-                "etat civil": {
-                    nom: document.getElementById('demandeur_nom').value,
-                    prenom: document.getElementById('demandeur_prenom').value,
-                    nomJeuneFille: document.getElementById('demandeur_nomJeuneFille').value,
-                    situationFamiliale: document.getElementById('situationsFamiliales').value,
-                    nationalite: document.getElementById('nationalites').value,
-                    dateNaissance: document.getElementById('demandeur_dateNaissance').value,
-                    adresse: document.getElementById('demandeur_adresse').value,
-                    email: document.getElementById('demandeur_email').value,
-                    numTel: document.getElementById('demandeur_numTel').value
-                },
-                "passeport": {
-                    numero: document.getElementById('passeport_numero').value,
-                    dateDelivrance: document.getElementById('passeport_dateDelivrance').value,
-                    dateExpiration: document.getElementById('passeport_dateExpiration').value
-                },
-                "visaTransformable": {
-                    reference: document.getElementById('visa_reference').value,
-                    dateEntree: document.getElementById('visa_dateEntree').value,
-                    lieuEntree: document.getElementById('visa_lieuEntree').value,
-                    dateExpiration: document.getElementById('visa_dateExpiration').value
-                },
-                "dossiersFournis": Array.from(document.querySelectorAll('input[name="dossierIds"]:checked')).map(cb => cb.value)
-            };
-
-            fetch('/visa-requests', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(formData)
-            })
-            .then(r => r.json())
-            .then(resp => {
-                if (resp.success) {
-                    alert('Demande enregistree avec succes');
-                    console.log('Response:', resp.data); // TODO: redirection ?
-                } else {
-                    throw new Error(resp.error);
-                }
-            })
-            .catch(e => {
-                console.error('Submit error:', e);
-                alert('Erreur: ' + e.message);
-            });
-        }
-
-        function loadDonneesStatiques() {
-            fetch('/api/static/all')
-                .then(r => r.json())
-                .then(resp => {
-                    // Noproposen copilot zah hoe aleo console.error sy return maina be eto fa tsy mithrow new error
-                    // fa tsy mahatoky anazy a dia avelako amin'io aloha  
-                    if (!resp || !resp.success) {
-                        throw new Error(`${resp?.error || 'Erreur inconnue'}`);
-                    }
-
-                    donneesStatiques = resp.data || {};
-                    populateAllSelects(donneesStatiques);
-                    marquerChampRequis(donneesStatiques.requiredFields || {});
-                    updateDossiersAFournir();
-                })
-                .catch(e => console.error('Error loading static data', e));
-        }
-
-        function populateAllSelects(data) {
-            fillSelect('typesDemande', data.typesDemande, i => i.libelle);
-            fillSelect('situationsFamiliales', data.situationsFamiliales, i => i.libelle);
-            fillSelect('nationalites', data.nationalites, i => i.libelle);
-        }
-
-        function fillSelect(id, arr, texte) {
-            const s = document.getElementById(id);
-            if (!s || !Array.isArray(arr)) return;
-
-            // s.innerHTML = '<option value="">--</option>';
-            s.innerHTML = '';
-            arr.forEach(it => {
-                const opt = document.createElement('option');
-                opt.value = it.id;
-                opt.text = texte ? texte(it) : (it.libelle || it.numero || it.reference || it.id); // Proposition copilot
-                s.appendChild(opt);
-            });
-        }
-
-        /**
-         * Fonction appelee 
-         * - apres avoir load les donnees statiques
-         * - apres avoir change le select: VISA demande
-         */
-        function updateDossiersAFournir() {
-            const selectedId = typeSelect.value;
-            const selectedType = donneesStatiques.typesDemande ? donneesStatiques.typesDemande.find(t => t.id == selectedId) : null;
-            const libelle = selectedType ? selectedType.libelle.toLowerCase() : "";
-
-            dossierList.innerHTML = "";
-
-            // Selon la valeur du select choisi, On ajoute dans cette liste la liste des dossiers a afficher
-            const sections = [
-                { label: "DOSSIERS COMMUNES", items: donneesStatiques.dossiersCommuns || [] }
-            ];
-
-            // Tsy generalise fa alefako amin'io aloha amin'izay mazava ilay code
-            if (libelle.includes("travailleur")) {
-                sections.push({ label: "DOSSIERS TRAVAILLEUR", items: donneesStatiques.dossiersTravailleur || [] });
-            } else if (libelle.includes("investisseur")) {
-                sections.push({ label: "DOSSIERS INVESTISSEUR", items: donneesStatiques.dossiersInvestisseur || [] });
-            }
-
-            sections.forEach(renderDossierSection);
-        }
-
-        function renderDossierSection(sec) {
-            if (sec.items.length > 0) {
-                const group = document.createElement('div');
-                group.className = "checkbox-item group-label";
-                group.innerText = sec.label;
-                dossierList.appendChild(group);
-
-                sec.items.forEach(item => {
-                    const div = document.createElement('label');
-                    div.className = "checkbox-item";
-                    const labelText = (item.libelle || item.nom || "Dossier sans label");
-                    div.innerHTML = `<input type="checkbox" name="dossierIds" value="${item.id}"> ${labelText}`;
-                    dossierList.appendChild(div);
-                });
-            }
         }
     </script>
 </body>
