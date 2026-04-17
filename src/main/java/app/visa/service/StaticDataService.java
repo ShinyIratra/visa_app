@@ -20,6 +20,10 @@ import app.visa.repository.DossierRepository;
 
 import java.util.List;
 import java.util.stream.Collectors;
+import java.lang.reflect.Field;
+import java.util.ArrayList;
+import jakarta.persistence.Column;
+import jakarta.persistence.JoinColumn;
 
 @Service
 public class StaticDataService {
@@ -73,6 +77,29 @@ public class StaticDataService {
             .filter(d -> d.getTypeDemande().getLibelle().toLowerCase().contains("investisseur"))
             .collect(Collectors.toList()));
         
+        // Champs requis
+        Map<String, List<String>> required = new HashMap<>();
+        required.put("demandeur", getChampRequisPour(app.visa.entity.Demandeur.class));
+        required.put("passeport", getChampRequisPour(app.visa.entity.Passeport.class));
+        required.put("visaTransformable", getChampRequisPour(app.visa.entity.VisaTransformable.class));
+        m.put("requiredFields", required);
+        
         return m;
+    }
+
+    private List<String> getChampRequisPour(Class<?> cls) {
+        List<String> fields = new ArrayList<>();
+        for (Field f : cls.getDeclaredFields()) {
+            Column col = f.getAnnotation(Column.class);
+            if (col != null && !col.nullable()) {
+                fields.add(f.getName());
+                continue;
+            }
+            JoinColumn jc = f.getAnnotation(JoinColumn.class);
+            if (jc != null && !jc.nullable()) {
+                fields.add(f.getName());
+            }
+        }
+        return fields;
     }
 }

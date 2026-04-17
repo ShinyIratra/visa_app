@@ -130,6 +130,7 @@
             </div>
         </form>
     </div>
+    <script th:src="@{/js/marquage-champ-requis.js}"></script>
     <script>
         let donneesStatiques = {}; // Instancie ao @ fonction loadDonneesStatiques
         let typeSelect;
@@ -215,6 +216,7 @@
 
                     donneesStatiques = resp.data || {};
                     populateAllSelects(donneesStatiques);
+                    marquerChampRequis(donneesStatiques.requiredFields || {});
                     updateDossiersAFournir();
                 })
                 .catch(e => console.error('Error loading static data', e));
