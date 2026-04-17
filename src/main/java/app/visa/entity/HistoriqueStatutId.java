@@ -16,11 +16,11 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode
-public class ReponseStatutVisaId implements Serializable {
-
-    @Column(name = "id_dossier")
-    private Long idDossier;
+public class HistoriqueStatutId implements Serializable {
 
     @Column(name = "id_demande")
     private Long idDemande;
+
+    @Column(name = "id_statut")
+    private Long idStatut;
 }

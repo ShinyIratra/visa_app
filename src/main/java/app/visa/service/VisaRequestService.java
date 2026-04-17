@@ -7,7 +7,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import app.visa.entity.VisaRequest;
+import app.visa.entity.Demande;
 import app.visa.repository.VisaRequestRepository;
 
 @Service
@@ -16,17 +16,17 @@ public class VisaRequestService {
 
     private final VisaRequestRepository visaRequestRepository;
 
-    public List<VisaRequest> findAll() {
+    public List<Demande> findAll() {
         return visaRequestRepository.findAll();
     }
 
-    public Optional<VisaRequest> findById(Long id) {
+    public Optional<Demande> findById(Long id) {
         return visaRequestRepository.findById(id);
     }
 
     @Transactional
-    public VisaRequest save(VisaRequest visaRequest) {
-        return visaRequestRepository.save(visaRequest);
+    public Demande save(Demande demande) {
+        return visaRequestRepository.save(demande);
     }
 
     @Transactional

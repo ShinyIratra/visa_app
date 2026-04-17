@@ -11,23 +11,17 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
-@Table(name = "dossier")
+@Table(name = "statut")
 @Getter
 @Setter
 @NoArgsConstructor
-public class Dossier {
+public class Statut {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
     private Long id;
 
-    @Column(name = "libelle", nullable = false, columnDefinition = "TEXT")
+    @Column(name = "libelle", nullable = false, length = 100)
     private String libelle;
-
-    @Column(name = "obligatoire")
-    private Boolean obligatoire;
-
-    @Column(name = "id_typedemande", nullable = false)
-    private Long idTypeDemande;
 }

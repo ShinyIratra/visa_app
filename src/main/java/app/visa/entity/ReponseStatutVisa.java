@@ -28,9 +28,9 @@ public class ReponseStatutVisa {
     private Dossier dossier;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @MapsId("idRequeteVisa")
-    @JoinColumn(name = "id_requetevisa", nullable = false)
-    private RequeteVisa requeteVisa;
+    @MapsId("idDemande")
+    @JoinColumn(name = "id_demande", nullable = false)
+    private Demande demande;
 
     @Column(name = "valeur", nullable = false)
     private Boolean valeur;

@@ -32,4 +32,7 @@ public class Passeport {
 
     @Column(name = "dateexpiration", nullable = false)
     private LocalDateTime dateExpiration;
+
+    @Column(name = "id_demandeur", nullable = false)
+    private Long idDemandeur;
 }
