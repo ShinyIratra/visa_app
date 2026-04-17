@@ -4,183 +4,108 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Formulaire demande visa</title>
-    <style>
-        :root {
-            --bg: #f4f7fb;
-            --surface: #ffffff;
-            --text: #14213d;
-            --muted: #5b6474;
-            --accent: #0b7285;
-            --border: #dde2ea;
-        }
-
-        * { box-sizing: border-box; }
-
-        body {
-            margin: 0;
-            font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-            background: radial-gradient(circle at 20% 10%, #e8f4ff 0, #f4f7fb 45%);
-            color: var(--text);
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 18px;
-        }
-
-        .card {
-            width: 100%;
-            max-width: 680px;
-            background: var(--surface);
-            border: 1px solid var(--border);
-            border-radius: 14px;
-            box-shadow: 0 20px 44px rgba(20, 33, 61, 0.1);
-            padding: 24px;
-        }
-
-        h1 {
-            margin-top: 0;
-            margin-bottom: 18px;
-            font-size: 1.4rem;
-        }
-
-        .grid {
-            display: grid;
-            grid-template-columns: repeat(2, minmax(0, 1fr));
-            gap: 14px;
-        }
-
-        .field {
-            display: flex;
-            flex-direction: column;
-            gap: 6px;
-        }
-
-        .field.full {
-            grid-column: 1 / -1;
-        }
-
-        label {
-            font-size: 0.92rem;
-            color: var(--muted);
-        }
-
-        input,
-        select {
-            width: 100%;
-            border: 1px solid var(--border);
-            border-radius: 10px;
-            padding: 10px 12px;
-            font-size: 0.95rem;
-        }
-
-        .actions {
-            margin-top: 20px;
-            display: flex;
-            gap: 10px;
-            justify-content: flex-end;
-        }
-
-        .hint {
-            margin-top: 0;
-            color: var(--muted);
-            font-size: 0.92rem;
-        }
-
-        .btn {
-            border: none;
-            border-radius: 10px;
-            padding: 10px 16px;
-            cursor: pointer;
-            text-decoration: none;
-            font-weight: 600;
-        }
-
-        .btn-primary {
-            background: var(--accent);
-            color: #fff;
-        }
-
-        .btn-secondary {
-            background: #fff;
-            border: 1px solid var(--border);
-            color: var(--text);
-        }
-
-        @media (max-width: 720px) {
-            .grid {
-                grid-template-columns: 1fr;
-            }
-        }
-    </style>
+    <!-- CSS removed per request -->
 </head>
 <body>
-<div class="card">
+<div>
     <h1 th:text="${demande.id == null} ? 'Nouvelle demande' : 'Modifier la demande'"></h1>
-
-    <p class="hint"
-       th:if="${#lists.isEmpty(typesDemande) or #lists.isEmpty(passeports) or #lists.isEmpty(categories) or #lists.isEmpty(visasTransformables)}">
-        Certaines listes de reference sont vides. Ajoutez d'abord des donnees en base.
-    </p>
 
     <form th:object="${demande}"
           th:action="${demande.id == null} ? @{/visa-requests} : @{/visa-requests/{id}(id=${demande.id})}"
           method="post">
-        <div class="grid">
-            <div class="field">
-                <label for="dateCreation">Date creation</label>
-                <input id="dateCreation" type="datetime-local" th:field="*{dateCreation}" required>
-            </div>
 
-            <div class="field">
-                <label for="typeDemande">Type de demande</label>
-                <select id="typeDemande" th:field="*{typeDemande.id}" required>
-                    <option value="">Selectionner...</option>
-                    <option th:each="type : ${typesDemande}"
-                            th:value="${type.id}"
-                            th:text="${type.libelle}">
-                    </option>
+        <!-- Etat civil -->
+        <section>
+            <h2>Etat civil</h2>
+            <div>
+                <label>Nom</label>
+                <input type="text" th:field="*{passeport.demandeur.nom}" />
+            </div>
+            <div>
+                <label>Prénoms</label>
+                <input type="text" th:field="*{passeport.demandeur.prenom}" />
+            </div>
+            <div>
+                <label>Nom de jeune fille</label>
+                <input type="text" th:field="*{passeport.demandeur.nomJeuneFille}" />
+            </div>
+            <div>
+                <label>Situation de famille</label>
+                <select th:field="*{passeport.demandeur.situationFamiliale.id}">
+                    <option value="">--</option>
                 </select>
             </div>
-
-            <div class="field">
-                <label for="passeport">Passeport</label>
-                <select id="passeport" th:field="*{passeport.id}" required>
-                    <option value="">Selectionner...</option>
-                    <option th:each="passeport : ${passeports}"
-                            th:value="${passeport.id}"
-                            th:text="${passeport.numero + ' (#' + passeport.id + ')'}">
-                    </option>
+            <div>
+                <label>Nationalité</label>
+                <select th:field="*{passeport.demandeur.nationalite.id}">
+                    <option value="">--</option>
                 </select>
             </div>
-
-            <div class="field">
-                <label for="categorie">Categorie</label>
-                <select id="categorie" th:field="*{categorie.id}" required>
-                    <option value="">Selectionner...</option>
-                    <option th:each="categorie : ${categories}"
-                            th:value="${categorie.id}"
-                            th:text="${categorie.libelle}">
-                    </option>
-                </select>
+            <div>
+                <label>Date de naissance</label>
+                <input type="date" th:field="*{passeport.demandeur.dateNaissance}" />
             </div>
-
-            <div class="field full">
-                <label for="visaTransformable">Visa transformable</label>
-                <select id="visaTransformable" th:field="*{visaTransformable.id}" required>
-                    <option value="">Selectionner...</option>
-                    <option th:each="visaTransformable : ${visasTransformables}"
-                            th:value="${visaTransformable.id}"
-                            th:text="${visaTransformable.reference + ' (#' + visaTransformable.id + ')'}">
-                    </option>
-                </select>
+            <div>
+                <label>Profession</label>
+                <input type="text" name="profession" />
             </div>
+            <div>
+                <label>Adresse</label>
+                <input type="text" th:field="*{passeport.demandeur.adresse}" />
+            </div>
+            <div>
+                <label>Email</label>
+                <input type="email" th:field="*{passeport.demandeur.email}" />
+            </div>
+            <div>
+                <label>Téléphone</label>
+                <input type="tel" th:field="*{passeport.demandeur.numTel}" />
+            </div>
+        </section>
+
+        <!-- Passeport -->
+        <section>
+            <h2>Passeport</h2>
+            <div>
+                <label>Numéro</label>
+                <input type="text" th:field="*{passeport.numero}" />
+            </div>
+            <div>
+                <label>Date délivrance</label>
+                <input type="datetime-local" th:field="*{passeport.dateDelivrance}" />
+            </div>
+            <div>
+                <label>Date d'expiration</label>
+                <input type="datetime-local" th:field="*{passeport.dateExpiration}" />
+            </div>
+        </section>
+
+        <!-- Visa transformable -->
+        <section>
+            <h2>Visa transformable</h2>
+            <div>
+                <label>Réf visa</label>
+                <input type="text" th:field="*{visaTransformable.reference}" />
+            </div>
+            <div>
+                <label>Date entrée à Mada</label>
+                <input type="datetime-local" th:field="*{visaTransformable.dateEntree}" />
+            </div>
+            <div>
+                <label>Lieu entrée</label>
+                <input type="text" th:field="*{visaTransformable.lieuEntree}" />
+            </div>
+            <div>
+                <label>Date de sortie</label>
+                <input type="datetime-local" th:field="*{visaTransformable.dateExpiration}" />
+            </div>
+        </section>
+
+        <div>
+            <button type="submit">Enregistrer</button>
+            <a th:href="@{/visa-requests}">Annuler</a>
         </div>
 
-        <div class="actions">
-            <a class="btn btn-secondary" th:href="@{/visa-requests}">Annuler</a>
-            <button class="btn btn-primary" type="submit">Enregistrer</button>
-        </div>
     </form>
 </div>
 </body>
