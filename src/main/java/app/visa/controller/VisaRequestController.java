@@ -31,10 +31,7 @@ public class VisaRequestController {
     }
 
     @GetMapping("/new")
-    public String showCreateForm(Model model) {
-        Demande demande = new Demande();
-        demande.setDateCreation(LocalDateTime.now());
-        model.addAttribute("demande", demande);
+    public String showCreateForm() {
         return "visa-requests/form";
     }
 

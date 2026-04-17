@@ -45,7 +45,7 @@ public class StaticDataService {
         List<TypeDemande> types = typeDemandeRepository.findAll();
 
         m.put("nationalites", nationalites);
-        m.put("situationFamiliale", situations);
+        m.put("situationsFamiliales", situations);
         m.put("categories", categories);
         m.put("typesDemande", types);
 
