@@ -113,6 +113,17 @@
                 </div>
             </section>
 
+            <section id="dossiersSection">
+                <h2>4. PIÈCES À FOURNIR (DOSSIERS)</h2>
+                <div class="grid-container">
+                    <div class="grid-item col-12">
+                        <div id="dossiersList" class="checkbox-list">
+                            <!-- JS -->
+                        </div>
+                    </div>
+                </div>
+            </section>
+
             <div class="actions-bar">
                 <button type="submit" class="btn btn-primary">Enregistrer</button>
                 <a th:href="@{/visa-requests}" class="btn btn-outline">Annuler</a>
@@ -145,6 +156,48 @@
                     fill('typesDemande', d.typesDemande, function (i) { return i.libelle; });
                     fill('situationsFamiliales', d.situationsFamiliales, function (i) { return i.libelle; });
                     fill('nationalites', d.nationalites, function (i) { return i.libelle; });
+
+                    var typeSelect = document.getElementById('typesDemande');
+                    var dossierList = document.getElementById('dossiersList');
+
+                    function updateDossiers() {
+                        var selectedId = typeSelect.value;
+                        var selectedType = d.typesDemande.find(function(t) { return t.id == selectedId; });
+                        var libelle = selectedType ? selectedType.libelle.toLowerCase() : "";
+                        
+                        dossierList.innerHTML = "";
+                        
+                        // Afficher les communs
+                        var sections = [
+                            { label: "PIÈCES COMMUNES", items: d.dossiersCommuns || [] }
+                        ];
+
+                        if (libelle.includes("travailleur")) {
+                            sections.push({ label: "PIÈCES TRAVAILLEUR", items: d.dossiersTravailleur || [] });
+                        } else if (libelle.includes("investisseur")) {
+                            sections.push({ label: "PIÈCES INVESTISSEUR", items: d.dossiersInvestisseur || [] });
+                        }
+
+                        sections.forEach(function(sec) {
+                            if (sec.items.length > 0) {
+                                var group = document.createElement('div');
+                                group.className = "checkbox-item group-label";
+                                group.innerText = sec.label;
+                                dossierList.appendChild(group);
+
+                                sec.items.forEach(function(item) {
+                                    var div = document.createElement('label');
+                                    div.className = "checkbox-item";
+                                    var labelText = (item.libelle || item.nom || "Pièce sans nom");
+                                    div.innerHTML = '<input type="checkbox" name="dossierIds" value="' + item.id + '"> ' + labelText;
+                                    dossierList.appendChild(div);
+                                });
+                            }
+                        });
+                    }
+
+                    typeSelect.addEventListener('change', updateDossiers);
+                    updateDossiers(); // Init
                 })
                 .catch(function (e) { console.error('Error loading static data', e); });
         })();
