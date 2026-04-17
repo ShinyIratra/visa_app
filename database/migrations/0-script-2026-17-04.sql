@@ -1,7 +1,3 @@
-\c postgres
-CREATE DATABASE visa_db;
-\c visa_db
-
 CREATE TABLE SituationFamiliale(
    Id SERIAL,
    Libelle VARCHAR(100)  NOT NULL,
