@@ -114,7 +114,7 @@
             </section>
 
             <section id="dossiersSection">
-                <h2>4. PIÈCES À FOURNIR (DOSSIERS)</h2>
+                <h2>4. DOSSIERS À FOURNIR</h2>
                 <div class="grid-container">
                     <div class="grid-item col-12">
                         <div id="dossiersList" class="checkbox-list">
@@ -131,76 +131,104 @@
         </form>
     </div>
     <script>
-        (function () {
-            var rawData = {};
+        let donneesStatiques = {}; // Instancie ao @ fonction loadDonneesStatiques
+        let typeSelect;
+        let dossierList;
 
+        // Main
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', init);
+        } else {
+            init();
+        }
+
+        function init() {
+            typeSelect = document.getElementById('typesDemande');
+            dossierList = document.getElementById('dossiersList');
+
+            loadDonneesStatiques();
+            typeSelect.addEventListener('change', updateDossiersAFournir);
+        }
+
+        function loadDonneesStatiques() {
             fetch('/api/static/all')
-                .then(function (r) { return r.json(); })
-                .then(function (resp) {
-                    if (!resp || !resp.success) { console.error('Static data load failed', resp && resp.error); return; }
-                    var d = resp.data || {};
-                    rawData = d;
-
-                    function fill(id, arr, textFn) {
-                        var s = document.getElementById(id);
-                        if (!s || !Array.isArray(arr)) return;
-                        s.innerHTML = '<option value="">--</option>';
-                        arr.forEach(function (it) {
-                            var opt = document.createElement('option');
-                            opt.value = it.id;
-                            opt.text = textFn ? textFn(it) : (it.libelle || it.numero || it.reference || it.id);
-                            s.appendChild(opt);
-                        });
+                .then(r => r.json())
+                .then(resp => {
+                    // Noproposen copilot zah hoe aleo console.error sy return maina be eto fa tsy mithrow new error
+                    // fa tsy mahatoky anazy a dia avelako amin'io aloha  
+                    if (!resp || !resp.success) {
+                        throw new Error(`${resp?.error || 'Erreur inconnue'}`);
                     }
 
-                    fill('typesDemande', d.typesDemande, function (i) { return i.libelle; });
-                    fill('situationsFamiliales', d.situationsFamiliales, function (i) { return i.libelle; });
-                    fill('nationalites', d.nationalites, function (i) { return i.libelle; });
-
-                    var typeSelect = document.getElementById('typesDemande');
-                    var dossierList = document.getElementById('dossiersList');
-
-                    function updateDossiers() {
-                        var selectedId = typeSelect.value;
-                        var selectedType = d.typesDemande.find(function(t) { return t.id == selectedId; });
-                        var libelle = selectedType ? selectedType.libelle.toLowerCase() : "";
-                        
-                        dossierList.innerHTML = "";
-                        
-                        // Afficher les communs
-                        var sections = [
-                            { label: "PIÈCES COMMUNES", items: d.dossiersCommuns || [] }
-                        ];
-
-                        if (libelle.includes("travailleur")) {
-                            sections.push({ label: "PIÈCES TRAVAILLEUR", items: d.dossiersTravailleur || [] });
-                        } else if (libelle.includes("investisseur")) {
-                            sections.push({ label: "PIÈCES INVESTISSEUR", items: d.dossiersInvestisseur || [] });
-                        }
-
-                        sections.forEach(function(sec) {
-                            if (sec.items.length > 0) {
-                                var group = document.createElement('div');
-                                group.className = "checkbox-item group-label";
-                                group.innerText = sec.label;
-                                dossierList.appendChild(group);
-
-                                sec.items.forEach(function(item) {
-                                    var div = document.createElement('label');
-                                    div.className = "checkbox-item";
-                                    var labelText = (item.libelle || item.nom || "Pièce sans nom");
-                                    div.innerHTML = '<input type="checkbox" name="dossierIds" value="' + item.id + '"> ' + labelText;
-                                    dossierList.appendChild(div);
-                                });
-                            }
-                        });
-                    }
-
-                    typeSelect.addEventListener('change', updateDossiers);
-                    updateDossiers(); // Init
+                    donneesStatiques = resp.data || {};
+                    populateAllSelects(donneesStatiques);
+                    updateDossiersAFournir();
                 })
-                .catch(function (e) { console.error('Error loading static data', e); });
-        })();
+                .catch(e => console.error('Error loading static data', e));
+        }
+
+        function populateAllSelects(data) {
+            fillSelect('typesDemande', data.typesDemande, i => i.libelle);
+            fillSelect('situationsFamiliales', data.situationsFamiliales, i => i.libelle);
+            fillSelect('nationalites', data.nationalites, i => i.libelle);
+        }
+
+        function fillSelect(id, arr, texte) {
+            const s = document.getElementById(id);
+            if (!s || !Array.isArray(arr)) return;
+
+            s.innerHTML = '<option value="">--</option>';
+            arr.forEach(it => {
+                const opt = document.createElement('option');
+                opt.value = it.id;
+                opt.text = texte ? texte(it) : (it.libelle || it.numero || it.reference || it.id); // Proposition copilot
+                s.appendChild(opt);
+            });
+        }
+
+        /**
+         * Fonction appelee 
+         * - apres avoir load les donnees statiques
+         * - apres avoir change le select: VISA demande
+         */
+        function updateDossiersAFournir() {
+            const selectedId = typeSelect.value;
+            const selectedType = donneesStatiques.typesDemande ? donneesStatiques.typesDemande.find(t => t.id == selectedId) : null;
+            const libelle = selectedType ? selectedType.libelle.toLowerCase() : "";
+
+            dossierList.innerHTML = "";
+
+            // Selon la valeur du select choisi, On ajoute dans cette liste la liste des dossiers a afficher
+            const sections = [
+                { label: "DOSSIERS COMMUNES", items: donneesStatiques.dossiersCommuns || [] }
+            ];
+
+            // Tsy generalise fa alefako amin'io aloha amin'izay mazava ilay code
+            if (libelle.includes("travailleur")) {
+                sections.push({ label: "DOSSIERS TRAVAILLEUR", items: donneesStatiques.dossiersTravailleur || [] });
+            } else if (libelle.includes("investisseur")) {
+                sections.push({ label: "DOSSIERS INVESTISSEUR", items: donneesStatiques.dossiersInvestisseur || [] });
+            }
+
+            sections.forEach(renderDossierSection);
+        }
+
+        function renderDossierSection(sec) {
+            if (sec.items.length > 0) {
+                const group = document.createElement('div');
+                group.className = "checkbox-item group-label";
+                group.innerText = sec.label;
+                dossierList.appendChild(group);
+
+                sec.items.forEach(item => {
+                    const div = document.createElement('label');
+                    div.className = "checkbox-item";
+                    const labelText = (item.libelle || item.nom || "Dossier sans label");
+                    div.innerHTML = `<input type="checkbox" name="dossierIds" value="${item.id}"> ${labelText}`;
+                    dossierList.appendChild(div);
+                });
+            }
+        }
     </script>
 </body>
 
