@@ -81,6 +81,12 @@
             justify-content: flex-end;
         }
 
+        .hint {
+            margin-top: 0;
+            color: var(--muted);
+            font-size: 0.92rem;
+        }
+
         .btn {
             border: none;
             border-radius: 10px;
@@ -110,41 +116,63 @@
 </head>
 <body>
 <div class="card">
-    <h1 th:text="${visaRequest.id == null} ? 'Nouvelle demande' : 'Modifier la demande'"></h1>
+    <h1 th:text="${demande.id == null} ? 'Nouvelle demande' : 'Modifier la demande'"></h1>
 
-    <form th:object="${visaRequest}"
-          th:action="${visaRequest.id == null} ? @{/visa-requests} : @{/visa-requests/{id}(id=${visaRequest.id})}"
+    <p class="hint"
+       th:if="${#lists.isEmpty(typesDemande) or #lists.isEmpty(passeports) or #lists.isEmpty(categories) or #lists.isEmpty(visasTransformables)}">
+        Certaines listes de reference sont vides. Ajoutez d'abord des donnees en base.
+    </p>
+
+    <form th:object="${demande}"
+          th:action="${demande.id == null} ? @{/visa-requests} : @{/visa-requests/{id}(id=${demande.id})}"
           method="post">
         <div class="grid">
+            <div class="field">
+                <label for="dateCreation">Date creation</label>
+                <input id="dateCreation" type="datetime-local" th:field="*{dateCreation}" required>
+            </div>
+
+            <div class="field">
+                <label for="typeDemande">Type de demande</label>
+                <select id="typeDemande" th:field="*{typeDemande.id}" required>
+                    <option value="">Selectionner...</option>
+                    <option th:each="type : ${typesDemande}"
+                            th:value="${type.id}"
+                            th:text="${type.libelle}">
+                    </option>
+                </select>
+            </div>
+
+            <div class="field">
+                <label for="passeport">Passeport</label>
+                <select id="passeport" th:field="*{passeport.id}" required>
+                    <option value="">Selectionner...</option>
+                    <option th:each="passeport : ${passeports}"
+                            th:value="${passeport.id}"
+                            th:text="${passeport.numero + ' (#' + passeport.id + ')'}">
+                    </option>
+                </select>
+            </div>
+
+            <div class="field">
+                <label for="categorie">Categorie</label>
+                <select id="categorie" th:field="*{categorie.id}" required>
+                    <option value="">Selectionner...</option>
+                    <option th:each="categorie : ${categories}"
+                            th:value="${categorie.id}"
+                            th:text="${categorie.libelle}">
+                    </option>
+                </select>
+            </div>
+
             <div class="field full">
-                <label for="fullName">Nom complet</label>
-                <input id="fullName" type="text" th:field="*{fullName}" required>
-            </div>
-
-            <div class="field">
-                <label for="email">Email</label>
-                <input id="email" type="email" th:field="*{email}" required>
-            </div>
-
-            <div class="field">
-                <label for="nationality">Nationalite</label>
-                <input id="nationality" type="text" th:field="*{nationality}" required>
-            </div>
-
-            <div class="field">
-                <label for="destinationCountry">Pays destination</label>
-                <input id="destinationCountry" type="text" th:field="*{destinationCountry}" required>
-            </div>
-
-            <div class="field">
-                <label for="departureDate">Date depart</label>
-                <input id="departureDate" type="date" th:field="*{departureDate}" required>
-            </div>
-
-            <div class="field full">
-                <label for="status">Statut</label>
-                <select id="status" th:field="*{status}">
-                    <option th:each="status : ${statuses}" th:value="${status}" th:text="${status}"></option>
+                <label for="visaTransformable">Visa transformable</label>
+                <select id="visaTransformable" th:field="*{visaTransformable.id}" required>
+                    <option value="">Selectionner...</option>
+                    <option th:each="visaTransformable : ${visasTransformables}"
+                            th:value="${visaTransformable.id}"
+                            th:text="${visaTransformable.reference + ' (#' + visaTransformable.id + ')'}">
+                    </option>
                 </select>
             </div>
         </div>

@@ -132,31 +132,31 @@
             <thead>
             <tr>
                 <th>ID</th>
-                <th>Nom complet</th>
-                <th>Email</th>
-                <th>Nationalite</th>
-                <th>Pays destination</th>
-                <th>Date depart</th>
-                <th>Statut</th>
+                <th>Date creation</th>
+                <th>Type demande</th>
+                <th>Passeport</th>
+                <th>Categorie</th>
+                <th>Visa transformable</th>
                 <th>Actions</th>
             </tr>
             </thead>
             <tbody>
-            <tr th:if="${#lists.isEmpty(visaRequests)}">
-                <td colspan="8" class="empty">Aucune demande enregistree.</td>
+            <tr th:if="${#lists.isEmpty(demandes)}">
+                <td colspan="7" class="empty">Aucune demande enregistree.</td>
             </tr>
-            <tr th:each="request : ${visaRequests}">
-                <td th:text="${request.id}">1</td>
-                <td th:text="${request.fullName}">John Doe</td>
-                <td th:text="${request.email}">john@demo.com</td>
-                <td th:text="${request.nationality}">Madagascar</td>
-                <td th:text="${request.destinationCountry}">France</td>
-                <td th:text="${request.departureDate}">2026-10-10</td>
-                <td th:text="${request.status}">PENDING</td>
+            <tr th:each="demande : ${demandes}">
+                <td th:text="${demande.id}">1</td>
+                <td th:text="${demande.dateCreation != null ? #temporals.format(demande.dateCreation, 'yyyy-MM-dd HH:mm') : ''}">
+                    2026-10-10 10:30
+                </td>
+                <td th:text="${demande.typeDemande != null ? demande.typeDemande.libelle : ''}">Nouveau titre</td>
+                <td th:text="${demande.passeport != null ? demande.passeport.numero : ''}">P12345</td>
+                <td th:text="${demande.categorie != null ? demande.categorie.libelle : ''}">Travail</td>
+                <td th:text="${demande.visaTransformable != null ? demande.visaTransformable.reference : ''}">VT-001</td>
                 <td>
                     <div class="actions">
-                        <a class="btn btn-secondary" th:href="@{/visa-requests/{id}/edit(id=${request.id})}">Modifier</a>
-                        <form th:action="@{/visa-requests/{id}/delete(id=${request.id})}" method="post"
+                        <a class="btn btn-secondary" th:href="@{/visa-requests/{id}/edit(id=${demande.id})}">Modifier</a>
+                        <form th:action="@{/visa-requests/{id}/delete(id=${demande.id})}" method="post"
                               onsubmit="return confirm('Supprimer cette demande ?');">
                             <button class="btn btn-danger" type="submit">Supprimer</button>
                         </form>

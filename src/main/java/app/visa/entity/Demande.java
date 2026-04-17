@@ -4,9 +4,12 @@ import java.time.LocalDateTime;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -29,12 +32,19 @@ public class Demande {
     @Column(name = "datecreation", nullable = false)
     private LocalDateTime dateCreation;
 
-    @Column(name = "id_typedemande", nullable = false)
-    private Long idTypeDemande;
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "id_visatransformable", nullable = false)
+    private VisaTransformable visaTransformable;
 
-    @Column(name = "id_passeport", nullable = false)
-    private Long idPasseport;
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "id_typedemande", nullable = false)
+    private TypeDemande typeDemande;
 
-    @Column(name = "id_categorie", nullable = false)
-    private Long idCategorie;
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "id_passeport", nullable = false)
+    private Passeport passeport;
+
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "id_categorie", nullable = false)
+    private Categorie categorie;
 }

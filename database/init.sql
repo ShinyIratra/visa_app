@@ -13,6 +13,7 @@ CREATE TABLE Nationalite(
    Libelle VARCHAR(200)  NOT NULL,
    PRIMARY KEY(Id)
 );
+
 -- Nouveau titre, transfert, duplicata
 CREATE TABLE Categorie(
    Id SERIAL,
@@ -20,7 +21,7 @@ CREATE TABLE Categorie(
    PRIMARY KEY(Id)
 );
 
--- travailleur ou investisseur
+-- travailleur, investisseur
 CREATE TABLE TypeDemande(
    Id SERIAL,
    Libelle VARCHAR(50) ,
@@ -36,7 +37,7 @@ CREATE TABLE Dossier(
    FOREIGN KEY(Id_TypeDemande) REFERENCES TypeDemande(Id)
 );
 
--- demande créé, scan terminé, visa accepté
+-- demande créée, scan terminé, visa accepté
 CREATE TABLE Statut(
    Id SERIAL,
    Libelle VARCHAR(100)  NOT NULL,
@@ -75,18 +76,22 @@ CREATE TABLE VisaTransformable(
    DateEntree TIMESTAMP NOT NULL,
    LieuEntree VARCHAR(200)  NOT NULL,
    DateExpiration TIMESTAMP NOT NULL,
+   Id_Passeport INTEGER NOT NULL,
    Id_Demandeur INTEGER NOT NULL,
    PRIMARY KEY(Id),
+   FOREIGN KEY(Id_Passeport) REFERENCES Passeport(Id),
    FOREIGN KEY(Id_Demandeur) REFERENCES Demandeur(Id)
 );
 
 CREATE TABLE Demande(
    Id SERIAL,
    DateCreation TIMESTAMP NOT NULL,
+   Id_VisaTransformable INTEGER NOT NULL,
    Id_TypeDemande INTEGER NOT NULL,
    Id_Passeport INTEGER NOT NULL,
    Id_Categorie INTEGER NOT NULL,
    PRIMARY KEY(Id),
+   FOREIGN KEY(Id_VisaTransformable) REFERENCES VisaTransformable(Id),
    FOREIGN KEY(Id_TypeDemande) REFERENCES TypeDemande(Id),
    FOREIGN KEY(Id_Passeport) REFERENCES Passeport(Id),
    FOREIGN KEY(Id_Categorie) REFERENCES Categorie(Id)
@@ -95,16 +100,20 @@ CREATE TABLE Demande(
 CREATE TABLE Visa(
    Id SERIAL,
    DateCreation TIMESTAMP NOT NULL,
+   Id_Passeport INTEGER NOT NULL,
    Id_Demande INTEGER NOT NULL,
    PRIMARY KEY(Id),
+   FOREIGN KEY(Id_Passeport) REFERENCES Passeport(Id),
    FOREIGN KEY(Id_Demande) REFERENCES Demande(Id)
 );
 
 CREATE TABLE CarteResident(
    Id SERIAL,
    DateCreation TIMESTAMP NOT NULL,
+   Id_Passeport INTEGER NOT NULL,
    Id_Demande INTEGER NOT NULL,
    PRIMARY KEY(Id),
+   FOREIGN KEY(Id_Passeport) REFERENCES Passeport(Id),
    FOREIGN KEY(Id_Demande) REFERENCES Demande(Id)
 );
 
