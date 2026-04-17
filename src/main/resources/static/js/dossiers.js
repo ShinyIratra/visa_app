@@ -46,7 +46,33 @@
             const div = document.createElement('label');
             div.className = "checkbox-item";
             const labelText = (item.libelle || item.nom || "Dossier sans label");
-            div.innerHTML = `<input type="checkbox" name="dossierIds" value="${item.id}"> ${labelText}`;
+
+            // Creation checkbox
+            const checkbox = document.createElement('input');
+            checkbox.type = 'checkbox';
+            checkbox.name = 'dossierIds';
+            checkbox.value = item.id;
+            if (item.obligatoire === true) {
+                // Marquage cote code
+                checkbox.dataset.obligatoire = 'true';
+                checkbox.required = false; // Mailo
+            }
+
+            // label
+            div.appendChild(checkbox);
+            const textNode = document.createTextNode(' ' + labelText);
+            div.appendChild(textNode);
+
+            // Maquage
+            if (item.obligatoire === true) {
+                const star = document.createElement('span');
+                star.className = 'required-star';
+                star.style.color = 'red';
+                star.style.marginLeft = '6px';
+                star.innerText = '*';
+                div.appendChild(star);
+            }
+
             listEl.appendChild(div);
         });
     }
