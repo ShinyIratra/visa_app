@@ -32,15 +32,15 @@
                 <div class="grid-container">
                     <div class="grid-item col-6">
                         <label>NOM</label>
-                        <input type="text" name="passeport.demandeur.nom" id="demandeur_nom" required />
+                        <input type="text" name="passeport.demandeur.nom" id="demandeur_nom" value="RANDRIA" required />
                     </div>
                     <div class="grid-item col-6">
                         <label>PRÉNOMS</label>
-                        <input type="text" name="passeport.demandeur.prenom" id="demandeur_prenom" required />
+                        <input type="text" name="passeport.demandeur.prenom" id="demandeur_prenom" value="Jean" required />
                     </div>
                     <div class="grid-item col-6">
                         <label>NOM DE JEUNE FILLE</label>
-                        <input type="text" name="passeport.demandeur.nomJeuneFille" id="demandeur_nomJeuneFille" />
+                        <input type="text" name="passeport.demandeur.nomJeuneFille" id="demandeur_nomJeuneFille" value="" />
                     </div>
                     <div class="grid-item col-6">
                         <label>SITUATION DE FAMILLE</label>
@@ -56,19 +56,19 @@
                     </div>
                     <div class="grid-item col-6">
                         <label>DATE DE NAISSANCE</label>
-                        <input type="date" name="passeport.demandeur.dateNaissance" id="demandeur_dateNaissance" required />
+                        <input type="date" name="passeport.demandeur.dateNaissance" id="demandeur_dateNaissance" value="1990-01-01" required />
                     </div>
                     <div class="grid-item col-12">
                         <label>ADRESSE À MADAGASCAR</label>
-                        <input type="text" name="passeport.demandeur.adresse" id="demandeur_adresse" required />
+                        <input type="text" name="passeport.demandeur.adresse" id="demandeur_adresse" value="Lot 123 Bis Ankazomanga" required />
                     </div>
                     <div class="grid-item col-6">
                         <label>EMAIL</label>
-                        <input type="email" name="passeport.demandeur.email" id="demandeur_email" />
+                        <input type="email" name="passeport.demandeur.email" id="demandeur_email" value="jean.randria@example.com" />
                     </div>
                     <div class="grid-item col-6">
                         <label>TÉLÉPHONE</label>
-                        <input type="tel" name="passeport.demandeur.numTel" id="demandeur_numTel" required />
+                        <input type="tel" name="passeport.demandeur.numTel" id="demandeur_numTel" value="0340000000" required />
                     </div>
                 </div>
             </section>
@@ -78,15 +78,15 @@
                 <div class="grid-container">
                     <div class="grid-item col-4">
                         <label>NUMÉRO DU DOCUMENT</label>
-                        <input type="text" name="passeport.numero" id="passeport_numero" required />
+                        <input type="text" name="passeport.numero" id="passeport_numero" value="ABC123456" required />
                     </div>
                     <div class="grid-item col-4">
                         <label>DATE DE DÉLIVRANCE</label>
-                        <input type="datetime-local" name="passeport.dateDelivrance" id="passeport_dateDelivrance" required />
+                        <input type="datetime-local" name="passeport.dateDelivrance" id="passeport_dateDelivrance" value="2020-01-01T08:00" required />
                     </div>
                     <div class="grid-item col-4">
                         <label>DATE D'EXPIRATION</label>
-                        <input type="datetime-local" name="passeport.dateExpiration" id="passeport_dateExpiration" required />
+                        <input type="datetime-local" name="passeport.dateExpiration" id="passeport_dateExpiration" value="2030-01-01T08:00" required />
                     </div>
                 </div>
             </section>
@@ -96,19 +96,19 @@
                 <div class="grid-container">
                     <div class="grid-item col-4">
                         <label>RÉFÉRENCE VISA</label>
-                        <input type="text" name="visaTransformable.reference" id="visa_reference" required />
+                        <input type="text" name="visaTransformable.reference" id="visa_reference" value="VISA-789-VT" required />
                     </div>
                     <div class="grid-item col-4">
                         <label>DATE D'ENTRÉE À MADA</label>
-                        <input type="datetime-local" name="visaTransformable.dateEntree" id="visa_dateEntree" required />
+                        <input type="datetime-local" name="visaTransformable.dateEntree" id="visa_dateEntree" value="2024-01-10T10:30" required />
                     </div>
                     <div class="grid-item col-4">
                         <label>LIEU D'ENTRÉE</label>
-                        <input type="text" name="visaTransformable.lieuEntree" id="visa_lieuEntree" required />
+                        <input type="text" name="visaTransformable.lieuEntree" id="visa_lieuEntree" value="IVATO" required />
                     </div>
                     <div class="grid-item col-12">
                         <label>DATE DE SORTIE (FIN DE VALIDITÉ)</label>
-                        <input type="datetime-local" name="visaTransformable.dateExpiration" id="visa_dateExpiration" required />
+                        <input type="datetime-local" name="visaTransformable.dateExpiration" id="visa_dateExpiration" value="2024-04-10T23:59" required />
                     </div>
                 </div>
             </section>
@@ -177,7 +177,8 @@
             const s = document.getElementById(id);
             if (!s || !Array.isArray(arr)) return;
 
-            s.innerHTML = '<option value="">--</option>';
+            // s.innerHTML = '<option value="">--</option>';
+            s.innerHTML = '';
             arr.forEach(it => {
                 const opt = document.createElement('option');
                 opt.value = it.id;
