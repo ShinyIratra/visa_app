@@ -11,11 +11,11 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
-@Table(name = "statutvisa")
+@Table(name = "typedemande")
 @Getter
 @Setter
 @NoArgsConstructor
-public class StatutVisa {
+public class TypeDemande {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

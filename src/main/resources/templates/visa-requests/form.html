@@ -1,159 +1,161 @@
 <!DOCTYPE html>
 <html lang="fr" xmlns:th="http://www.thymeleaf.org">
+
 <head>
-    <meta charset="UTF-8">
+    <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Formulaire demande visa</title>
-    <style>
-        :root {
-            --bg: #f4f7fb;
-            --surface: #ffffff;
-            --text: #14213d;
-            --muted: #5b6474;
-            --accent: #0b7285;
-            --border: #dde2ea;
-        }
-
-        * { box-sizing: border-box; }
-
-        body {
-            margin: 0;
-            font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-            background: radial-gradient(circle at 20% 10%, #e8f4ff 0, #f4f7fb 45%);
-            color: var(--text);
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 18px;
-        }
-
-        .card {
-            width: 100%;
-            max-width: 680px;
-            background: var(--surface);
-            border: 1px solid var(--border);
-            border-radius: 14px;
-            box-shadow: 0 20px 44px rgba(20, 33, 61, 0.1);
-            padding: 24px;
-        }
-
-        h1 {
-            margin-top: 0;
-            margin-bottom: 18px;
-            font-size: 1.4rem;
-        }
-
-        .grid {
-            display: grid;
-            grid-template-columns: repeat(2, minmax(0, 1fr));
-            gap: 14px;
-        }
-
-        .field {
-            display: flex;
-            flex-direction: column;
-            gap: 6px;
-        }
-
-        .field.full {
-            grid-column: 1 / -1;
-        }
-
-        label {
-            font-size: 0.92rem;
-            color: var(--muted);
-        }
-
-        input,
-        select {
-            width: 100%;
-            border: 1px solid var(--border);
-            border-radius: 10px;
-            padding: 10px 12px;
-            font-size: 0.95rem;
-        }
-
-        .actions {
-            margin-top: 20px;
-            display: flex;
-            gap: 10px;
-            justify-content: flex-end;
-        }
-
-        .btn {
-            border: none;
-            border-radius: 10px;
-            padding: 10px 16px;
-            cursor: pointer;
-            text-decoration: none;
-            font-weight: 600;
-        }
-
-        .btn-primary {
-            background: var(--accent);
-            color: #fff;
-        }
-
-        .btn-secondary {
-            background: #fff;
-            border: 1px solid var(--border);
-            color: var(--text);
-        }
-
-        @media (max-width: 720px) {
-            .grid {
-                grid-template-columns: 1fr;
-            }
-        }
-    </style>
+    <title>Demande de transformation de visa</title>
+    <link id="global-css" rel="stylesheet" th:href="@{/css/global.css}">
+    <link id="visa-css" rel="stylesheet" th:href="@{/css/visa-form.css}">
 </head>
+
 <body>
-<div class="card">
-    <h1 th:text="${visaRequest.id == null} ? 'Nouvelle demande' : 'Modifier la demande'"></h1>
-
-    <form th:object="${visaRequest}"
-          th:action="${visaRequest.id == null} ? @{/visa-requests} : @{/visa-requests/{id}(id=${visaRequest.id})}"
-          method="post">
-        <div class="grid">
-            <div class="field full">
-                <label for="fullName">Nom complet</label>
-                <input id="fullName" type="text" th:field="*{fullName}" required>
-            </div>
-
-            <div class="field">
-                <label for="email">Email</label>
-                <input id="email" type="email" th:field="*{email}" required>
-            </div>
-
-            <div class="field">
-                <label for="nationality">Nationalite</label>
-                <input id="nationality" type="text" th:field="*{nationality}" required>
-            </div>
-
-            <div class="field">
-                <label for="destinationCountry">Pays destination</label>
-                <input id="destinationCountry" type="text" th:field="*{destinationCountry}" required>
-            </div>
-
-            <div class="field">
-                <label for="departureDate">Date depart</label>
-                <input id="departureDate" type="date" th:field="*{departureDate}" required>
-            </div>
-
-            <div class="field full">
-                <label for="status">Statut</label>
-                <select id="status" th:field="*{status}">
-                    <option th:each="status : ${statuses}" th:value="${status}" th:text="${status}"></option>
-                </select>
-            </div>
+    <div class="visa-form-container">
+        <div class="header-top">
+            <h1>DEMANDE DE TRANSFORMATION DE VISA</h1>
         </div>
 
-        <div class="actions">
-            <a class="btn btn-secondary" th:href="@{/visa-requests}">Annuler</a>
-            <button class="btn btn-primary" type="submit">Enregistrer</button>
-        </div>
-    </form>
-</div>
+        <form id="demandeForm" method="post">
+            <section>
+                <div class="grid-container">
+                    <div class="grid-item col-12">
+                        <label>VISA DEMANDE</label>
+                        <select id="typesDemande" name="typeDemande.id" required>
+                            <option value="">-- CHOISIR (TRAVAILLEUR / INVESTISSEUR) --</option>
+                        </select>
+                    </div>
+                </div>
+            </section>
+
+            <section>
+                <h2>1. ETAT CIVIL</h2>
+                <div class="grid-container">
+                    <div class="grid-item col-6">
+                        <label>NOM</label>
+                        <input type="text" name="passeport.demandeur.nom" id="demandeur_nom" value="RANDRIA" required />
+                    </div>
+                    <div class="grid-item col-6">
+                        <label>PRÉNOMS</label>
+                        <input type="text" name="passeport.demandeur.prenom" id="demandeur_prenom" value="Jean" required />
+                    </div>
+                    <div class="grid-item col-6">
+                        <label>NOM DE JEUNE FILLE</label>
+                        <input type="text" name="passeport.demandeur.nomJeuneFille" id="demandeur_nomJeuneFille" value="" />
+                    </div>
+                    <div class="grid-item col-6">
+                        <label>SITUATION DE FAMILLE</label>
+                        <select id="situationsFamiliales" name="passeport.demandeur.situationFamiliale.id" required>
+                            <option value="">--</option>
+                        </select>
+                    </div>
+                    <div class="grid-item col-6">
+                        <label>NATIONALITÉ</label>
+                        <select id="nationalites" name="passeport.demandeur.nationalite.id" required>
+                            <option value="">--</option>
+                        </select>
+                    </div>
+                    <div class="grid-item col-6">
+                        <label>DATE DE NAISSANCE</label>
+                        <input type="date" name="passeport.demandeur.dateNaissance" id="demandeur_dateNaissance" value="1990-01-01" required />
+                    </div>
+                    <div class="grid-item col-12">
+                        <label>ADRESSE À MADAGASCAR</label>
+                        <input type="text" name="passeport.demandeur.adresse" id="demandeur_adresse" value="Lot 123 Bis Ankazomanga" required />
+                    </div>
+                    <div class="grid-item col-6">
+                        <label>EMAIL</label>
+                        <input type="email" name="passeport.demandeur.email" id="demandeur_email" value="jean.randria@example.com" />
+                    </div>
+                    <div class="grid-item col-6">
+                        <label>TÉLÉPHONE</label>
+                        <input type="tel" name="passeport.demandeur.numTel" id="demandeur_numTel" value="0340000000" required />
+                    </div>
+                </div>
+            </section>
+
+            <section>
+                <h2>2. PASSEPORT</h2>
+                <div class="grid-container">
+                    <div class="grid-item col-4">
+                        <label>NUMÉRO DU DOCUMENT</label>
+                        <input type="text" name="passeport.numero" id="passeport_numero" value="ABC123456" required />
+                    </div>
+                    <div class="grid-item col-4">
+                        <label>DATE DE DÉLIVRANCE</label>
+                        <input type="datetime-local" name="passeport.dateDelivrance" id="passeport_dateDelivrance" value="2020-01-01T08:00" required />
+                    </div>
+                    <div class="grid-item col-4">
+                        <label>DATE D'EXPIRATION</label>
+                        <input type="datetime-local" name="passeport.dateExpiration" id="passeport_dateExpiration" value="2030-01-01T08:00" required />
+                    </div>
+                </div>
+            </section>
+
+            <section>
+                <h2>3. VISA TRANSFORMABLE</h2>
+                <div class="grid-container">
+                    <div class="grid-item col-4">
+                        <label>RÉFÉRENCE VISA</label>
+                        <input type="text" name="visaTransformable.reference" id="visa_reference" value="VISA-789-VT" required />
+                    </div>
+                    <div class="grid-item col-4">
+                        <label>DATE D'ENTRÉE À MADA</label>
+                        <input type="datetime-local" name="visaTransformable.dateEntree" id="visa_dateEntree" value="2024-01-10T10:30" required />
+                    </div>
+                    <div class="grid-item col-4">
+                        <label>LIEU D'ENTRÉE</label>
+                        <input type="text" name="visaTransformable.lieuEntree" id="visa_lieuEntree" value="IVATO" required />
+                    </div>
+                    <div class="grid-item col-12">
+                        <label>DATE DE SORTIE (FIN DE VALIDITÉ)</label>
+                        <input type="datetime-local" name="visaTransformable.dateExpiration" id="visa_dateExpiration" value="2024-04-10T23:59" required />
+                    </div>
+                </div>
+            </section>
+
+            <section id="dossiersSection">
+                <h2>4. DOSSIERS À FOURNIR</h2>
+                <div class="grid-container">
+                    <div class="grid-item col-12">
+                        <div id="dossiersList" class="checkbox-list">
+                            <!-- JS -->
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <div class="actions-bar">
+                <button type="submit" class="btn btn-primary">Enregistrer</button>
+                <a th:href="@{/visa-requests}" class="btn btn-outline">Annuler</a>
+            </div>
+        </form>
+    </div>
+    <script th:src="@{/js/marquage-champ-requis.js}"></script>
+    <script th:src="@{/js/static-data.js}"></script>
+    <script th:src="@{/js/dossiers.js}"></script>
+    <script th:src="@{/js/handle-form-submit.js}"></script>
+    <script>
+        let donneesStatiques = {}; // Instancie ao @ fonction loadDonneesStatiques
+        let typeSelect;
+        let dossierList;
+        let demandeForm;
+        // Main
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', init);
+        } else {
+            init();
+        }
+
+        function init() {
+            typeSelect = document.getElementById('typesDemande');
+            dossierList = document.getElementById('dossiersList');
+            demandeForm = document.getElementById('demandeForm');
+
+            loadDonneesStatiques();
+            typeSelect.addEventListener('change', updateDossiersAFournir);
+            demandeForm.addEventListener('submit', handleFormSubmit);
+        }
+    </script>
 </body>
+
 </html>

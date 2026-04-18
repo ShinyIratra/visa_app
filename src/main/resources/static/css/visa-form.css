@@ -1,0 +1,182 @@
+.visa-form-container {
+    max-width: 1000px;
+    margin: 0 auto;
+    background: #fff;
+    padding: 10px 20px;
+    border: 1px solid var(--border-color);
+}
+
+.header-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 5px;
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 5px;
+}
+
+.photo-placeholder {
+    width: 60px;
+    height: 70px;
+    border: 1px solid var(--border-color);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 10px;
+    background: #fafafa;
+}
+
+.header-center {
+    text-align: center;
+    margin-bottom: 5px;
+}
+
+.header-center h1 {
+    font-size: 18px;
+    margin: 0;
+    letter-spacing: 1px;
+}
+
+section h2 {
+    font-size: 13px;
+    background: var(--header-bg);
+    padding: 4px 10px;
+    border: 1px solid var(--border-color);
+    margin: 10px 0 5px 0;
+    font-weight: bold;
+}
+
+.grid-container {
+    display: grid;
+    grid-template-columns: repeat(12, 1fr);
+    border-top: 1px solid var(--border-color);
+    border-left: 1px solid var(--border-color);
+}
+
+.grid-item {
+    padding: 8px 12px;
+    border-right: 1px solid var(--border-color);
+    border-bottom: 1px solid var(--border-color);
+    position: relative;
+}
+
+.grid-item label {
+    display: block;
+    font-size: 9px;
+    font-weight: bold;
+    margin-bottom: 2px;
+    color: #555;
+    text-transform: uppercase;
+}
+
+.grid-item input[type="text"],
+.grid-item input[type="date"],
+.grid-item input[type="email"],
+.grid-item input[type="tel"],
+.grid-item input[type="datetime-local"],
+.grid-item select {
+    width: 100%;
+    border: 1px solid #ddd;
+    padding: 4px 6px;
+    font-size: 13px;
+    font-weight: 400;
+    background: #fff;
+    outline: none;
+    text-transform: none;
+    color: #000;
+    border-radius: 2px;
+    margin-top: 0;
+}
+
+.grid-item input:focus, 
+.grid-item select:focus {
+    background: #fff;
+    border-color: #000;
+    box-shadow: none;
+}
+
+.checkbox-row {
+    display: flex;
+    gap: 10px;
+    padding-top: 2px;
+}
+
+.checkbox-list {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 5px;
+    padding: 10px;
+}
+
+.checkbox-item {
+    display: flex;
+    align-items: center;
+    font-size: 11px;
+    cursor: pointer;
+}
+
+.checkbox-item input {
+    margin-right: 8px;
+}
+
+.checkbox-item.group-label {
+    grid-column: span 2;
+    font-weight: bold;
+    text-decoration: underline;
+    margin-top: 5px;
+    margin-bottom: 2px;
+}
+
+.checkbox-row label {
+    display: flex;
+    align-items: center;
+    font-size: 11px;
+    cursor: pointer;
+}
+
+.checkbox-row input {
+    margin-right: 4px;
+    transform: scale(0.9);
+}
+
+.actions-bar {
+    margin-top: 15px;
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+}
+
+.btn {
+    padding: 6px 30px;
+    font-weight: bold;
+    text-decoration: none;
+    text-transform: uppercase;
+    font-size: 12px;
+    border: 2px solid var(--primary-color);
+}
+
+.btn-primary {
+    background: var(--primary-color);
+    color: #fff;
+}
+
+.btn-primary:hover {
+    background: #333;
+}
+
+.btn-outline {
+    background: transparent;
+    color: var(--primary-color);
+}
+
+.btn-outline:hover {
+    background: var(--primary-color);
+    color: #fff;
+}
+
+.col-12 { grid-column: span 12; }
+.col-8 { grid-column: span 8; }
+.col-6 { grid-column: span 6; }
+.col-4 { grid-column: span 4; }
+.col-3 { grid-column: span 3; }

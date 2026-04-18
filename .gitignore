@@ -32,3 +32,8 @@ build/
 
 ### VS Code ###
 .vscode/
+
+###
+database/init.bat
+database/add_dummydata.bat
+database/reset.bat

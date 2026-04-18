@@ -2,7 +2,7 @@ package app.visa.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import app.visa.entity.VisaRequest;
+import app.visa.entity.Demande;
 
-public interface VisaRequestRepository extends JpaRepository<VisaRequest, Long> {
+public interface VisaRequestRepository extends JpaRepository<Demande, Long> {
 }

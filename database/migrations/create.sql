@@ -1,0 +1,6 @@
+\c postgres
+DROP DATABASE IF EXISTS visa_db;
+CREATE DATABASE visa_db;
+\c visa_db;
+CREATE SCHEMA IF NOT EXISTS staging;
+CREATE SCHEMA IF NOT EXISTS prod;
