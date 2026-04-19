@@ -41,8 +41,9 @@
         .then(r => r.json())
         .then(resp => {
             if (resp.success) {
-                alert('Demande enregistree avec succes');
-                console.log('Response:', resp.data); // TODO: redirection ?
+                // alert('Demande enregistree avec succes');
+                // console.log('Response:', resp.data); // TODO: redirection ?
+                window.location.href = '/visa-requests';
             } else {
                 throw new Error(resp.error);
             }
