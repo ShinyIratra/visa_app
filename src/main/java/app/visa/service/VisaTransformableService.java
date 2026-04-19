@@ -18,7 +18,7 @@ public class VisaTransformableService {
     private final PasseportRepository passeportRepository;
     private final DemandeurRepository demandeurRepository;
 
-    @Transactional(rollbackOn = Exception.class)
+    @Transactional(rollbackFor = Exception.class)
     public VisaTransformable createVisaTransformable(VisaTransformable visaTransformable) {
         validerVisaTransformable(visaTransformable);
 

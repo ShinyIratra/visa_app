@@ -83,12 +83,12 @@ public class VisaRequestService {
         return result;
     }
 
-    @Transactional(rollbackOn = Exception.class)
+    @Transactional(rollbackFor = Exception.class)
     public Demande save(Demande demande) {
         return visaRequestRepository.save(demande);
     }
 
-    @Transactional(rollbackOn = Exception.class)
+    @Transactional(rollbackFor = Exception.class)
     public Map<String, Object> creerDemandeVisa(Map<String, Object> donnees) {
         if (donnees == null) {
             throw new IllegalArgumentException("donnees de demande obligatoires.");
@@ -119,7 +119,7 @@ public class VisaRequestService {
         return reponseCreation(demandeur, passeport, visaTransformable, demande, dossiersFournisIds);
     }
 
-    @Transactional(rollbackOn = Exception.class)
+    @Transactional(rollbackFor = Exception.class)
     public void deleteById(Long id) {
         visaRequestRepository.deleteById(id);
     }
