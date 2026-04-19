@@ -15,7 +15,7 @@
             <h1>DEMANDE DE TRANSFORMATION DE VISA</h1>
         </div>
 
-        <form id="demandeForm" method="post" action="/visa-requests">
+        <form id="demandeForm" method="post">
             <section>
                 <div class="grid-container">
                     <div class="grid-item col-12">
@@ -32,15 +32,15 @@
                 <div class="grid-container">
                     <div class="grid-item col-6">
                         <label>NOM</label>
-                        <input type="text" name="passeport.demandeur.nom" id="demandeur_nom" required />
+                        <input type="text" name="passeport.demandeur.nom" id="demandeur_nom" value="RANDRIA" required />
                     </div>
                     <div class="grid-item col-6">
                         <label>PRÉNOMS</label>
-                        <input type="text" name="passeport.demandeur.prenom" id="demandeur_prenom" required />
+                        <input type="text" name="passeport.demandeur.prenom" id="demandeur_prenom" value="Jean" required />
                     </div>
                     <div class="grid-item col-6">
                         <label>NOM DE JEUNE FILLE</label>
-                        <input type="text" name="passeport.demandeur.nomJeuneFille" id="demandeur_nomJeuneFille" />
+                        <input type="text" name="passeport.demandeur.nomJeuneFille" id="demandeur_nomJeuneFille" value="" />
                     </div>
                     <div class="grid-item col-6">
                         <label>SITUATION DE FAMILLE</label>
@@ -56,19 +56,19 @@
                     </div>
                     <div class="grid-item col-6">
                         <label>DATE DE NAISSANCE</label>
-                        <input type="date" name="passeport.demandeur.dateNaissance" id="demandeur_dateNaissance" required />
+                        <input type="date" name="passeport.demandeur.dateNaissance" id="demandeur_dateNaissance" value="1990-01-01" required />
                     </div>
                     <div class="grid-item col-12">
                         <label>ADRESSE À MADAGASCAR</label>
-                        <input type="text" name="passeport.demandeur.adresse" id="demandeur_adresse" required />
+                        <input type="text" name="passeport.demandeur.adresse" id="demandeur_adresse" value="Lot 123 Bis Ankazomanga" required />
                     </div>
                     <div class="grid-item col-6">
                         <label>EMAIL</label>
-                        <input type="email" name="passeport.demandeur.email" id="demandeur_email" />
+                        <input type="email" name="passeport.demandeur.email" id="demandeur_email" value="jean.randria@example.com" />
                     </div>
                     <div class="grid-item col-6">
                         <label>TÉLÉPHONE</label>
-                        <input type="tel" name="passeport.demandeur.numTel" id="demandeur_numTel" required />
+                        <input type="tel" name="passeport.demandeur.numTel" id="demandeur_numTel" value="0340000000" required />
                     </div>
                 </div>
             </section>
@@ -78,15 +78,15 @@
                 <div class="grid-container">
                     <div class="grid-item col-4">
                         <label>NUMÉRO DU DOCUMENT</label>
-                        <input type="text" name="passeport.numero" id="passeport_numero" required />
+                        <input type="text" name="passeport.numero" id="passeport_numero" value="ABC123456" required />
                     </div>
                     <div class="grid-item col-4">
                         <label>DATE DE DÉLIVRANCE</label>
-                        <input type="datetime-local" name="passeport.dateDelivrance" id="passeport_dateDelivrance" required />
+                        <input type="datetime-local" name="passeport.dateDelivrance" id="passeport_dateDelivrance" value="2020-01-01T08:00" required />
                     </div>
                     <div class="grid-item col-4">
                         <label>DATE D'EXPIRATION</label>
-                        <input type="datetime-local" name="passeport.dateExpiration" id="passeport_dateExpiration" required />
+                        <input type="datetime-local" name="passeport.dateExpiration" id="passeport_dateExpiration" value="2030-01-01T08:00" required />
                     </div>
                 </div>
             </section>
@@ -96,25 +96,25 @@
                 <div class="grid-container">
                     <div class="grid-item col-4">
                         <label>RÉFÉRENCE VISA</label>
-                        <input type="text" name="visaTransformable.reference" id="visa_reference" required />
+                        <input type="text" name="visaTransformable.reference" id="visa_reference" value="VISA-789-VT" required />
                     </div>
                     <div class="grid-item col-4">
                         <label>DATE D'ENTRÉE À MADA</label>
-                        <input type="datetime-local" name="visaTransformable.dateEntree" id="visa_dateEntree" required />
+                        <input type="datetime-local" name="visaTransformable.dateEntree" id="visa_dateEntree" value="2024-01-10T10:30" required />
                     </div>
                     <div class="grid-item col-4">
                         <label>LIEU D'ENTRÉE</label>
-                        <input type="text" name="visaTransformable.lieuEntree" id="visa_lieuEntree" required />
+                        <input type="text" name="visaTransformable.lieuEntree" id="visa_lieuEntree" value="IVATO" required />
                     </div>
                     <div class="grid-item col-12">
                         <label>DATE DE SORTIE (FIN DE VALIDITÉ)</label>
-                        <input type="datetime-local" name="visaTransformable.dateExpiration" id="visa_dateExpiration" required />
+                        <input type="datetime-local" name="visaTransformable.dateExpiration" id="visa_dateExpiration" value="2024-04-10T23:59" required />
                     </div>
                 </div>
             </section>
 
             <section id="dossiersSection">
-                <h2>4. PIÈCES À FOURNIR (DOSSIERS)</h2>
+                <h2>4. DOSSIERS À FOURNIR</h2>
                 <div class="grid-container">
                     <div class="grid-item col-12">
                         <div id="dossiersList" class="checkbox-list">
@@ -130,77 +130,31 @@
             </div>
         </form>
     </div>
+    <script th:src="@{/js/marquage-champ-requis.js}"></script>
+    <script th:src="@{/js/static-data.js}"></script>
+    <script th:src="@{/js/dossiers.js}"></script>
+    <script th:src="@{/js/handle-form-submit.js}"></script>
     <script>
-        (function () {
-            var rawData = {};
+        let donneesStatiques = {}; // Instancie ao @ fonction loadDonneesStatiques
+        let typeSelect;
+        let dossierList;
+        let demandeForm;
+        // Main
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', init);
+        } else {
+            init();
+        }
 
-            fetch('/api/static/all')
-                .then(function (r) { return r.json(); })
-                .then(function (resp) {
-                    if (!resp || !resp.success) { console.error('Static data load failed', resp && resp.error); return; }
-                    var d = resp.data || {};
-                    rawData = d;
+        function init() {
+            typeSelect = document.getElementById('typesDemande');
+            dossierList = document.getElementById('dossiersList');
+            demandeForm = document.getElementById('demandeForm');
 
-                    function fill(id, arr, textFn) {
-                        var s = document.getElementById(id);
-                        if (!s || !Array.isArray(arr)) return;
-                        s.innerHTML = '<option value="">--</option>';
-                        arr.forEach(function (it) {
-                            var opt = document.createElement('option');
-                            opt.value = it.id;
-                            opt.text = textFn ? textFn(it) : (it.libelle || it.numero || it.reference || it.id);
-                            s.appendChild(opt);
-                        });
-                    }
-
-                    fill('typesDemande', d.typesDemande, function (i) { return i.libelle; });
-                    fill('situationsFamiliales', d.situationsFamiliales, function (i) { return i.libelle; });
-                    fill('nationalites', d.nationalites, function (i) { return i.libelle; });
-
-                    var typeSelect = document.getElementById('typesDemande');
-                    var dossierList = document.getElementById('dossiersList');
-
-                    function updateDossiers() {
-                        var selectedId = typeSelect.value;
-                        var selectedType = d.typesDemande.find(function(t) { return t.id == selectedId; });
-                        var libelle = selectedType ? selectedType.libelle.toLowerCase() : "";
-                        
-                        dossierList.innerHTML = "";
-                        
-                        // Afficher les communs
-                        var sections = [
-                            { label: "PIÈCES COMMUNES", items: d.dossiersCommuns || [] }
-                        ];
-
-                        if (libelle.includes("travailleur")) {
-                            sections.push({ label: "PIÈCES TRAVAILLEUR", items: d.dossiersTravailleur || [] });
-                        } else if (libelle.includes("investisseur")) {
-                            sections.push({ label: "PIÈCES INVESTISSEUR", items: d.dossiersInvestisseur || [] });
-                        }
-
-                        sections.forEach(function(sec) {
-                            if (sec.items.length > 0) {
-                                var group = document.createElement('div');
-                                group.className = "checkbox-item group-label";
-                                group.innerText = sec.label;
-                                dossierList.appendChild(group);
-
-                                sec.items.forEach(function(item) {
-                                    var div = document.createElement('label');
-                                    div.className = "checkbox-item";
-                                    var labelText = (item.libelle || item.nom || "Pièce sans nom");
-                                    div.innerHTML = '<input type="checkbox" name="dossierIds" value="' + item.id + '"> ' + labelText;
-                                    dossierList.appendChild(div);
-                                });
-                            }
-                        });
-                    }
-
-                    typeSelect.addEventListener('change', updateDossiers);
-                    updateDossiers(); // Init
-                })
-                .catch(function (e) { console.error('Error loading static data', e); });
-        })();
+            loadDonneesStatiques();
+            typeSelect.addEventListener('change', updateDossiersAFournir);
+            demandeForm.addEventListener('submit', handleFormSubmit);
+        }
     </script>
 </body>
 

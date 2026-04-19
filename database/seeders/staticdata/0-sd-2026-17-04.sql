@@ -21,7 +21,7 @@ INSERT INTO TypeDemande (Libelle) VALUES
 
 INSERT INTO Dossier (Libelle, Obligatoire, Id_TypeDemande) VALUES
 ('2 photos d''identité', true, 1),
-('Notice de renseignement', true, 1),
+('Notice de renseignement', false, 1),
 ('Demande adressée à Mr le Ministère de l''Intérieur et de la Décentralisation avec adresse e-mail et numéro téléphone portable', true, 1),
 ('Photocopie certifiée du visa en cours de validité', true, 1),
 ('Photocopie certifiée de la première page du passeport', true, 1),
