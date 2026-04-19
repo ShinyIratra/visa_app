@@ -56,6 +56,33 @@ public class VisaRequestService {
         return visaRequestRepository.findById(id);
     }
 
+    @Transactional(readOnly = true)
+    public List<Map<String, Object>> listDemandesAvecInfos() {
+        List<Demande> demandes = visaRequestRepository.findAll();
+        List<Map<String, Object>> result = new ArrayList<>();
+
+        for (Demande demande : demandes) {
+            Map<String, Object> item = new LinkedHashMap<>();
+            Demandeur demandeur = demande.getPasseport() != null ? demande.getPasseport().getDemandeur() : null;
+
+            item.put("demandeId", demande.getId());
+            item.put("nomDemandeur", demandeur != null ? demandeur.getNom() : null);
+            item.put("prenomDemandeur", demandeur != null ? demandeur.getPrenom() : null);
+            item.put("referencePasseport", demande.getPasseport() != null ? demande.getPasseport().getNumero() : null);
+            item.put(
+                "referenceVisaTransformable",
+                demande.getVisaTransformable() != null ? demande.getVisaTransformable().getReference() : null
+            );
+            item.put("typeDemande", demande.getTypeDemande() != null ? demande.getTypeDemande().getLibelle() : null);
+            item.put("statut", getDernierStatutLibelle(demande.getId()));
+            item.put("dateCreation", demande.getDateCreation());
+
+            result.add(item);
+        }
+
+        return result;
+    }
+
     @Transactional
     public Demande save(Demande demande) {
         return visaRequestRepository.save(demande);
@@ -307,6 +334,13 @@ public class VisaRequestService {
         } catch (NumberFormatException e) {
             return null;
         }
+    }
+
+    private String getDernierStatutLibelle(Long demandeId) {
+        return historiqueStatutRepository.findLatestByDemandeId(demandeId)
+            .map(HistoriqueStatut::getStatut)
+            .map(Statut::getLibelle)
+            .orElse(null);
     }
 
     private Map<String, Object> reponseCreation(
