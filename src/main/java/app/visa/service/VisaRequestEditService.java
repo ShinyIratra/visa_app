@@ -1,27 +1,43 @@
 package app.visa.service;
 
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.time.*;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import app.visa.entity.Demande;
-import app.visa.entity.Demandeur;
-import app.visa.entity.Passeport;
-import app.visa.entity.ReponseStatutVisa;
-import app.visa.entity.VisaTransformable;
-import app.visa.repository.ReponseStatutVisaRepository;
-import app.visa.repository.VisaRequestRepository;
+import app.visa.controller.VisaRequestController;
+import app.visa.entity.*;
+import app.visa.repository.*;
 import lombok.RequiredArgsConstructor;
 
 @Service
-@RequiredArgsConstructor
-public class VisaRequestEditService {
+public class VisaRequestEditService extends VisaRequestService { // (Kamo be hanao statique an'i VisaRequestService.getBlock, VisaRequestServicereponseCreation) dia ataoko miextends
 
-    private final VisaRequestRepository visaRequestRepository;
-    private final ReponseStatutVisaRepository reponseStatutVisaRepository;
+    public VisaRequestEditService(VisaRequestRepository visaRequestRepository,
+                                  TypeDemandeRepository typeDemandeRepository,
+                                  CategorieRepository categorieRepository,
+                                  DossierRepository dossierRepository,
+                                  ReponseStatutVisaRepository reponseStatutVisaRepository,
+                                  HistoriqueStatutRepository historiqueStatutRepository,
+                                  StatutRepository statutRepository,
+                                  DemandeurService demandeurService,
+                                  PasseportService passeportService,
+                                  VisaTransformableService visaTransformableService) {
+        super(visaRequestRepository, typeDemandeRepository, categorieRepository, dossierRepository,
+              reponseStatutVisaRepository, historiqueStatutRepository, statutRepository,
+              demandeurService, passeportService, visaTransformableService);
+    }
+
+    /**
+     * 
+     * 
+     * 
+     * Antsoin'ny front.getById
+     * 
+     * 
+     * 
+     */
 
     @Transactional(readOnly = true)
     public Map<String, Object> getDemandeFormData(Long id) {
@@ -86,5 +102,120 @@ public class VisaRequestEditService {
             .filter(ReponseStatutVisa::getValeur)
             .map(r -> r.getDossier().getId())
             .toList();
+    }
+
+    /**
+     * 
+     * 
+     * 
+     * Antsoin'ny front.updateDemande (put)
+     * 
+     * 
+     * 
+     */
+    
+    @Transactional(rollbackFor = Exception.class)
+    public Map<String, Object> updateDemandeVisa(Long id, Map<String, Object> donnees) {
+        if (donnees == null) {
+            throw new IllegalArgumentException("donnees de demande obligatoires.");
+        }
+
+        Demande demande = visaRequestRepository.findById(id)
+            .orElseThrow(() -> new IllegalArgumentException("demande introuvable: " + id));
+
+        Map<String, Object> etatCivilData = getBloc(donnees, "etat civil");
+        Map<String, Object> passeportData = getBloc(donnees, "passeport");
+        Map<String, Object> visaTransformableData = getBloc(donnees, "visaTransformable");
+        Long typeDemandeId = toLong(donnees.get("typeDemandeId"));
+        List<Long> dossiersFournisIds = getDossiersFournis(donnees);
+
+        TypeDemande typeDemande = getTypeDemandeValide(typeDemandeId);
+        List<Dossier> dossiersApplicables = getDossiersApplicables(typeDemande);
+        checkDossiersObligatoires(dossiersApplicables, dossiersFournisIds);
+
+        // Update entites (maka id izay vao miupdate)
+        Demandeur demandeur = demande.getPasseport().getDemandeur();
+        updateDemandeurData(demandeur.getId(), etatCivilData);
+
+        Passeport passeport = demande.getPasseport();
+        updatePasseportData(passeport.getId(), passeportData);
+
+        VisaTransformable vt = demande.getVisaTransformable();
+        updateVisaTransformableData(vt.getId(), visaTransformableData);
+
+        demande.setTypeDemande(typeDemande);
+        visaRequestRepository.save(demande);
+
+        // Update responses dossier 
+        reponseStatutVisaRepository.deleteAll(reponseStatutVisaRepository.findByDemandeId(id));
+        saveReponseDossier(demande, dossiersApplicables, dossiersFournisIds);
+
+        return reponseCreation(demandeur, passeport, vt, demande, dossiersFournisIds);
+    }
+
+    private Demandeur updateDemandeurData(Long id, Map<String, Object> data) {
+        Demandeur demandeur = new Demandeur();
+        demandeur.setNom((String) data.get("nom"));
+        demandeur.setPrenom((String) data.get("prenom"));
+        demandeur.setNomJeuneFille((String) data.get("nomJeuneFille"));
+        demandeur.setEmail((String) data.get("email"));
+        demandeur.setNumTel((String) data.get("numTel"));
+        demandeur.setAdresse((String) data.get("adresse"));
+
+        Object dateNaissance = data.get("dateNaissance");
+        if (dateNaissance != null && !dateNaissance.toString().isBlank()) {
+            demandeur.setDateNaissance(LocalDate.parse(dateNaissance.toString()));
+        }
+
+        Long nationaliteId = toLong(data.get("nationalite"));
+        if (nationaliteId != null) {
+            Nationalite nationalite = new Nationalite();
+            nationalite.setId(nationaliteId);
+            demandeur.setNationalite(nationalite);
+        }
+
+        Long situationFamilialeId = toLong(data.get("situationFamiliale"));
+        if (situationFamilialeId != null) {
+            SituationFamiliale situationFamiliale = new SituationFamiliale();
+            situationFamiliale.setId(situationFamilialeId);
+            demandeur.setSituationFamiliale(situationFamiliale);
+        }
+
+        return demandeurService.updateDemandeur(id, demandeur);
+    }
+
+    private Passeport updatePasseportData(Long id, Map<String, Object> data) {
+        Passeport p = new Passeport();
+        p.setNumero((String) data.get("numero"));
+
+        Object dateDelivrance = data.get("dateDelivrance");
+        if (dateDelivrance != null && !dateDelivrance.toString().isBlank()) {
+            p.setDateDelivrance(LocalDateTime.parse(dateDelivrance.toString()));
+        }
+
+        Object dateExpiration = data.get("dateExpiration");
+        if (dateExpiration != null && !dateExpiration.toString().isBlank()) {
+            p.setDateExpiration(LocalDateTime.parse(dateExpiration.toString()));
+        }
+
+        return passeportService.updatePasseport(id, p);
+    }
+
+    private VisaTransformable updateVisaTransformableData(Long id, Map<String, Object> data) {
+        VisaTransformable vt = new VisaTransformable();
+        vt.setReference((String) data.get("reference"));
+        vt.setLieuEntree((String) data.get("lieuEntree"));
+
+        Object dateEntree = data.get("dateEntree");
+        if (dateEntree != null && !dateEntree.toString().isBlank()) {
+            vt.setDateEntree(LocalDateTime.parse(dateEntree.toString()));
+        }
+
+        Object dateExpiration = data.get("dateExpiration");
+        if (dateExpiration != null && !dateExpiration.toString().isBlank()) {
+            vt.setDateExpiration(LocalDateTime.parse(dateExpiration.toString()));
+        }
+
+        return visaTransformableService.updateVisaTransformable(id, vt);
     }
 }

@@ -29,6 +29,19 @@ public class PasseportService {
 		return passeportRepository.save(passeport);
 	}
 
+	@Transactional(rollbackFor = Exception.class)
+	public Passeport updatePasseport(Long id, Passeport details) {
+		Passeport passeport = passeportRepository.findById(id)
+			.orElseThrow(() -> new IllegalArgumentException("passeport introuvable: " + id));
+
+		passeport.setNumero(details.getNumero() != null ? details.getNumero().trim() : null);
+		passeport.setDateDelivrance(details.getDateDelivrance());
+		passeport.setDateExpiration(details.getDateExpiration());
+
+		validerPasseport(passeport);
+		return passeportRepository.save(passeport);
+	}
+
 	private void validerPasseport(Passeport passeport) {
 		if (passeport == null) {
 			throw new IllegalArgumentException("passeport obligatoire.");
