@@ -1,0 +1,67 @@
+package app.visa.service;
+
+import app.visa.entity.Demandeur;
+import app.visa.entity.Nationalite;
+import app.visa.entity.SituationFamiliale;
+import app.visa.repository.DemandeurRepository;
+import app.visa.repository.NationaliteRepository;
+import app.visa.repository.SituationFamilialeRepository;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+@Service
+@RequiredArgsConstructor
+public class DemandeurService {
+
+    private final DemandeurRepository demandeurRepository;
+    private final NationaliteRepository nationaliteRepository;
+    private final SituationFamilialeRepository situationFamilialeRepository;
+
+    @Transactional
+    public Demandeur createDemandeur(Demandeur demandeur) {
+        validerDemandeur(demandeur);
+
+        Long nationaliteId = demandeur.getNationalite().getId();
+        Long situationFamilialeId = demandeur.getSituationFamiliale().getId();
+
+        Nationalite nationalite = nationaliteRepository.findById(nationaliteId)
+            .orElseThrow(() -> new IllegalArgumentException("Nationalite introuvable: " + nationaliteId));
+
+        SituationFamiliale situationFamiliale = situationFamilialeRepository.findById(situationFamilialeId)
+            .orElseThrow(() -> new IllegalArgumentException("Situation familiale introuvable: " + situationFamilialeId));
+
+        demandeur.setNationalite(nationalite);
+        demandeur.setSituationFamiliale(situationFamiliale);
+
+        return demandeurRepository.save(demandeur);
+    }
+
+    private void validerDemandeur(Demandeur demandeur) {
+        if (demandeur == null) {
+            throw new IllegalArgumentException("demandeur obligatoire.");
+        }
+        if (estVide(demandeur.getNom())) {
+            throw new IllegalArgumentException("nom obligatoire.");
+        }
+        if (estVide(demandeur.getNumTel())) {
+            throw new IllegalArgumentException("numero de telephone obligatoire.");
+        }
+        if (demandeur.getDateNaissance() == null) {
+            throw new IllegalArgumentException("date de naissance obligatoire.");
+        }
+        if (estVide(demandeur.getAdresse())) {
+            throw new IllegalArgumentException("adresse obligatoire.");
+        }
+        if (demandeur.getNationalite() == null || demandeur.getNationalite().getId() == null) {
+            throw new IllegalArgumentException("nationalite obligatoire.");
+        }
+        if (demandeur.getSituationFamiliale() == null || demandeur.getSituationFamiliale().getId() == null) {
+            throw new IllegalArgumentException("situation familiale obligatoire.");
+        }
+    }
+
+    private boolean estVide(String valeur) {
+        return valeur == null || valeur.isBlank();
+    }
+}
