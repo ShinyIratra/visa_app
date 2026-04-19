@@ -20,24 +20,24 @@ INSERT INTO TypeDemande (Libelle) VALUES
 ('Travailleur');
 
 INSERT INTO Dossier (Libelle, Obligatoire, Id_TypeDemande) VALUES
-('2 photos d''identité', true, 1),
+('2 photos d''identite', true, 1),
 ('Notice de renseignement', false, 1),
-('Demande adressée à Mr le Ministère de l''Intérieur et de la Décentralisation avec adresse e-mail et numéro téléphone portable', true, 1),
-('Photocopie certifiée du visa en cours de validité', true, 1),
-('Photocopie certifiée de la première page du passeport', true, 1),
-('Photocopie certifiée de la carte résident en cours de validité', true, 1),
-('Certificat de résidence à Madagascar', true, 1),
+('Demande adressee à Mr le Ministère de l''Interieur et de la Decentralisation avec adresse e-mail et numero telephone portable', true, 1),
+('Photocopie certifiee du visa en cours de validite', true, 1),
+('Photocopie certifiee de la première page du passeport', true, 1),
+('Photocopie certifiee de la carte resident en cours de validite', true, 1),
+('Certificat de residence à Madagascar', true, 1),
 ('Extrait de casier judiciaire moins de 3 mois', true, 1),
 
-('Statut de la Société', true, 2),
+('Statut de la Societe', true, 2),
 ('Extrait d''inscription au registre de commerce', true, 2),
 ('Carte fiscale', true, 2),
 
-('Autorisation d''emploi délivrée à Madagascar par le Ministère de la Fonction publique', true, 3),
-('Attestation d''emploi délivré par l''employeur (Original)', true, 3);
+('Autorisation d''emploi delivree à Madagascar par le Ministère de la Fonction publique', true, 3),
+('Attestation d''emploi delivre par l''employeur (Original)', true, 3);
 
 INSERT INTO Statut (Libelle) VALUES
-('Demande créée'),
-('Scan terminé'),
-('Visa accepté');
+('Demande creee'),
+('Scan termine'),
+('Visa accepte');
 
