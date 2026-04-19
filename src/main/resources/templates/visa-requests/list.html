@@ -156,7 +156,7 @@
                 <td>
                     <div class="actions">
                         <a class="btn btn-secondary" th:href="@{/visa-requests/{id}/edit(id=${demande.id})}">Modifier</a>
-                        <form th:action="@{/visa-requests/{id}/delete(id=${demande.id})}" method="post"
+                        <form th:action="@{/api/demandes-visa/{id}(id=${demande.id})}" method="post"
                               onsubmit="return confirm('Supprimer cette demande ?');">
                             <button class="btn btn-danger" type="submit">Supprimer</button>
                         </form>

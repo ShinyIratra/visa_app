@@ -2,7 +2,7 @@
     'use strict';
 
     function loadDonneesStatiques() {
-        fetch('/api/static/all')
+        return fetch('/api/static/all')
             .then(r => r.json())
             .then(resp => {
                 // Noproposen copilot zah hoe aleo console.error sy return maina be eto fa tsy mithrow new error
@@ -14,10 +14,16 @@
                 donneesStatiques = resp.data || {};
                 populateAllSelects(donneesStatiques);
                 marquerChampRequis(donneesStatiques.requiredFields || {});
-                updateDossiersAFournir();
+                
+                if (typeof updateDossiersAFournir === 'function') {
+                    updateDossiersAFournir();
+                }
             })
-            .catch(e => console.error('Error loading static data', e));
-        }
+            .catch(e => {
+                console.error('Error loading static data', e);
+                throw e;
+            });
+    }
 
     function populateAllSelects(data) {
         fillSelect('typesDemande', data.typesDemande, i => i.libelle);
