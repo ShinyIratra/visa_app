@@ -15,7 +15,7 @@ public class PasseportService {
 	private final PasseportRepository passeportRepository;
 	private final DemandeurRepository demandeurRepository;
 
-	@Transactional
+	@Transactional(rollbackOn = Exception.class)
 	public Passeport createPasseport(Passeport passeport) {
 		validerPasseport(passeport);
 

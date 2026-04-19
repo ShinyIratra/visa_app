@@ -18,7 +18,7 @@ public class DemandeurService {
     private final NationaliteRepository nationaliteRepository;
     private final SituationFamilialeRepository situationFamilialeRepository;
 
-    @Transactional
+    @Transactional(rollbackOn = Exception.class)
     public Demandeur createDemandeur(Demandeur demandeur) {
         validerDemandeur(demandeur);
 
