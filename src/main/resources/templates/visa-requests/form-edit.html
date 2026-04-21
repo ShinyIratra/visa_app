@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Modifier la demande de visa</title>
+    <link id="global-css" rel="stylesheet" th:href="@{/css/global.css}">
+    <link id="visa-css" rel="stylesheet" th:href="@{/css/visa-form.css}">
+</head>
+
+<body>
+    <div class="visa-form-container">
+        <div class="header-top">
+            <!-- Enjana koa ilay syntax thymeleaf izany -->
+            <h1>MODIFIER LA DEMANDE DE VISA [[${demandeId}]]</h1>
+        </div>
+
+        <form id="editDemandeForm" method="post">
+            <input type="hidden" id="demandeId" th:value="${demandeId}" />
+
+            <section>
+                <div class="grid-container">
+                    <div class="grid-item col-12">
+                        <label>VISA DEMANDE</label>
+                        <select id="typesDemande" name="typeDemande.id" required>
+                            <option value="">-- CHOISIR (TRAVAILLEUR / INVESTISSEUR) --</option>
+                        </select>
+                    </div>
+                </div>
+            </section>
+
+            <section>
+                <h2>1. ETAT CIVIL</h2>
+                <div class="grid-container">
+                    <div class="grid-item col-6">
+                        <label>NOM</label>
+                        <input type="text" id="demandeur_nom" required />
+                    </div>
+                    <div class="grid-item col-6">
+                        <label>PRÉNOMS</label>
+                        <input type="text" id="demandeur_prenom" required />
+                    </div>
+                    <div class="grid-item col-6">
+                        <label>NOM DE JEUNE FILLE</label>
+                        <input type="text" id="demandeur_nomJeuneFille" />
+                    </div>
+                    <div class="grid-item col-6">
+                        <label>SITUATION DE FAMILLE</label>
+                        <select id="situationsFamiliales" required>
+                            <option value="">--</option>
+                        </select>
+                    </div>
+                    <div class="grid-item col-6">
+                        <label>NATIONALITÉ</label>
+                        <select id="nationalites" required>
+                            <option value="">--</option>
+                        </select>
+                    </div>
+                    <div class="grid-item col-6">
+                        <label>DATE DE NAISSANCE</label>
+                        <input type="date" id="demandeur_dateNaissance" required />
+                    </div>
+                    <div class="grid-item col-12">
+                        <label>ADRESSE À MADAGASCAR</label>
+                        <input type="text" id="demandeur_adresse" required />
+                    </div>
+                    <div class="grid-item col-6">
+                        <label>EMAIL</label>
+                        <input type="email" id="demandeur_email" />
+                    </div>
+                    <div class="grid-item col-6">
+                        <label>TÉLÉPHONE</label>
+                        <input type="tel" id="demandeur_numTel" required />
+                    </div>
+                </div>
+            </section>
+
+            <section>
+                <h2>2. PASSEPORT</h2>
+                <div class="grid-container">
+                    <div class="grid-item col-4">
+                        <label>NUMÉRO DU DOCUMENT</label>
+                        <input type="text" id="passeport_numero" required />
+                    </div>
+                    <div class="grid-item col-4">
+                        <label>DATE DE DÉLIVRANCE</label>
+                        <input type="datetime-local" id="passeport_dateDelivrance" required />
+                    </div>
+                    <div class="grid-item col-4">
+                        <label>DATE D'EXPIRATION</label>
+                        <input type="datetime-local" id="passeport_dateExpiration" required />
+                    </div>
+                </div>
+            </section>
+
+            <section>
+                <h2>3. VISA TRANSFORMABLE</h2>
+                <div class="grid-container">
+                    <div class="grid-item col-4">
+                        <label>RÉFÉRENCE VISA</label>
+                        <input type="text" id="visa_reference" required />
+                    </div>
+                    <div class="grid-item col-4">
+                        <label>DATE D'ENTRÉE À MADA</label>
+                        <input type="datetime-local" id="visa_dateEntree" required />
+                    </div>
+                    <div class="grid-item col-4">
+                        <label>LIEU D'ENTRÉE</label>
+                        <input type="text" id="visa_lieuEntree" required />
+                    </div>
+                    <div class="grid-item col-12">
+                        <label>DATE DE SORTIE (FIN DE VALIDITÉ)</label>
+                        <input type="datetime-local" id="visa_dateExpiration" required />
+                    </div>
+                </div>
+            </section>
+
+            <section id="dossiersSection">
+                <h2>4. DOSSIERS À FOURNIR</h2>
+                <div class="grid-container">
+                    <div class="grid-item col-12">
+                        <div id="dossiersList" class="checkbox-list">
+                            <!-- JS -->
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <div class="actions-bar">
+                <button type="submit" class="btn btn-primary">Mettre à jour</button>
+                <a th:href="@{/visa-requests}" class="btn btn-outline">Annuler</a>
+            </div>
+        </form>
+    </div>
+    <script th:src="@{/js/marquage-champ-requis.js}"></script>
+    <script th:src="@{/js/static-data.js}"></script>
+    <script th:src="@{/js/dossiers.js}"></script>
+    <script th:src="@{/js/handle-form-update.js}"></script>
+    <script>
+        let donneesStatiques = {};
+        let typeSelect;
+        let dossierList;
+        let editDemandeForm;
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            typeSelect = document.getElementById('typesDemande');
+            dossierList = document.getElementById('dossiersList');
+            editDemandeForm = document.getElementById('editDemandeForm');
+
+            await loadDonneesStatiques();
+            await initFormByDemandeId();
+            
+            typeSelect.addEventListener('change', updateDossiersAFournir);
+        });
+    </script>
+</body>
+
+</html>

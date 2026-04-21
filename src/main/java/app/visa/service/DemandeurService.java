@@ -18,7 +18,7 @@ public class DemandeurService {
     private final NationaliteRepository nationaliteRepository;
     private final SituationFamilialeRepository situationFamilialeRepository;
 
-    @Transactional(rollbackOn = Exception.class)
+    @Transactional(rollbackFor = Exception.class)
     public Demandeur createDemandeur(Demandeur demandeur) {
         validerDemandeur(demandeur);
 
@@ -34,6 +34,35 @@ public class DemandeurService {
         demandeur.setNationalite(nationalite);
         demandeur.setSituationFamiliale(situationFamiliale);
 
+        return demandeurRepository.save(demandeur);
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    public Demandeur updateDemandeur(Long id, Demandeur details) {
+        Demandeur demandeur = demandeurRepository.findById(id)
+            .orElseThrow(() -> new IllegalArgumentException("demandeur introuvable: " + id));
+
+        demandeur.setNom(details.getNom());
+        demandeur.setPrenom(details.getPrenom());
+        demandeur.setNomJeuneFille(details.getNomJeuneFille());
+        demandeur.setEmail(details.getEmail());
+        demandeur.setNumTel(details.getNumTel());
+        demandeur.setAdresse(details.getAdresse());
+        demandeur.setDateNaissance(details.getDateNaissance());
+
+        if (details.getNationalite() != null) {
+            Nationalite nationalite = nationaliteRepository.findById(details.getNationalite().getId())
+                .orElseThrow(() -> new IllegalArgumentException("Nationalite introuvable: " + details.getNationalite().getId()));
+            demandeur.setNationalite(nationalite);
+        }
+
+        if (details.getSituationFamiliale() != null) {
+            SituationFamiliale situationFamiliale = situationFamilialeRepository.findById(details.getSituationFamiliale().getId())
+                .orElseThrow(() -> new IllegalArgumentException("Situation familiale introuvable: " + details.getSituationFamiliale().getId()));
+            demandeur.setSituationFamiliale(situationFamiliale);
+        }
+
+        validerDemandeur(demandeur);
         return demandeurRepository.save(demandeur);
     }
 

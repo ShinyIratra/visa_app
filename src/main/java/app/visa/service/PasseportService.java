@@ -15,7 +15,7 @@ public class PasseportService {
 	private final PasseportRepository passeportRepository;
 	private final DemandeurRepository demandeurRepository;
 
-	@Transactional(rollbackOn = Exception.class)
+	@Transactional(rollbackFor = Exception.class)
 	public Passeport createPasseport(Passeport passeport) {
 		validerPasseport(passeport);
 
@@ -26,6 +26,19 @@ public class PasseportService {
 		passeport.setNumero(passeport.getNumero().trim());
 		passeport.setDemandeur(demandeur);
 
+		return passeportRepository.save(passeport);
+	}
+
+	@Transactional(rollbackFor = Exception.class)
+	public Passeport updatePasseport(Long id, Passeport details) {
+		Passeport passeport = passeportRepository.findById(id)
+			.orElseThrow(() -> new IllegalArgumentException("passeport introuvable: " + id));
+
+		passeport.setNumero(details.getNumero() != null ? details.getNumero().trim() : null);
+		passeport.setDateDelivrance(details.getDateDelivrance());
+		passeport.setDateExpiration(details.getDateExpiration());
+
+		validerPasseport(passeport);
 		return passeportRepository.save(passeport);
 	}
 

@@ -37,16 +37,16 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class VisaRequestService {
 
-    private final VisaRequestRepository visaRequestRepository;
-    private final TypeDemandeRepository typeDemandeRepository;
-    private final CategorieRepository categorieRepository;
-    private final DossierRepository dossierRepository;
-    private final ReponseStatutVisaRepository reponseStatutVisaRepository;
-    private final HistoriqueStatutRepository historiqueStatutRepository;
-    private final StatutRepository statutRepository;
-    private final DemandeurService demandeurService;
-    private final PasseportService passeportService;
-    private final VisaTransformableService visaTransformableService;
+    protected final VisaRequestRepository visaRequestRepository;
+    protected final TypeDemandeRepository typeDemandeRepository;
+    protected final CategorieRepository categorieRepository;
+    protected final DossierRepository dossierRepository;
+    protected final ReponseStatutVisaRepository reponseStatutVisaRepository;
+    protected final HistoriqueStatutRepository historiqueStatutRepository;
+    protected final StatutRepository statutRepository;
+    protected final DemandeurService demandeurService;
+    protected final PasseportService passeportService;
+    protected final VisaTransformableService visaTransformableService;
 
     public List<Demande> findAll() {
         return visaRequestRepository.findAll();
@@ -83,12 +83,12 @@ public class VisaRequestService {
         return result;
     }
 
-    @Transactional(rollbackOn = Exception.class)
+    @Transactional(rollbackFor = Exception.class)
     public Demande save(Demande demande) {
         return visaRequestRepository.save(demande);
     }
 
-    @Transactional(rollbackOn = Exception.class)
+    @Transactional(rollbackFor = Exception.class)
     public Map<String, Object> creerDemandeVisa(Map<String, Object> donnees) {
         if (donnees == null) {
             throw new IllegalArgumentException("donnees de demande obligatoires.");
@@ -119,12 +119,12 @@ public class VisaRequestService {
         return reponseCreation(demandeur, passeport, visaTransformable, demande, dossiersFournisIds);
     }
 
-    @Transactional(rollbackOn = Exception.class)
+    @Transactional(rollbackFor = Exception.class)
     public void deleteById(Long id) {
         visaRequestRepository.deleteById(id);
     }
 
-    private Demandeur createDemandeur(Map<String, Object> etatCivilData) {
+    protected Demandeur createDemandeur(Map<String, Object> etatCivilData) {
         Demandeur demandeur = new Demandeur();
         demandeur.setNom((String) etatCivilData.get("nom"));
         demandeur.setPrenom((String) etatCivilData.get("prenom"));
@@ -176,7 +176,7 @@ public class VisaRequestService {
         return passeportService.createPasseport(passeport);
     }
 
-    private VisaTransformable createVisaTransformable(
+    protected VisaTransformable createVisaTransformable(
         Map<String, Object> visaTransformableData,
         Long demandeurId,
         Long passeportId
@@ -206,7 +206,7 @@ public class VisaRequestService {
         return visaTransformableService.createVisaTransformable(visaTransformable);
     }
 
-    private Demande createDemande(TypeDemande typeDemande, Passeport passeport, VisaTransformable visaTransformable) {
+    protected Demande createDemande(TypeDemande typeDemande, Passeport passeport, VisaTransformable visaTransformable) {
         Categorie categorie = categorieRepository.findByLibelle("Nouveau titre")
             .orElseThrow(() -> new IllegalArgumentException("categorie 'Nouveau titre' introuvable."));
 
@@ -219,7 +219,7 @@ public class VisaRequestService {
         return visaRequestRepository.save(demande);
     }
 
-    private TypeDemande getTypeDemandeValide(Long typeId) {
+    protected TypeDemande getTypeDemandeValide(Long typeId) {
         if (typeId == null) {
             throw new IllegalArgumentException("il faut choisir un type de demande Travailleur ou Investisseur.");
         }
@@ -239,7 +239,7 @@ public class VisaRequestService {
         return typeDem;
     }
 
-    private List<Dossier> getDossiersApplicables(TypeDemande typeDem) {
+    protected List<Dossier> getDossiersApplicables(TypeDemande typeDem) {
         List<Dossier> doss = dossierRepository.findDossiersPourTypeDemande(typeDem.getId());
         if (doss.isEmpty()) {
             throw new IllegalArgumentException("aucun dossier configure pour ce type de demande.");
@@ -248,7 +248,7 @@ public class VisaRequestService {
         return doss;
     }
 
-    private void checkDossiersObligatoires(List<Dossier> doss, List<Long> dossIds) {
+    protected void checkDossiersObligatoires(List<Dossier> doss, List<Long> dossIds) {
         Set<Long> dossiersFournis = new HashSet<>(dossIds);
         List<Long> manquants = new ArrayList<>();
 
@@ -263,7 +263,7 @@ public class VisaRequestService {
         }
     }
 
-    private void saveReponseDossier(Demande dem, List<Dossier> doss, List<Long> dossIds) {
+    protected void saveReponseDossier(Demande dem, List<Dossier> doss, List<Long> dossIds) {
         Set<Long> dossiersFournis = new HashSet<>(dossIds);
         List<ReponseStatutVisa> reponses = new ArrayList<>();
 
@@ -290,7 +290,7 @@ public class VisaRequestService {
         historiqueStatutRepository.save(historique);
     }
 
-    private Map<String, Object> getBloc(Map<String, Object> donnees, String nomBloc) {
+    protected Map<String, Object> getBloc(Map<String, Object> donnees, String nomBloc) {
         Object bloc = donnees.get(nomBloc);
         if (!(bloc instanceof Map<?, ?>)) {
             return new LinkedHashMap<>();
@@ -301,7 +301,7 @@ public class VisaRequestService {
         return map;
     }
 
-    private List<Long> getDossiersFournis(Map<String, Object> donnees) {
+    protected List<Long> getDossiersFournis(Map<String, Object> donnees) {
         List<Long> dossiersFournisIds = new ArrayList<>();
         Object dossiersObj = donnees.get("dossiersFournis");
 
@@ -319,7 +319,7 @@ public class VisaRequestService {
         return dossiersFournisIds;
     }
 
-    private Long toLong(Object value) {
+    protected Long toLong(Object value) {
         if (value == null) {
             return null;
         }
@@ -343,7 +343,7 @@ public class VisaRequestService {
             .orElse(null);
     }
 
-    private Map<String, Object> reponseCreation(
+    protected static Map<String, Object> reponseCreation(
         Demandeur dem,
         Passeport pass,
         VisaTransformable vt,

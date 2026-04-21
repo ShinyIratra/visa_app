@@ -68,6 +68,12 @@ public class VisaRequestController {
         return "visa-requests/form";
     }
 
+    @GetMapping("/{id}/edit")
+    public String showEditForm(@PathVariable Long id, Model model) {
+        model.addAttribute("demandeId", id);
+        return "visa-requests/form-edit";
+    }
+
     @PostMapping
     @ResponseBody
     public ResponseEntity<ApiResponse<Object>> create(@RequestBody VisaRequestDto dto) {
@@ -184,16 +190,6 @@ public class VisaRequestController {
         return debugData;
     }
 
-    @GetMapping("/{id}/edit")
-    public String showEditForm(@PathVariable Long id, Model model) {
-        Optional<Demande> demandeOptional = visaRequestService.findById(id);
-        if (demandeOptional.isEmpty()) {
-            return "redirect:/visa-requests";
-        }
-
-        model.addAttribute("demande", demandeOptional.get());
-        return "visa-requests/form";
-    }
 
     @PostMapping("/{id}")
     public String update(@PathVariable Long id, @ModelAttribute("demande") Demande demande) {
