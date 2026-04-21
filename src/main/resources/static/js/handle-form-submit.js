@@ -4,8 +4,10 @@
     function handleFormSubmit(event) {
         event.preventDefault();
 
+        const typeDemandeValue = document.getElementById('typesDemande').value;
+
         const formData = {
-            typeDemandeId: document.getElementById('typesDemande').value,
+            typeDemandeId: typeDemandeValue ? Number(typeDemandeValue) : null,
             "etat civil": {
                 nom: document.getElementById('demandeur_nom').value,
                 prenom: document.getElementById('demandeur_prenom').value,
@@ -28,10 +30,10 @@
                 lieuEntree: document.getElementById('visa_lieuEntree').value,
                 dateExpiration: document.getElementById('visa_dateExpiration').value
             },
-            "dossiersFournis": Array.from(document.querySelectorAll('input[name="dossierIds"]:checked')).map(cb => cb.value)
+            "dossiersFournis": Array.from(document.querySelectorAll('input[name="dossierIds"]:checked')).map(cb => Number(cb.value))
         };
 
-        fetch('/visa-requests', {
+        fetch('/api/demandes-visa', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(formData)
