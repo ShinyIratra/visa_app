@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+<head>
+    <meta charset="UTF-8">
+    <title layout:title-pattern="$LAYOUT_TITLE - $CONTENT_TITLE">Visa App</title>
+</head>
+<body style="margin: 0;">
+    <div style="display: flex; min-height: 100vh;">
+        <nav style="width: 250px; border-right: 1px solid #ccc; padding: 10px; background-color: #f8f9fa;">
+            <ul>
+                <li>Demande de nouveau titre
+                    <ul>
+                        <li><a th:href="@{/visa-requests}">Liste</a></li>
+                        <li><a th:href="@{/visa-requests/new}">Creation</a></li>
+                    </ul>
+                </li>
+                <li>Demande de transfert de visa
+                    <ul>
+                        <li><a th:href="@{/transfert-visa}">Liste</a></li>
+                        <li>Creation
+                            <ul>
+                                <li><a th:href="@{/transfert-visa/new-sda}">Sans donnees anterieures</a></li>
+                                <li><a th:href="@{/transfert-visa/new-ada}">Avec donnees anterieures</a></li>
+                            </ul>
+                        </li>
+                    </ul>
+                </li>
+                <li>Demande de duplicata
+                    <ul>
+                        <li><a th:href="@{/duplicata}">Liste</a></li>
+                        <li>Creation
+                            <ul>
+                                <li><a th:href="@{/duplicata/new-sda}">Sans donnees anterieures</a></li>
+                                <li><a th:href="@{/duplicata/new-ada}">Avec donnees anterieures</a></li>
+                            </ul>
+                        </li>
+                    </ul>
+                </li>
+            </ul>
+        </nav>
+        <main style="flex: 1; padding: 20px;">
+            <div layout:fragment="content">
+                <!-- Content will be replaced here -->
+            </div>
+        </main>
+    </div>
+</body>
+</html>
