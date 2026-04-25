@@ -33,24 +33,38 @@ import app.visa.repository.CategorieRepository;
 import app.visa.repository.NationaliteRepository;
 import app.visa.repository.SituationFamilialeRepository;
 import app.visa.repository.TypeDemandeRepository;
-import app.visa.service.VisaRequestService;
+
+import app.visa.service.*;
 
 @Controller
 @RequestMapping("/visa-requests")
 public class VisaRequestController {
 
     private final VisaRequestService visaRequestService;
+    private final DemandeurService demandeurService;
+    private final DemandeService demandeService;
+    private final PasseportService passeportService;
+    private final VisaTransformableService visaTransformableService;
+
     private final NationaliteRepository nationaliteRepository;
     private final SituationFamilialeRepository situationFamilialeRepository;
     private final TypeDemandeRepository typeDemandeRepository;
     private final CategorieRepository categorieRepository;
 
     public VisaRequestController(VisaRequestService visaRequestService,
+                                DemandeurService demandeurService,
+                                DemandeService demandeService,
+                                PasseportService passeportService,
+                                VisaTransformableService visaTransformableService,
                                 NationaliteRepository nationaliteRepository,
                                 SituationFamilialeRepository situationFamilialeRepository,
                                 TypeDemandeRepository typeDemandeRepository,
                                 CategorieRepository categorieRepository) {
         this.visaRequestService = visaRequestService;
+        this.demandeurService = demandeurService;
+        this.demandeService = demandeService;
+        this.passeportService = passeportService;
+        this.visaTransformableService = visaTransformableService;
         this.nationaliteRepository = nationaliteRepository;
         this.situationFamilialeRepository = situationFamilialeRepository;
         this.typeDemandeRepository = typeDemandeRepository;
@@ -78,118 +92,22 @@ public class VisaRequestController {
     @ResponseBody
     public ResponseEntity<ApiResponse<Object>> create(@RequestBody VisaRequestDto dto) {
         try {
-            Demandeur demandeur = buildDemandeur(dto.getEtatCivil());
-            Passeport passeport = buildPasseport(dto.getPasseport(), demandeur);
-            VisaTransformable vt = buildVisaTransformable(dto.getVisaTransformable(), demandeur, passeport);
-            Demande demande = buildDemande(dto, passeport, vt);
+            Demandeur demandeur = demandeurService.buildDemandeur(dto.getEtatCivil());
+            Passeport passeport = passeportService.buildPasseport(dto.getPasseport(), demandeur);
+            VisaTransformable vt = visaTransformableService.buildVisaTransformable(dto.getVisaTransformable(), demandeur, passeport);
+            Demande demande = demandeService.buildDemande(dto, passeport, vt);
 
             // Tsy tonga dia ilay entite no nalefako en response fa tratrana olana recursion zah teo
             // Mahakamo be koa raha fenoina anotation le manala json
             // Dia aleo averina atao anaty variables hafa  
-            Map<String, Object> debugData = buildDebugData(demandeur, passeport, vt, demande, dto.getDossiersFournis());
+            Map<String, Object> debugData = UtilService.buildDebugData(demandeur, passeport, vt, demande, dto.getDossiersFournis());
 
             return ResponseEntity.ok(new ApiResponse<>(true, debugData, null)); // Tonga dia hitan'ny client hafa ankotran navigateur nefa tsy nanamboatra CORS akory isika ? Eny e zarantsika aza
         } catch (Exception e) {
             e.printStackTrace();
             return ResponseEntity.badRequest().body(new ApiResponse<>(false, null, e.getMessage()));
         }
-    }
-
-    private Demandeur buildDemandeur(Map<String, Object> ec) {
-        Demandeur demandeur = new Demandeur();
-        demandeur.setNom((String) ec.get("nom"));
-        demandeur.setPrenom((String) ec.get("prenom"));
-        demandeur.setNomJeuneFille((String) ec.get("nomJeuneFille"));
-        demandeur.setEmail((String) ec.get("email"));
-        demandeur.setNumTel((String) ec.get("numTel"));
-        demandeur.setAdresse((String) ec.get("adresse"));
-        demandeur.setDateNaissance(LocalDate.parse((String) ec.get("dateNaissance")));
-
-        Integer nationaliteId = Integer.valueOf(ec.get("nationalite").toString());
-        demandeur.setNationalite(nationaliteRepository.findById(nationaliteId).orElse(null));
-
-        Integer situationId = Integer.valueOf(ec.get("situationFamiliale").toString());
-        demandeur.setSituationFamiliale(situationFamilialeRepository.findById(situationId).orElse(null));
-
-        return demandeur;
-    }
-
-    private Passeport buildPasseport(Map<String, Object> passMap, Demandeur demandeur) {
-        Passeport passeport = new Passeport();
-        passeport.setNumero((String) passMap.get("numero"));
-        passeport.setDateDelivrance(LocalDateTime.parse((String) passMap.get("dateDelivrance")));
-        passeport.setDateExpiration(LocalDateTime.parse((String) passMap.get("dateExpiration")));
-        passeport.setDemandeur(demandeur);
-        return passeport;
-    }
-
-    private VisaTransformable buildVisaTransformable(Map<String, Object> vtMap, Demandeur demandeur, Passeport passeport) {
-        VisaTransformable vt = new VisaTransformable();
-        vt.setReference((String) vtMap.get("reference"));
-        vt.setDateEntree(LocalDateTime.parse((String) vtMap.get("dateEntree")));
-        vt.setLieuEntree((String) vtMap.get("lieuEntree"));
-        vt.setDateExpiration(LocalDateTime.parse((String) vtMap.get("dateExpiration")));
-        vt.setDemandeur(demandeur);
-        vt.setPasseport(passeport);
-        return vt;
-    }
-
-    private Demande buildDemande(VisaRequestDto dto, Passeport passeport, VisaTransformable vt) {
-        Demande demande = new Demande();
-        demande.setDateCreation(LocalDateTime.now());
-        demande.setPasseport(passeport);
-        demande.setVisaTransformable(vt);
-
-        if (dto.getTypeDemandeId() != null) {
-            demande.setTypeDemande(typeDemandeRepository.findById(dto.getTypeDemandeId()).orElse(null));
-        }
-
-        demande.setCategorie(categorieRepository.findAll().stream()
-            .filter(c -> "Nouveau titre".equalsIgnoreCase(c.getLibelle()))
-            .findFirst().orElse(null));
-
-        return demande;
-    }
-
-    private Map<String, Object> buildDebugData(Demandeur demandeur, Passeport passeport, VisaTransformable vt, Demande demande, List<Integer> dossiersIds) {
-        Map<String, Object> debugData = new HashMap<>();
-
-        Map<String, Object> demandeurMap = new HashMap<>();
-        demandeurMap.put("nom", demandeur.getNom());
-        demandeurMap.put("prenom", demandeur.getPrenom());
-        demandeurMap.put("nomJeuneFille", demandeur.getNomJeuneFille());
-        demandeurMap.put("email", demandeur.getEmail());
-        demandeurMap.put("numTel", demandeur.getNumTel());
-        demandeurMap.put("adresse", demandeur.getAdresse());
-        demandeurMap.put("dateNaissance", demandeur.getDateNaissance() != null ? demandeur.getDateNaissance().toString() : null);
-        demandeurMap.put("nationalite", demandeur.getNationalite() != null ? demandeur.getNationalite().getLibelle() : null);
-        demandeurMap.put("situationFamiliale", demandeur.getSituationFamiliale() != null ? demandeur.getSituationFamiliale().getLibelle() : null);
-
-        Map<String, Object> passeportMap = new HashMap<>();
-        passeportMap.put("numero", passeport.getNumero());
-        passeportMap.put("dateDelivrance", passeport.getDateDelivrance() != null ? passeport.getDateDelivrance().toString() : null);
-        passeportMap.put("dateExpiration", passeport.getDateExpiration() != null ? passeport.getDateExpiration().toString() : null);
-
-        Map<String, Object> vtMapOut = new HashMap<>();
-        vtMapOut.put("reference", vt.getReference());
-        vtMapOut.put("dateEntree", vt.getDateEntree() != null ? vt.getDateEntree().toString() : null);
-        vtMapOut.put("lieuEntree", vt.getLieuEntree());
-        vtMapOut.put("dateExpiration", vt.getDateExpiration() != null ? vt.getDateExpiration().toString() : null);
-
-        Map<String, Object> demandeMap = new HashMap<>();
-        demandeMap.put("dateCreation", demande.getDateCreation() != null ? demande.getDateCreation().toString() : null);
-        demandeMap.put("typeDemande", demande.getTypeDemande() != null ? demande.getTypeDemande().getLibelle() : null);
-        demandeMap.put("categorie", demande.getCategorie() != null ? demande.getCategorie().getLibelle() : null);
-
-        debugData.put("demandeur", demandeurMap);
-        debugData.put("passeport", passeportMap);
-        debugData.put("visaTransformable", vtMapOut);
-        debugData.put("demande", demandeMap);
-        debugData.put("dossiersIds", dossiersIds);
-
-        return debugData;
-    }
-
+    } 
 
     @PostMapping("/{id}")
     public String update(@PathVariable Integer id, @ModelAttribute("demande") Demande demande) {

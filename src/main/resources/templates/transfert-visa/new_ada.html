@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Demande de transfert de visa (Avec donnée Antérieur)</title>
+    <link id="global-css" rel="stylesheet" th:href="@{/css/global.css}">
+    <link id="visa-css" rel="stylesheet" th:href="@{/css/visa-form.css}">
+</head>
+
+<body>
+    <div class="visa-form-container">
+        <div class="header-top">
+            <h1>DEMANDE DE TRANSFERT DE VISA (Avec donnée Antérieur)</h1>
+        </div>
+
+        <form id="demandeForm" method="post">
+            <section>
+                <div class="grid-container">
+                    <div class="grid-item col-12">
+                        <label>VISA DEMANDE</label>
+                        <select id="typesDemande" name="typeDemande.id" required>
+                            <option value="">-- CHOISIR (TRAVAILLEUR / INVESTISSEUR) --</option>
+                        </select>
+                    </div>
+                </div>
+            </section>
+
+            <section>
+                <h2>1. ETAT CIVIL</h2>
+                <div class="grid-container">
+                    <div class="grid-item col-6">
+                        <label>NOM</label>
+                        <input type="text" name="passeport.demandeur.nom" id="demandeur_nom" value="RANDRIA" required />
+                    </div>
+                    <div class="grid-item col-6">
+                        <label>PRÉNOMS</label>
+                        <input type="text" name="passeport.demandeur.prenom" id="demandeur_prenom" value="Jean" required />
+                    </div>
+                    <div class="grid-item col-6">
+                        <label>NOM DE JEUNE FILLE</label>
+                        <input type="text" name="passeport.demandeur.nomJeuneFille" id="demandeur_nomJeuneFille" value="" />
+                    </div>
+                    <div class="grid-item col-6">
+                        <label>SITUATION DE FAMILLE</label>
+                        <select id="situationsFamiliales" name="passeport.demandeur.situationFamiliale.id" required>
+                            <option value="">--</option>
+                        </select>
+                    </div>
+                    <div class="grid-item col-6">
+                        <label>NATIONALITÉ</label>
+                        <select id="nationalites" name="passeport.demandeur.nationalite.id" required>
+                            <option value="">--</option>
+                        </select>
+                    </div>
+                    <div class="grid-item col-6">
+                        <label>DATE DE NAISSANCE</label>
+                        <input type="date" name="passeport.demandeur.dateNaissance" id="demandeur_dateNaissance" value="1990-01-01" required />
+                    </div>
+                    <div class="grid-item col-12">
+                        <label>ADRESSE À MADAGASCAR</label>
+                        <input type="text" name="passeport.demandeur.adresse" id="demandeur_adresse" value="Lot 123 Bis Ankazomanga" required />
+                    </div>
+                    <div class="grid-item col-6">
+                        <label>EMAIL</label>
+                        <input type="email" name="passeport.demandeur.email" id="demandeur_email" value="jean.randria@example.com" />
+                    </div>
+                    <div class="grid-item col-6">
+                        <label>TÉLÉPHONE</label>
+                        <input type="tel" name="passeport.demandeur.numTel" id="demandeur_numTel" value="0340000000" required />
+                    </div>
+                </div>
+            </section>
+
+            <section>
+                <h2>2. PASSEPORT</h2>
+                <div class="grid-container">
+                    <div class="grid-item col-4">
+                        <label>NUMÉRO DU DOCUMENT</label>
+                        <input type="text" name="passeport.numero" id="passeport_numero" value="ABC123456" required />
+                    </div>
+                    <div class="grid-item col-4">
+                        <label>DATE DE DÉLIVRANCE</label>
+                        <input type="datetime-local" name="passeport.dateDelivrance" id="passeport_dateDelivrance" value="2020-01-01T08:00" required />
+                    </div>
+                    <div class="grid-item col-4">
+                        <label>DATE D'EXPIRATION</label>
+                        <input type="datetime-local" name="passeport.dateExpiration" id="passeport_dateExpiration" value="2030-01-01T08:00" required />
+                    </div>
+                </div>
+            </section>
+
+            <section>
+                <h2>3. VISA TRANSFORMABLE</h2>
+                <div class="grid-container">
+                    <div class="grid-item col-4">
+                        <label>RÉFÉRENCE VISA</label>
+                        <input type="text" name="visaTransformable.reference" id="visa_reference" value="VISA-789-VT" required />
+                    </div>
+                    <div class="grid-item col-4">
+                        <label>DATE D'ENTRÉE À MADA</label>
+                        <input type="datetime-local" name="visaTransformable.dateEntree" id="visa_dateEntree" value="2024-01-10T10:30" required />
+                    </div>
+                    <div class="grid-item col-4">
+                        <label>LIEU D'ENTRÉE</label>
+                        <input type="text" name="visaTransformable.lieuEntree" id="visa_lieuEntree" value="IVATO" required />
+                    </div>
+                    <div class="grid-item col-12">
+                        <label>DATE DE SORTIE (FIN DE VALIDITÉ)</label>
+                        <input type="datetime-local" name="visaTransformable.dateExpiration" id="visa_dateExpiration" value="2024-04-10T23:59" required />
+                    </div>
+                </div>
+            </section>
+
+            <section id="dossiersSection">
+                <h2>4. DOSSIERS À FOURNIR</h2>
+                <div class="grid-container">
+                    <div class="grid-item col-12">
+                        <div id="dossiersList" class="checkbox-list">
+                            <!-- JS -->
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <div class="actions-bar">
+                <button type="submit" class="btn btn-primary">Enregistrer</button>
+                <a th:href="@{/visa-requests}" class="btn btn-outline">Annuler</a>
+            </div>
+        </form>
+    </div>
+    <script th:src="@{/js/marquage-champ-requis.js}"></script>
+    <script th:src="@{/js/static-data.js}"></script>
+    <script th:src="@{/js/dossiers.js}"></script>
+    <script th:src="@{/js/handle-form-submit.js}"></script>
+    <script>
+        let donneesStatiques = {}; // Instancie ao @ fonction loadDonneesStatiques
+        let typeSelect;
+        let dossierList;
+        let demandeForm;
+        // Main
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', init);
+        } else {
+            init();
+        }
+
+        function init() {
+            typeSelect = document.getElementById('typesDemande');
+            dossierList = document.getElementById('dossiersList');
+            demandeForm = document.getElementById('demandeForm');
+
+            loadDonneesStatiques();
+            typeSelect.addEventListener('change', updateDossiersAFournir);
+            demandeForm.addEventListener('submit', handleFormSubmit);
+        }
+    </script>
+</body>
+
+</html>

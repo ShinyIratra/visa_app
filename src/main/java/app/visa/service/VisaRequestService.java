@@ -94,9 +94,9 @@ public class VisaRequestService {
             throw new IllegalArgumentException("donnees de demande obligatoires.");
         }
 
-        Map<String, Object> etatCivilData = getBloc(donnees, "etat civil");
-        Map<String, Object> passeportData = getBloc(donnees, "passeport");
-        Map<String, Object> visaTransformableData = getBloc(donnees, "visaTransformable");
+        Map<String, Object> etatCivilData = UtilService.getBloc(donnees, "etat civil");
+        Map<String, Object> passeportData = UtilService.getBloc(donnees, "passeport");
+        Map<String, Object> visaTransformableData = UtilService.getBloc(donnees, "visaTransformable");
         Integer typeDemandeId = toLong(donnees.get("typeDemandeId"));
         List<Integer> dossiersFournisIds = getDossiersFournis(donnees);
 
@@ -114,7 +114,7 @@ public class VisaRequestService {
 
         Demande demande = createDemande(typeDemande, passeport, visaTransformable);
         saveReponseDossier(demande, dossiersApplicables, dossiersFournisIds);
-        saveStatutDemande(demande);
+        saveStatutDemande(demande, "Demande creee");
 
         return reponseCreation(demandeur, passeport, visaTransformable, demande, dossiersFournisIds);
     }
@@ -278,9 +278,9 @@ public class VisaRequestService {
         reponseStatutVisaRepository.saveAll(reponses);
     }
 
-    private void saveStatutDemande(Demande dem) {
-        Statut statut = statutRepository.findByLibelle("Demande creee")
-            .orElseThrow(() -> new IllegalArgumentException("statut 'Demande creee' introuvable."));
+    private void saveStatutDemande(Demande dem, String statutLibelle) {
+        Statut statut = statutRepository.findByLibelle(statutLibelle)
+            .orElseThrow(() -> new IllegalArgumentException("statut '" + statutLibelle + "' introuvable."));
 
         HistoriqueStatut historique = new HistoriqueStatut();
         historique.setDemande(dem);
@@ -288,17 +288,6 @@ public class VisaRequestService {
         historique.setDateModification(LocalDateTime.now());
 
         historiqueStatutRepository.save(historique);
-    }
-
-    protected Map<String, Object> getBloc(Map<String, Object> donnees, String nomBloc) {
-        Object bloc = donnees.get(nomBloc);
-        if (!(bloc instanceof Map<?, ?>)) {
-            return new LinkedHashMap<>();
-        }
-
-        @SuppressWarnings("unchecked")
-        Map<String, Object> map = (Map<String, Object>) bloc;
-        return map;
     }
 
     protected List<Integer> getDossiersFournis(Map<String, Object> donnees) {

@@ -1,3 +1,4 @@
+
 package app.visa.service;
 
 import app.visa.entity.Demandeur;
@@ -7,6 +8,8 @@ import app.visa.repository.PasseportRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import java.util.Map;
+import java.time.LocalDateTime;
 
 @Service
 @RequiredArgsConstructor
@@ -14,6 +17,15 @@ public class PasseportService {
 
 	private final PasseportRepository passeportRepository;
 	private final DemandeurRepository demandeurRepository;
+
+    public Passeport buildPasseport(Map<String, Object> passMap, Demandeur demandeur) {
+        Passeport passeport = new Passeport();
+        passeport.setNumero((String) passMap.get("numero"));
+        passeport.setDateDelivrance(LocalDateTime.parse((String) passMap.get("dateDelivrance")));
+        passeport.setDateExpiration(LocalDateTime.parse((String) passMap.get("dateExpiration")));
+        passeport.setDemandeur(demandeur);
+        return passeport;
+    }
 
 	@Transactional(rollbackFor = Exception.class)
 	public Passeport createPasseport(Passeport passeport) {

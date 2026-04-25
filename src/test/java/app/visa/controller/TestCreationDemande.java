@@ -16,10 +16,17 @@ import app.visa.entity.Categorie;
 import app.visa.entity.Nationalite;
 import app.visa.entity.SituationFamiliale;
 import app.visa.repository.CategorieRepository;
+import app.visa.repository.DemandeurRepository;
 import app.visa.repository.NationaliteRepository;
+import app.visa.repository.PasseportRepository;
 import app.visa.repository.SituationFamilialeRepository;
 import app.visa.repository.TypeDemandeRepository;
+import app.visa.repository.VisaTransformableRepository;
+import app.visa.service.DemandeService;
+import app.visa.service.DemandeurService;
+import app.visa.service.PasseportService;
 import app.visa.service.VisaRequestService;
+import app.visa.service.VisaTransformableService;
 
 import org.springframework.http.ResponseEntity;
 
@@ -29,7 +36,17 @@ public class TestCreationDemande {
     private SituationFamilialeRepository situationRepo;
     private TypeDemandeRepository typeRepo;
     private CategorieRepository categorieRepo;
+    private DemandeurRepository demandeurRepo;
+    private PasseportRepository passeportRepo;
+    private VisaTransformableRepository visaTransformableRepo;
+    private app.visa.repository.DemandeRepository demandeRepo;
+
     private VisaRequestService visaRequestService;
+    private DemandeurService demandeurService;
+    private DemandeService demandeService;
+    private PasseportService passeportService;
+    private VisaTransformableService visaTransformableService;
+
     private VisaRequestController controller;
 
     private void setup() {
@@ -37,7 +54,16 @@ public class TestCreationDemande {
         situationRepo = mock(SituationFamilialeRepository.class);
         typeRepo = mock(TypeDemandeRepository.class);
         categorieRepo = mock(CategorieRepository.class);
+        demandeurRepo = mock(DemandeurRepository.class);
+        passeportRepo = mock(PasseportRepository.class);
+        visaTransformableRepo = mock(VisaTransformableRepository.class);
+        demandeRepo = mock(app.visa.repository.DemandeRepository.class);
+
         visaRequestService = mock(VisaRequestService.class);
+        demandeurService = new DemandeurService(demandeurRepo, nationaliteRepo, situationRepo);
+        demandeService = new DemandeService(demandeRepo, typeRepo, categorieRepo);
+        passeportService = new PasseportService(passeportRepo, demandeurRepo);
+        visaTransformableService = new VisaTransformableService(visaTransformableRepo, passeportRepo, demandeurRepo);
 
         // Ho an le when()
         Nationalite nat = new Nationalite();
@@ -56,7 +82,17 @@ public class TestCreationDemande {
         when(situationRepo.findById(2)).thenReturn(Optional.of(sit));
         when(categorieRepo.findAll()).thenReturn(List.of(cat));
 
-        controller = new VisaRequestController(visaRequestService, nationaliteRepo, situationRepo, typeRepo, categorieRepo);
+        controller = new VisaRequestController(
+            visaRequestService,
+            demandeurService,
+            demandeService,
+            passeportService,
+            visaTransformableService,
+            nationaliteRepo,
+            situationRepo,
+            typeRepo,
+            categorieRepo
+        );
     }
 
     @Test

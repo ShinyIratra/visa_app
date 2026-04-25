@@ -1,3 +1,4 @@
+
 package app.visa.service;
 
 import app.visa.entity.Demandeur;
@@ -9,6 +10,8 @@ import app.visa.repository.VisaTransformableRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import java.util.Map;
+import java.time.LocalDateTime;
 
 @Service
 @RequiredArgsConstructor
@@ -17,6 +20,17 @@ public class VisaTransformableService {
     private final VisaTransformableRepository visaTransformableRepository;
     private final PasseportRepository passeportRepository;
     private final DemandeurRepository demandeurRepository;
+
+    public VisaTransformable buildVisaTransformable(Map<String, Object> vtMap, Demandeur demandeur, Passeport passeport) {
+        VisaTransformable vt = new VisaTransformable();
+        vt.setReference((String) vtMap.get("reference"));
+        vt.setDateEntree(LocalDateTime.parse((String) vtMap.get("dateEntree")));
+        vt.setLieuEntree((String) vtMap.get("lieuEntree"));
+        vt.setDateExpiration(LocalDateTime.parse((String) vtMap.get("dateExpiration")));
+        vt.setDemandeur(demandeur);
+        vt.setPasseport(passeport);
+        return vt;
+    }
 
     @Transactional(rollbackFor = Exception.class)
     public VisaTransformable createVisaTransformable(VisaTransformable visaTransformable) {

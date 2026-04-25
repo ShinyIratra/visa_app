@@ -123,9 +123,9 @@ public class VisaRequestEditService extends VisaRequestService { // (Kamo be han
         Demande demande = visaRequestRepository.findById(id)
             .orElseThrow(() -> new IllegalArgumentException("demande introuvable: " + id));
 
-        Map<String, Object> etatCivilData = getBloc(donnees, "etat civil");
-        Map<String, Object> passeportData = getBloc(donnees, "passeport");
-        Map<String, Object> visaTransformableData = getBloc(donnees, "visaTransformable");
+        Map<String, Object> etatCivilData = UtilService.getBloc(donnees, "etat civil");
+        Map<String, Object> passeportData = UtilService.getBloc(donnees, "passeport");
+        Map<String, Object> visaTransformableData = UtilService.getBloc(donnees, "visaTransformable");
         Integer typeDemandeId = toLong(donnees.get("typeDemandeId"));
         List<Integer> dossiersFournisIds = getDossiersFournis(donnees);
 

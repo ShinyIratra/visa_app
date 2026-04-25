@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Demande de duplicata (Avec donnée antérieure)</title>
+    <link id="global-css" rel="stylesheet" th:href="@{/css/global.css}">
+    <link id="visa-css" rel="stylesheet" th:href="@{/css/visa-form.css}">
+</head>
+<body>
+    <div class="visa-form-container">
+        <div class="header-top">
+            <h1>DEMANDE DE DUPLICATA (Avec donnée antérieure)</h1>
+        </div>
+        <!-- Formulaire similaire à new_ada.html adapté pour duplicata avec donnée antérieure -->
+        <form id="duplicataForm" method="post">
+            <!-- Champs du formulaire ici -->
+        </form>
+    </div>
+    <script th:src="@{/js/marquage-champ-requis.js}"></script>
+    <script th:src="@{/js/static-data.js}"></script>
+    <script th:src="@{/js/handle-form-submit.js}"></script>
+</body>
+</html>

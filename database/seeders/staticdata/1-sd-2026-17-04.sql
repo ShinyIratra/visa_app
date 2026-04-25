@@ -11,7 +11,7 @@ INSERT INTO Nationalite (Libelle) VALUES
 
 INSERT INTO Categorie (Libelle) VALUES
 ('Nouveau titre'),
-('Transfert'),
+('Transfert de visa'),
 ('Duplicata');
 
 INSERT INTO TypeDemande (Libelle) VALUES

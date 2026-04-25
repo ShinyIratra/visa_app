@@ -1,3 +1,4 @@
+
 package app.visa.service;
 
 import app.visa.entity.Demandeur;
@@ -9,6 +10,8 @@ import app.visa.repository.SituationFamilialeRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import java.time.LocalDate;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -17,6 +20,25 @@ public class DemandeurService {
     private final DemandeurRepository demandeurRepository;
     private final NationaliteRepository nationaliteRepository;
     private final SituationFamilialeRepository situationFamilialeRepository;
+
+    public Demandeur buildDemandeur(Map<String, Object> ec) {
+        Demandeur demandeur = new Demandeur();
+        demandeur.setNom((String) ec.get("nom"));
+        demandeur.setPrenom((String) ec.get("prenom"));
+        demandeur.setNomJeuneFille((String) ec.get("nomJeuneFille"));
+        demandeur.setEmail((String) ec.get("email"));
+        demandeur.setNumTel((String) ec.get("numTel"));
+        demandeur.setAdresse((String) ec.get("adresse"));
+        demandeur.setDateNaissance(LocalDate.parse((String) ec.get("dateNaissance")));
+
+        Integer nationaliteId = Integer.valueOf(ec.get("nationalite").toString());
+        demandeur.setNationalite(nationaliteRepository.findById(nationaliteId).orElse(null));
+
+        Integer situationId = Integer.valueOf(ec.get("situationFamiliale").toString());
+        demandeur.setSituationFamiliale(situationFamilialeRepository.findById(situationId).orElse(null));
+
+        return demandeur;
+    }
 
     @Transactional(rollbackFor = Exception.class)
     public Demandeur createDemandeur(Demandeur demandeur) {
