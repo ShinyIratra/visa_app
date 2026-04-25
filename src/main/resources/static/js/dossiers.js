@@ -53,6 +53,7 @@
             checkbox.name = 'dossierIds';
             checkbox.value = item.id;
             checkbox.id = 'dossier_' + item.id;
+            checkbox.checked = true;
             if (item.obligatoire === true) {
                 // Marquage cote code
                 checkbox.dataset.obligatoire = 'true';
