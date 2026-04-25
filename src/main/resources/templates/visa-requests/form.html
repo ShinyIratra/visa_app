@@ -154,7 +154,7 @@
             loadDonneesStatiques();
             typeSelect.addEventListener('change', updateDossiersAFournir);
             demandeForm.addEventListener('submit', function(event) {
-                handleFormSubmit(event, '/visa-requests');
+                handleFormSubmit(event, '/visa-requests', '/api/demandes-visa');
             });
         }
     </script>
