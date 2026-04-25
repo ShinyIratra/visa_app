@@ -112,7 +112,7 @@ public class VisaRequestService {
             passeport.getId()
         );
 
-        Demande demande = createDemande(typeDemande, passeport, visaTransformable);
+        Demande demande = createDemande(typeDemande, "Nouveau titre", passeport, visaTransformable);
         saveReponseDossier(demande, dossiersApplicables, dossiersFournisIds);
         saveStatutDemande(demande, "Demande creee");
 
@@ -206,9 +206,9 @@ public class VisaRequestService {
         return visaTransformableService.createVisaTransformable(visaTransformable);
     }
 
-    protected Demande createDemande(TypeDemande typeDemande, Passeport passeport, VisaTransformable visaTransformable) {
-        Categorie categorie = categorieRepository.findByLibelle("Nouveau titre")
-            .orElseThrow(() -> new IllegalArgumentException("categorie 'Nouveau titre' introuvable."));
+    protected Demande createDemande(TypeDemande typeDemande, String libelle, Passeport passeport, VisaTransformable visaTransformable) {
+        Categorie categorie = categorieRepository.findByLibelle(libelle)
+            .orElseThrow(() -> new IllegalArgumentException("categorie '" + libelle + "' introuvable."));
 
         Demande demande = new Demande();
         demande.setDateCreation(LocalDateTime.now());

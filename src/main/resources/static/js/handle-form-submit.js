@@ -42,7 +42,7 @@
         .then(resp => {
             if (resp.success) {
                 // alert('Demande enregistree avec succes');
-                // console.log('Response:', resp.data); // TODO: redirection ?
+                // console.log('Lien api: ', lien_api); // TODO: redirection ?
                 window.location.href = lien_retour || '/';
             } else {
                 throw new Error(resp.error);

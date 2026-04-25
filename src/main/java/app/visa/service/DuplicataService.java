@@ -68,7 +68,6 @@ public class DuplicataService extends VisaRequestService {
 
     @Transactional(rollbackFor = Exception.class)
     public Map<String, Object> creerDemandeDuplicataSansDonneeAnterieure(Map<String, Object> donnees) {
-        donnees.put("typeDemandeId", 1); // TypeDemande "Nouveau Titre" d'abord
         Map<String, Object> response = this.creerDemandeVisa(donnees);
 
         // Logique pour directement accepter le visa
