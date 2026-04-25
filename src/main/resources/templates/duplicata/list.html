@@ -1,18 +1,20 @@
 <!DOCTYPE html>
-<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<html lang="fr" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{layout}">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Liste des demandes de duplicata</title>
+    <title layout:fragment="title">Liste des demandes de duplicata</title>
     <link id="global-css" rel="stylesheet" th:href="@{/css/global.css}">
 </head>
 <body>
-    <a href="/sans-donne-anterieur/duplicata"> Créer une nouvelle demande de duplicata </a>
-    <div class="container">
-        <div class="header-top">
-            <h1>LISTE DES DEMANDES DE DUPLICATA</h1>
+    <div layout:fragment="content">
+        <a href="/sans-donne-anterieur/duplicata"> Créer une nouvelle demande de duplicata </a>
+        <div class="container">
+            <div class="header-top">
+                <h1>LISTE DES DEMANDES DE DUPLICATA</h1>
+            </div>
+            <!-- Table or list of duplicata requests here -->
         </div>
-        <!-- Table or list of duplicata requests here -->
     </div>
 </body>
 </html>

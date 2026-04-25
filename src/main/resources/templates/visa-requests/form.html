@@ -1,23 +1,25 @@
 <!DOCTYPE html>
-<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<html lang="fr" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{layout}">
 
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Demande de transformation de visa</title>
+    <title layout:fragment="title">Demande de transformation de visa</title>
     <link id="global-css" rel="stylesheet" th:href="@{/css/global.css}">
     <link id="visa-css" rel="stylesheet" th:href="@{/css/visa-form.css}">
 </head>
 
 <body>
-    <div class="visa-form-container">
-        <div class="header-top">
-            <h1>DEMANDE DE TRANSFORMATION DE VISA</h1>
-        </div>
+    <div layout:fragment="content">
+        <div class="visa-form-container">
+            <div class="header-top">
+                <h1>DEMANDE DE TRANSFORMATION DE VISA</h1>
+            </div>
 
-        <form id="demandeForm" method="post">
-            <section>
-                <div class="grid-container">
+            <form id="demandeForm" method="post">
+                <section>
+                    <div class="grid-container">
+
                     <div class="grid-item col-12">
                         <label>VISA DEMANDE</label>
                         <select id="typesDemande" name="typeDemande.id" required>
@@ -158,6 +160,7 @@
             });
         }
     </script>
+    </div>
 </body>
 
 </html>
