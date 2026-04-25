@@ -52,7 +52,7 @@ public class VisaRequestService {
         return visaRequestRepository.findAll();
     }
 
-    public Optional<Demande> findById(Long id) {
+    public Optional<Demande> findById(Integer id) {
         return visaRequestRepository.findById(id);
     }
 
@@ -97,8 +97,8 @@ public class VisaRequestService {
         Map<String, Object> etatCivilData = getBloc(donnees, "etat civil");
         Map<String, Object> passeportData = getBloc(donnees, "passeport");
         Map<String, Object> visaTransformableData = getBloc(donnees, "visaTransformable");
-        Long typeDemandeId = toLong(donnees.get("typeDemandeId"));
-        List<Long> dossiersFournisIds = getDossiersFournis(donnees);
+        Integer typeDemandeId = toLong(donnees.get("typeDemandeId"));
+        List<Integer> dossiersFournisIds = getDossiersFournis(donnees);
 
         TypeDemande typeDemande = getTypeDemandeValide(typeDemandeId);
         List<Dossier> dossiersApplicables = getDossiersApplicables(typeDemande);
@@ -120,7 +120,7 @@ public class VisaRequestService {
     }
 
     @Transactional(rollbackFor = Exception.class)
-    public void deleteById(Long id) {
+    public void deleteById(Integer id) {
         visaRequestRepository.deleteById(id);
     }
 
@@ -138,14 +138,14 @@ public class VisaRequestService {
             demandeur.setDateNaissance(LocalDate.parse(dateNaissance.toString()));
         }
 
-        Long nationaliteId = toLong(etatCivilData.get("nationalite"));
+        Integer nationaliteId = toLong(etatCivilData.get("nationalite"));
         if (nationaliteId != null) {
             Nationalite nationalite = new Nationalite();
             nationalite.setId(nationaliteId);
             demandeur.setNationalite(nationalite);
         }
 
-        Long situationFamilialeId = toLong(etatCivilData.get("situationFamiliale"));
+        Integer situationFamilialeId = toLong(etatCivilData.get("situationFamiliale"));
         if (situationFamilialeId != null) {
             SituationFamiliale situationFamiliale = new SituationFamiliale();
             situationFamiliale.setId(situationFamilialeId);
@@ -155,7 +155,7 @@ public class VisaRequestService {
         return demandeurService.createDemandeur(demandeur);
     }
 
-    private Passeport createPasseport(Map<String, Object> passeportData, Long demandeurId) {
+    private Passeport createPasseport(Map<String, Object> passeportData, Integer demandeurId) {
         Passeport passeport = new Passeport();
         passeport.setNumero((String) passeportData.get("numero"));
 
@@ -178,8 +178,8 @@ public class VisaRequestService {
 
     protected VisaTransformable createVisaTransformable(
         Map<String, Object> visaTransformableData,
-        Long demandeurId,
-        Long passeportId
+        Integer demandeurId,
+        Integer passeportId
     ) {
         VisaTransformable visaTransformable = new VisaTransformable();
         visaTransformable.setReference((String) visaTransformableData.get("reference"));
@@ -219,7 +219,7 @@ public class VisaRequestService {
         return visaRequestRepository.save(demande);
     }
 
-    protected TypeDemande getTypeDemandeValide(Long typeId) {
+    protected TypeDemande getTypeDemandeValide(Integer typeId) {
         if (typeId == null) {
             throw new IllegalArgumentException("il faut choisir un type de demande Travailleur ou Investisseur.");
         }
@@ -248,9 +248,9 @@ public class VisaRequestService {
         return doss;
     }
 
-    protected void checkDossiersObligatoires(List<Dossier> doss, List<Long> dossIds) {
-        Set<Long> dossiersFournis = new HashSet<>(dossIds);
-        List<Long> manquants = new ArrayList<>();
+    protected void checkDossiersObligatoires(List<Dossier> doss, List<Integer> dossIds) {
+        Set<Integer> dossiersFournis = new HashSet<>(dossIds);
+        List<Integer> manquants = new ArrayList<>();
 
         for (Dossier dossier : doss) {
             if (Boolean.TRUE.equals(dossier.getObligatoire()) && !dossiersFournis.contains(dossier.getId())) {
@@ -263,8 +263,8 @@ public class VisaRequestService {
         }
     }
 
-    protected void saveReponseDossier(Demande dem, List<Dossier> doss, List<Long> dossIds) {
-        Set<Long> dossiersFournis = new HashSet<>(dossIds);
+    protected void saveReponseDossier(Demande dem, List<Dossier> doss, List<Integer> dossIds) {
+        Set<Integer> dossiersFournis = new HashSet<>(dossIds);
         List<ReponseStatutVisa> reponses = new ArrayList<>();
 
         for (Dossier dossier : doss) {
@@ -301,8 +301,8 @@ public class VisaRequestService {
         return map;
     }
 
-    protected List<Long> getDossiersFournis(Map<String, Object> donnees) {
-        List<Long> dossiersFournisIds = new ArrayList<>();
+    protected List<Integer> getDossiersFournis(Map<String, Object> donnees) {
+        List<Integer> dossiersFournisIds = new ArrayList<>();
         Object dossiersObj = donnees.get("dossiersFournis");
 
         if (!(dossiersObj instanceof List<?> dossiersBruts)) {
@@ -310,7 +310,7 @@ public class VisaRequestService {
         }
 
         for (Object idObj : dossiersBruts) {
-            Long id = toLong(idObj);
+            Integer id = toLong(idObj);
             if (id != null) {
                 dossiersFournisIds.add(id);
             }
@@ -319,7 +319,7 @@ public class VisaRequestService {
         return dossiersFournisIds;
     }
 
-    protected Long toLong(Object value) {
+    protected Integer toLong(Object value) {
         if (value == null) {
             return null;
         }
@@ -330,13 +330,13 @@ public class VisaRequestService {
         }
 
         try {
-            return Long.valueOf(text);
+            return Integer.valueOf(text);
         } catch (NumberFormatException e) {
             return null;
         }
     }
 
-    private String getDernierStatutLibelle(Long demandeId) {
+    private String getDernierStatutLibelle(Integer demandeId) {
         return historiqueStatutRepository.findLatestByDemandeId(demandeId)
             .map(HistoriqueStatut::getStatut)
             .map(Statut::getLibelle)
@@ -348,7 +348,7 @@ public class VisaRequestService {
         Passeport pass,
         VisaTransformable vt,
         Demande demSave,
-        List<Long> dossIds
+        List<Integer> dossIds
     ) {
         Map<String, Object> data = new LinkedHashMap<>();
         data.put("demandeurId", dem.getId());

@@ -15,5 +15,5 @@ public interface HistoriqueStatutRepository extends JpaRepository<HistoriqueStat
 		value = "SELECT * FROM historiquestatut hs WHERE hs.id_demande = :demandeId ORDER BY hs.datemodification DESC LIMIT 1",
 		nativeQuery = true
 	)
-	Optional<HistoriqueStatut> findLatestByDemandeId(@Param("demandeId") Long demandeId);
+	Optional<HistoriqueStatut> findLatestByDemandeId(@Param("demandeId") Integer demandeId);
 }

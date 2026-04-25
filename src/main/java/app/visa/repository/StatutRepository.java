@@ -8,7 +8,7 @@ import org.springframework.data.repository.query.Param;
 
 import app.visa.entity.Statut;
 
-public interface StatutRepository extends JpaRepository<Statut, Long> {
+public interface StatutRepository extends JpaRepository<Statut, Integer> {
 
     @Query("SELECT s FROM Statut s WHERE s.libelle = :libelle")
 

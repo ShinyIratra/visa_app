@@ -14,7 +14,7 @@ import lombok.Setter;
 @NoArgsConstructor
 public class VisaRequestDto {
 
-    private Long typeDemandeId;
+    private Integer typeDemandeId;
 
     @JsonProperty("etat civil")
     private Map<String, Object> etatCivil;
@@ -23,5 +23,5 @@ public class VisaRequestDto {
 
     private Map<String, Object> visaTransformable;
 
-    private List<Long> dossiersFournis;
+    private List<Integer> dossiersFournis;
 }

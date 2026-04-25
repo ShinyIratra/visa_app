@@ -19,7 +19,7 @@ public class PasseportService {
 	public Passeport createPasseport(Passeport passeport) {
 		validerPasseport(passeport);
 
-		Long demandeurId = passeport.getDemandeur().getId();
+		Integer demandeurId = passeport.getDemandeur().getId();
 		Demandeur demandeur = demandeurRepository.findById(demandeurId)
 			.orElseThrow(() -> new IllegalArgumentException("demandeur introuvable: " + demandeurId));
 
@@ -30,7 +30,7 @@ public class PasseportService {
 	}
 
 	@Transactional(rollbackFor = Exception.class)
-	public Passeport updatePasseport(Long id, Passeport details) {
+	public Passeport updatePasseport(Integer id, Passeport details) {
 		Passeport passeport = passeportRepository.findById(id)
 			.orElseThrow(() -> new IllegalArgumentException("passeport introuvable: " + id));
 

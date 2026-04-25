@@ -22,8 +22,8 @@ public class DemandeurService {
     public Demandeur createDemandeur(Demandeur demandeur) {
         validerDemandeur(demandeur);
 
-        Long nationaliteId = demandeur.getNationalite().getId();
-        Long situationFamilialeId = demandeur.getSituationFamiliale().getId();
+        Integer nationaliteId = demandeur.getNationalite().getId();
+        Integer situationFamilialeId = demandeur.getSituationFamiliale().getId();
 
         Nationalite nationalite = nationaliteRepository.findById(nationaliteId)
             .orElseThrow(() -> new IllegalArgumentException("Nationalite introuvable: " + nationaliteId));
@@ -38,7 +38,7 @@ public class DemandeurService {
     }
 
     @Transactional(rollbackFor = Exception.class)
-    public Demandeur updateDemandeur(Long id, Demandeur details) {
+    public Demandeur updateDemandeur(Integer id, Demandeur details) {
         Demandeur demandeur = demandeurRepository.findById(id)
             .orElseThrow(() -> new IllegalArgumentException("demandeur introuvable: " + id));
 

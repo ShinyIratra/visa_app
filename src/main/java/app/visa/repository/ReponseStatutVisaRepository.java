@@ -8,5 +8,5 @@ import app.visa.entity.ReponseStatutVisa;
 import app.visa.entity.ReponseStatutVisaId;
 
 public interface ReponseStatutVisaRepository extends JpaRepository<ReponseStatutVisa, ReponseStatutVisaId> {
-    List<ReponseStatutVisa> findByDemandeId(Long demandeId);
+    List<ReponseStatutVisa> findByDemandeId(Integer demandeId);
 }

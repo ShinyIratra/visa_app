@@ -41,19 +41,19 @@ public class TestCreationDemande {
 
         // Ho an le when()
         Nationalite nat = new Nationalite();
-        nat.setId(1L);
+        nat.setId(1);
         nat.setLibelle("Americaine");
 
         SituationFamiliale sit = new SituationFamiliale();
-        sit.setId(2L);
+        sit.setId(2);
         sit.setLibelle("Celibataire");
 
         Categorie cat = new Categorie();
-        cat.setId(10L);
+        cat.setId(10);
         cat.setLibelle("Nouveau titre");
 
-        when(nationaliteRepo.findById(1L)).thenReturn(Optional.of(nat));
-        when(situationRepo.findById(2L)).thenReturn(Optional.of(sit));
+        when(nationaliteRepo.findById(1)).thenReturn(Optional.of(nat));
+        when(situationRepo.findById(2)).thenReturn(Optional.of(sit));
         when(categorieRepo.findAll()).thenReturn(List.of(cat));
 
         controller = new VisaRequestController(visaRequestService, nationaliteRepo, situationRepo, typeRepo, categorieRepo);

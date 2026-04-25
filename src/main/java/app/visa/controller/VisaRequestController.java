@@ -69,7 +69,7 @@ public class VisaRequestController {
     }
 
     @GetMapping("/{id}/edit")
-    public String showEditForm(@PathVariable Long id, Model model) {
+    public String showEditForm(@PathVariable Integer id, Model model) {
         model.addAttribute("demandeId", id);
         return "visa-requests/form-edit";
     }
@@ -105,10 +105,10 @@ public class VisaRequestController {
         demandeur.setAdresse((String) ec.get("adresse"));
         demandeur.setDateNaissance(LocalDate.parse((String) ec.get("dateNaissance")));
 
-        Long nationaliteId = Long.valueOf(ec.get("nationalite").toString());
+        Integer nationaliteId = Integer.valueOf(ec.get("nationalite").toString());
         demandeur.setNationalite(nationaliteRepository.findById(nationaliteId).orElse(null));
 
-        Long situationId = Long.valueOf(ec.get("situationFamiliale").toString());
+        Integer situationId = Integer.valueOf(ec.get("situationFamiliale").toString());
         demandeur.setSituationFamiliale(situationFamilialeRepository.findById(situationId).orElse(null));
 
         return demandeur;
@@ -151,7 +151,7 @@ public class VisaRequestController {
         return demande;
     }
 
-    private Map<String, Object> buildDebugData(Demandeur demandeur, Passeport passeport, VisaTransformable vt, Demande demande, List<Long> dossiersIds) {
+    private Map<String, Object> buildDebugData(Demandeur demandeur, Passeport passeport, VisaTransformable vt, Demande demande, List<Integer> dossiersIds) {
         Map<String, Object> debugData = new HashMap<>();
 
         Map<String, Object> demandeurMap = new HashMap<>();
@@ -192,7 +192,7 @@ public class VisaRequestController {
 
 
     @PostMapping("/{id}")
-    public String update(@PathVariable Long id, @ModelAttribute("demande") Demande demande) {
+    public String update(@PathVariable Integer id, @ModelAttribute("demande") Demande demande) {
         demande.setId(id);
         if (demande.getDateCreation() == null) {
             demande.setDateCreation(LocalDateTime.now());
@@ -202,7 +202,7 @@ public class VisaRequestController {
     }
 
     @PostMapping("/{id}/delete")
-    public String delete(@PathVariable Long id) {
+    public String delete(@PathVariable Integer id) {
         visaRequestService.deleteById(id);
         return "redirect:/visa-requests";
     }

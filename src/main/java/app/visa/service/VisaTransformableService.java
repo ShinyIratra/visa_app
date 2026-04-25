@@ -22,8 +22,8 @@ public class VisaTransformableService {
     public VisaTransformable createVisaTransformable(VisaTransformable visaTransformable) {
         validerVisaTransformable(visaTransformable);
 
-        Long passeportId = visaTransformable.getPasseport().getId();
-        Long demandeurId = visaTransformable.getDemandeur().getId();
+        Integer passeportId = visaTransformable.getPasseport().getId();
+        Integer demandeurId = visaTransformable.getDemandeur().getId();
 
         Passeport passeport = passeportRepository.findById(passeportId)
             .orElseThrow(() -> new IllegalArgumentException("passeport introuvable: " + passeportId));
@@ -44,7 +44,7 @@ public class VisaTransformableService {
     }
 
     @Transactional(rollbackFor = Exception.class)
-    public VisaTransformable updateVisaTransformable(Long id, VisaTransformable details) {
+    public VisaTransformable updateVisaTransformable(Integer id, VisaTransformable details) {
         VisaTransformable vt = visaTransformableRepository.findById(id)
             .orElseThrow(() -> new IllegalArgumentException("visa transformable introuvable: " + id));
 

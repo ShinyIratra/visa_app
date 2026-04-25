@@ -40,7 +40,7 @@ public class DemandeVisaController {
 	}
 
 	@GetMapping("/{id}")
-	public ResponseEntity<ApiResponse<Map<String, Object>>> get(@PathVariable Long id) {
+	public ResponseEntity<ApiResponse<Map<String, Object>>> get(@PathVariable Integer id) {
 		try {
 			Map<String, Object> data = visaRequestEditService.getDemandeFormData(id);
 			return ResponseEntity.ok(new ApiResponse<>(true, data, null));
@@ -66,7 +66,7 @@ public class DemandeVisaController {
 	}
 
 	@PutMapping("/{id}")
-	public ResponseEntity<ApiResponse<Map<String, Object>>> update(@PathVariable Long id, @RequestBody Map<String, Object> donnees) {
+	public ResponseEntity<ApiResponse<Map<String, Object>>> update(@PathVariable Integer id, @RequestBody Map<String, Object> donnees) {
 		try {
 			Map<String, Object> data = visaRequestEditService.updateDemandeVisa(id, donnees);
 			return ResponseEntity.ok(new ApiResponse<>(true, data, null));

@@ -8,7 +8,7 @@ import org.springframework.data.repository.query.Param;
 
 import app.visa.entity.TypeDemande;
 
-public interface TypeDemandeRepository extends JpaRepository<TypeDemande, Long> {
+public interface TypeDemandeRepository extends JpaRepository<TypeDemande, Integer> {
 
     @Query("SELECT t FROM TypeDemande t WHERE t.libelle = :libelle")
 

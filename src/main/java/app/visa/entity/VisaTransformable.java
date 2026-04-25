@@ -25,7 +25,7 @@ public class VisaTransformable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
-    private Long id;
+    private Integer id;
 
     @Column(name = "reference", nullable = false, length = 50)
     private String reference;
