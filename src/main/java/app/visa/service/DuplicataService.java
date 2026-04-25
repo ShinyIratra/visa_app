@@ -85,6 +85,7 @@ public class DuplicataService extends VisaRequestService {
         historique.setDateModification(LocalDateTime.now());
         historiqueStatutRepository.save(historique);
 
+        
         return response;
     }
 
