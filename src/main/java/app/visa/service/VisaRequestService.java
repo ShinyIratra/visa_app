@@ -119,6 +119,41 @@ public class VisaRequestService {
         return reponseCreation(demandeur, passeport, visaTransformable, demande, dossiersFournisIds);
     }
 
+    /**
+     * Ohatran'ilay eo ambony ihany fa + argument categorieLibelle + statutDemandeLibelle
+     * tsy tiako kitihana intsony ze classe efa miantso an le fonction eo ambony
+     */
+    @Transactional(rollbackFor = Exception.class)
+    public Map<String, Object> creerDemandeVisa(Map<String, Object> donnees, String categorieLibelle, String statutDemandeLibelle) {
+        if (donnees == null) {
+            throw new IllegalArgumentException("donnees de demande obligatoires.");
+        }
+
+        Map<String, Object> etatCivilData = UtilService.getBloc(donnees, "etat civil");
+        Map<String, Object> passeportData = UtilService.getBloc(donnees, "passeport");
+        Map<String, Object> visaTransformableData = UtilService.getBloc(donnees, "visaTransformable");
+        Integer typeDemandeId = toLong(donnees.get("typeDemandeId"));
+        List<Integer> dossiersFournisIds = getDossiersFournis(donnees);
+
+        TypeDemande typeDemande = getTypeDemandeValide(typeDemandeId);
+        List<Dossier> dossiersApplicables = getDossiersApplicables(typeDemande);
+        checkDossiersObligatoires(dossiersApplicables, dossiersFournisIds);
+
+        Demandeur demandeur = createDemandeur(etatCivilData);
+        Passeport passeport = createPasseport(passeportData, demandeur.getId());
+        VisaTransformable visaTransformable = createVisaTransformable(
+            visaTransformableData,
+            demandeur.getId(),
+            passeport.getId()
+        );
+
+        Demande demande = createDemande(typeDemande, categorieLibelle, passeport, visaTransformable);
+        saveReponseDossier(demande, dossiersApplicables, dossiersFournisIds);
+        saveStatutDemande(demande, statutDemandeLibelle);
+
+        return reponseCreation(demandeur, passeport, visaTransformable, demande, dossiersFournisIds);
+    }
+
     @Transactional(rollbackFor = Exception.class)
     public void deleteById(Integer id) {
         visaRequestRepository.deleteById(id);
