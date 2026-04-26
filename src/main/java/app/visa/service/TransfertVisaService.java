@@ -21,6 +21,20 @@ public class TransfertVisaService {
     private final StatutRepository statutRepository;
 
     @Transactional(rollbackFor = Exception.class)
+    public DemandeTransfertVisa creerDemandeTransfertAda(Map<String, Object> donnees) {
+        Integer idVisa = (Integer) donnees.get("idVisa");
+        Visa visa = visaRepository.findById(idVisa)
+            .orElseThrow(() -> new IllegalArgumentException("Visa " + idVisa + " introuvable"));
+        
+        Demande demandeOrigine = visa.getDemande();
+        Passeport nouveauPasseport = creerNouveauPasseport(donnees, demandeOrigine);
+
+        DemandeTransfertVisa demandeTransfertVisa = buildDemandeTransfert(demandeOrigine, nouveauPasseport);
+
+        return demandeTransfertVisaRepository.save(demandeTransfertVisa);
+    }
+
+    @Transactional(rollbackFor = Exception.class)
     public DemandeTransfertVisa creerDemandeTransfertSda(Map<String, Object> donnees) {
         Demande demande = visaRequestService.creerDemandeVisa(donnees, "Transfert de visa", "Visa accepte");
         Visa visa = acceptationDemandeVisaService.creerVisaEtCarteResident(demande);

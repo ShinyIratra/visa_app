@@ -49,12 +49,19 @@ public class TransfertVisaController {
         try {
             DemandeTransfertVisa demandeTransfert = transfertVisaService.creerDemandeTransfertSda(donnees);
             return ResponseEntity.ok(new ApiResponse<>(true, buildResponse(demandeTransfert), null));
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(new ApiResponse<>(false, null, e.getMessage()));
         } catch (Exception e) {
-            e.printStackTrace();
-            return ResponseEntity.internalServerError()
-                .body(new ApiResponse<>(false, null, "Erreur lors de la creation de la demande de transfert de visa: " + e.getMessage()));
+            return ResponseEntity.badRequest().body(new ApiResponse<>(false, null, e.getMessage()));
+        }
+    }
+
+    @PostMapping("/ada")
+    @ResponseBody
+    public ResponseEntity<ApiResponse<Map<String, Object>>> createAda(@RequestBody Map<String, Object> donnees) {
+        try {
+            DemandeTransfertVisa demandeTransfert = transfertVisaService.creerDemandeTransfertAda(donnees);
+            return ResponseEntity.ok(new ApiResponse<>(true, buildResponse(demandeTransfert), null));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(new ApiResponse<>(false, null, e.getMessage()));
         }
     }
 

@@ -155,6 +155,8 @@
     <script th:src="@{/js/dossiers.js}"></script>
     <script th:src="@{/js/handle-form-submit.js}"></script>
     <script>
+        console.log("SCRIPT LOADED", document.readyState);
+
         let donneesStatiques = {}; // Instancie ao @ fonction loadDonneesStatiques
         let typeSelect;
         let dossierList;
