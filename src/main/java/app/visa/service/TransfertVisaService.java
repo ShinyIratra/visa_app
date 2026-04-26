@@ -88,4 +88,44 @@ public class TransfertVisaService {
         }
         visa.getPasseports().add(passeport);
     }
+
+    @Transactional(readOnly = true)
+    public List<Map<String, Object>> listTransfertsAvecInfos() {
+        List<DemandeTransfertVisa> transferts = demandeTransfertVisaRepository.findAll();
+        List<Map<String, Object>> result = new ArrayList<>();
+
+        for (DemandeTransfertVisa t : transferts) {
+            Map<String, Object> map = new HashMap<>();
+            map.put("id", t.getId());
+            
+            Demande d = t.getDemande();
+            if (d != null && d.getPasseport() != null && d.getPasseport().getDemandeur() != null) {
+                Demandeur dr = d.getPasseport().getDemandeur();
+                map.put("demandeur", dr.getNom() + " " + dr.getPrenom());
+                map.put("ancienPasseport", d.getPasseport().getNumero());
+            } else {
+                map.put("demandeur", "Inconnu");
+                map.put("ancienPasseport", "Inconnu");
+            }
+
+            if (t.getNouveauPasseport() != null) {
+                map.put("nouveauPasseport", t.getNouveauPasseport().getNumero());
+                if (t.getNouveauPasseport().getDemandeur() != null && t.getNouveauPasseport().getDemandeur().getNationalite() != null) {
+                    map.put("nationalite", t.getNouveauPasseport().getDemandeur().getNationalite().getLibelle()); // 💀
+                } else {
+                    map.put("nationalite", "Inconnue");
+                }
+            } else {
+                map.put("numeroPasseport", "Inconnu");
+                map.put("nationalite", "Inconnue");
+            }
+
+            Statut s = getStatut(t);
+            map.put("statut", s != null ? s.getLibelle() : "Aucun");
+
+            result.add(map);
+        }
+
+        return result;
+    }
 }
