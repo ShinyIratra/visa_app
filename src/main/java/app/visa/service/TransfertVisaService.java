@@ -89,6 +89,25 @@ public class TransfertVisaService {
         visa.getPasseports().add(passeport);
     }
 
+    @Transactional(rollbackFor = Exception.class)
+    public void accepterTransfert(Integer transferId) {
+        DemandeTransfertVisa transfert = demandeTransfertVisaRepository.findById(transferId)
+            .orElseThrow(() -> new IllegalArgumentException("Demande de transfert " + transferId + " introuvable"));
+
+        // TODO: check statut
+
+        Visa visa = visaRepository.findAll().stream()
+            .filter(v -> v.getDemande().getId().equals(transfert.getDemande().getId()))
+            .findFirst()
+            .orElseThrow(() -> new IllegalStateException("Aucun visa trouve pour la demande de visa: " + transfert.getDemande().getId()));
+
+        assignerVisaAuPasseport(visa, transfert.getNouveauPasseport());
+        visaRepository.save(visa);
+
+        setStatut(transfert, "Demande acceptee");
+        demandeTransfertVisaRepository.save(transfert);
+    }
+
     @Transactional(readOnly = true)
     public List<Map<String, Object>> listTransfertsAvecInfos() {
         List<DemandeTransfertVisa> transferts = demandeTransfertVisaRepository.findAll();

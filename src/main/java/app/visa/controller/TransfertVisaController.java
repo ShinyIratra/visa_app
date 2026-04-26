@@ -58,4 +58,16 @@ public class TransfertVisaController {
                 .body(new ApiResponse<>(false, null, "Erreur lors de la creation de la demande de transfert de visa."));
         }
     }
+
+    @PostMapping("/{id}/accepter")
+    @ResponseBody
+    public ResponseEntity<ApiResponse<Void>> accepter(@PathVariable Integer id) {
+        try {
+            transfertVisaService.accepterTransfert(id);
+            return ResponseEntity.ok(new ApiResponse<>(true, null, null));
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError()
+                .body(new ApiResponse<>(false, null, "Erreur lors de l'acceptation: " + e.getMessage()));
+        }
+    }
 }

@@ -9,7 +9,7 @@ document.addEventListener('DOMContentLoaded', function() {
             if (apiResponse.success) {
                 renderTable(apiResponse.data);
             } else {
-                console.error('Erreur API:', apiResponse.message);
+                console.error('Erreur API:', apiResponse.error);
                 tableBody.innerHTML = `<tr><td colspan="7" style="text-align: center; color: red;">${apiResponse.message}</td></tr>`;
             }
         })
@@ -35,10 +35,30 @@ document.addEventListener('DOMContentLoaded', function() {
                 <td>${item.nationalite}</td>
                 <td>${item.statut}</td>
                 <td>
-                    <button class="btn-action">Accepter demande</button>
+                    <button class="btn-action" onclick="accepterDemande(${item.id})">Accepter demande</button>
                 </td>
             `;
             tableBody.appendChild(tr);
         });
     }
+
+    window.accepterDemande = function(id) {
+        if (!confirm('Acceptr la demande ?')) 
+            return;
+
+        fetch(`/transfert-visa/${id}/accepter`, {
+            method: 'POST'
+        })
+        .then(response => response.json())
+        .then(apiResponse => {
+            if (apiResponse.success) {
+                window.location.reload();
+            } else {
+                throw new Error(apiResponse.error);
+            }
+        })
+        .catch(error => {
+            alert(error);
+        });
+    };
 });
