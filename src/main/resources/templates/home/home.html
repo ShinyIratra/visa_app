@@ -1,13 +1,13 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{layout}">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Accueil</title>
+    <title layout:fragment="title">Accueil</title>
 </head>
 <body>
-    <a href="/visa-requests">Demande de visa</a>
-    <a href="/transfert-visa">Transfert de visa</a>
-    <a href="/duplicata">Duplicata</a>
+    <div layout:fragment="content">
+        <h1>Gestion de visa</h1>
+    </div>
 </body>
 </html>

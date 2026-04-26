@@ -1,6 +1,8 @@
 package app.visa.entity;
 
 import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.Set;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -9,6 +11,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.Getter;
@@ -39,4 +42,7 @@ public class Passeport {
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "id_demandeur", nullable = false)
     private Demandeur demandeur;
+
+    @ManyToMany(mappedBy = "passeports", fetch = FetchType.LAZY)
+    private Set<Visa> visas = new HashSet<>();
 }

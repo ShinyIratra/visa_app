@@ -1,7 +1,7 @@
 (function () {
     'use strict';
 
-    function handleFormSubmit(event, lien_retour, lien_api) {
+    function handleFormSubmit(event, lien_retour, lien_api, autresObjets) {
         event.preventDefault();
 
         const typeDemandeValue = document.getElementById('typesDemande').value;
@@ -32,6 +32,10 @@
             },
             "dossiersFournis": Array.from(document.querySelectorAll('input[name="dossierIds"]:checked')).map(cb => Number(cb.value))
         };
+
+        if (autresObjets) {
+            Object.assign(formData, autresObjets);
+        }
 
         fetch(lien_api, {
             method: 'POST',

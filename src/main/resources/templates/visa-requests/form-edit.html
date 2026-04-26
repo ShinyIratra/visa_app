@@ -1,23 +1,25 @@
 <!DOCTYPE html>
-<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<html lang="fr" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{layout}">
 
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Modifier la demande de visa</title>
+    <title layout:fragment="title">Modifier la demande de visa</title>
     <link id="global-css" rel="stylesheet" th:href="@{/css/global.css}">
     <link id="visa-css" rel="stylesheet" th:href="@{/css/visa-form.css}">
 </head>
 
 <body>
-    <div class="visa-form-container">
-        <div class="header-top">
-            <!-- Enjana koa ilay syntax thymeleaf izany -->
-            <h1>MODIFIER LA DEMANDE DE VISA [[${demandeId}]]</h1>
-        </div>
+    <div layout:fragment="content">
+        <div class="visa-form-container">
+            <div class="header-top">
+                <!-- Enjana koa ilay syntax thymeleaf izany -->
+                <h1>MODIFIER LA DEMANDE DE VISA [[${demandeId}]]</h1>
+            </div>
 
-        <form id="editDemandeForm" method="post">
-            <input type="hidden" id="demandeId" th:value="${demandeId}" />
+            <form id="editDemandeForm" method="post">
+                <input type="hidden" id="demandeId" th:value="${demandeId}" />
+
 
             <section>
                 <div class="grid-container">
@@ -154,6 +156,7 @@
             typeSelect.addEventListener('change', updateDossiersAFournir);
         });
     </script>
+    </div>
 </body>
 
 </html>

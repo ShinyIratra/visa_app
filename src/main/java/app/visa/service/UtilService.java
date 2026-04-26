@@ -20,6 +20,11 @@ import java.util.HashMap;
 
 public class UtilService {
 
+    public static final String STATUS_DEMANDE_CREEE = "Demande creee";
+    public static final String STATUS_SCAN_TERMINE = "Scan termine";
+    public static final String STATUS_VISA_ACCEPTE = "Visa accepte";
+    public static final String STATUS_DEMANDE_ACCEPTEE = "Demande acceptee";
+
     public static Map<String, Object> buildDebugData(Demandeur demandeur, Passeport passeport, VisaTransformable vt, Demande demande, List<Integer> dossiersIds) {
         Map<String, Object> debugData = new HashMap<>();
 

@@ -1,23 +1,25 @@
 <!DOCTYPE html>
-<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<html lang="fr" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{layout}">
 
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Demande de transfert de visa (Sans donnée Antérieur)</title>
+    <title layout:fragment="title">Demande de transfert de visa (Sans données Antérieures)</title>
     <link id="global-css" rel="stylesheet" th:href="@{/css/global.css}">
     <link id="visa-css" rel="stylesheet" th:href="@{/css/visa-form.css}">
 </head>
 
 <body>
-    <div class="visa-form-container">
-        <div class="header-top">
-            <h1>DEMANDE DE TRANSFERT DE VISA (Sans donnée Antérieur)</h1>
-        </div>
+    <div layout:fragment="content">
+        <div class="visa-form-container">
+            <div class="header-top">
+                <h1>DEMANDE DE TRANSFERT DE VISA (Sans données Antérieures)</h1>
+            </div>
 
-        <form id="demandeForm" method="post">
-            <section>
-                <div class="grid-container">
+            <form id="demandeForm" method="post">
+                <section>
+                    <div class="grid-container">
+
                     <div class="grid-item col-12">
                         <label>VISA DEMANDE</label>
                         <select id="typesDemande" name="typeDemande.id" required>
@@ -32,11 +34,11 @@
                 <div class="grid-container">
                     <div class="grid-item col-6">
                         <label>NOM</label>
-                        <input type="text" name="passeport.demandeur.nom" id="demandeur_nom" value="RANDRIA" required />
+                        <input type="text" name="passeport.demandeur.nom" id="demandeur_nom" value="RATRANSFERT" required />
                     </div>
                     <div class="grid-item col-6">
                         <label>PRÉNOMS</label>
-                        <input type="text" name="passeport.demandeur.prenom" id="demandeur_prenom" value="Jean" required />
+                        <input type="text" name="passeport.demandeur.prenom" id="demandeur_prenom" value="Sans Donnees Anterieures" required />
                     </div>
                     <div class="grid-item col-6">
                         <label>NOM DE JEUNE FILLE</label>
@@ -64,7 +66,7 @@
                     </div>
                     <div class="grid-item col-6">
                         <label>EMAIL</label>
-                        <input type="email" name="passeport.demandeur.email" id="demandeur_email" value="jean.randria@example.com" />
+                        <input type="email" name="passeport.demandeur.email" id="demandeur_email" value="transfert.sda@example.com" />
                     </div>
                     <div class="grid-item col-6">
                         <label>TÉLÉPHONE</label>
@@ -74,11 +76,11 @@
             </section>
 
             <section>
-                <h2>2. PASSEPORT</h2>
+                <h2>2. ANCIEN PASSEPORT</h2>
                 <div class="grid-container">
                     <div class="grid-item col-4">
                         <label>NUMÉRO DU DOCUMENT</label>
-                        <input type="text" name="passeport.numero" id="passeport_numero" value="ABC123456" required />
+                        <input type="text" name="passeport.numero" id="passeport_numero" value="PASS-SDA0001" required />
                     </div>
                     <div class="grid-item col-4">
                         <label>DATE DE DÉLIVRANCE</label>
@@ -96,7 +98,7 @@
                 <div class="grid-container">
                     <div class="grid-item col-4">
                         <label>RÉFÉRENCE VISA</label>
-                        <input type="text" name="visaTransformable.reference" id="visa_reference" value="VISA-789-VT" required />
+                        <input type="text" name="visaTransformable.reference" id="visa_reference" value="VISA-SDA0001" required />
                     </div>
                     <div class="grid-item col-4">
                         <label>DATE D'ENTRÉE À MADA</label>
@@ -124,6 +126,24 @@
                 </div>
             </section>
 
+            <section>
+                <h2>5. NOUVEAU PASSEPORT</h2>
+                <div class="grid-container">
+                    <div class="grid-item col-4">
+                        <label>NUMÉRO DU DOCUMENT</label>
+                        <input type="text" name="nouveauPasseport.numero" id="nouveau_passeport_numero" value="PASS-SDA0002" />
+                    </div>
+                    <div class="grid-item col-4">
+                        <label>DATE DE DÉLIVRANCE</label>
+                        <input type="datetime-local" name="nouveauPasseport.dateDelivrance" id="nouveau_passeport_dateDelivrance" value="2024-01-10T10:30" />
+                    </div>
+                    <div class="grid-item col-4">
+                        <label>DATE D'EXPIRATION</label>
+                        <input type="datetime-local" name="nouveauPasseport.dateExpiration" id="nouveau_passeport_dateExpiration" value="2027-04-28T10:10" />
+                    </div>
+                </div>
+            </section>
+
             <div class="actions-bar">
                 <button type="submit" class="btn btn-primary">Enregistrer</button>
                 <a th:href="@{/visa-requests}" class="btn btn-outline">Annuler</a>
@@ -135,6 +155,8 @@
     <script th:src="@{/js/dossiers.js}"></script>
     <script th:src="@{/js/handle-form-submit.js}"></script>
     <script>
+        console.log("SCRIPT LOADED", document.readyState);
+
         let donneesStatiques = {}; // Instancie ao @ fonction loadDonneesStatiques
         let typeSelect;
         let dossierList;
@@ -154,10 +176,18 @@
             loadDonneesStatiques();
             typeSelect.addEventListener('change', updateDossiersAFournir);
             demandeForm.addEventListener('submit', function(event) {
-                handleFormSubmit(event, '/visa-requests', '/api/demandes-visa'); // Vous pouvez modifier le lien ici
+                const nouveauPasseport = {
+                    "nouveau passeport": {
+                        numero: document.getElementById('nouveau_passeport_numero').value,
+                        dateDelivrance: document.getElementById('nouveau_passeport_dateDelivrance').value,
+                        dateExpiration: document.getElementById('nouveau_passeport_dateExpiration').value
+                    }
+                };
+                handleFormSubmit(event, '/transfert-visa', '/transfert-visa/sda', nouveauPasseport);
             });
         }
     </script>
+    </div>
 </body>
 
 </html>
