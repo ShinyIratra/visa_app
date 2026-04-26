@@ -174,7 +174,14 @@
             loadDonneesStatiques();
             typeSelect.addEventListener('change', updateDossiersAFournir);
             demandeForm.addEventListener('submit', function(event) {
-                handleFormSubmit(event, '/visa-requests', '/api/demande/transfert-visa/sda');
+                const nouveauPasseport = {
+                    "nouveau passeport": {
+                        numero: document.getElementById('nouveau_passeport_numero').value,
+                        dateDelivrance: document.getElementById('nouveau_passeport_dateDelivrance').value,
+                        dateExpiration: document.getElementById('nouveau_passeport_dateExpiration').value
+                    }
+                };
+                handleFormSubmit(event, '/transfert-visa', '/api/demande/transfert-visa/sda', nouveauPasseport);
             });
         }
     </script>
