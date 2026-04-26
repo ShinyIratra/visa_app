@@ -25,22 +25,24 @@ public class TransfertVisaService {
         Demande demande = visaRequestService.creerDemandeVisa(donnees, "Transfert de visa", "Visa accepte");
         Visa visa = acceptationDemandeVisaService.creerVisaEtCarteResident(demande);
 
-        Map<String, Object> nouveauPasseportData = getNouveauPasseportData(donnees);
-        Passeport nouveauPasseport = visaRequestService.createPasseport(nouveauPasseportData, demande.getPasseport().getDemandeur().getId());
+        Passeport nouveauPasseport = creerNouveauPasseport(donnees, demande);
 
         DemandeTransfertVisa demandeTransfertVisa = buildDemandeTransfert(demande, nouveauPasseport);
 
-        // assignerVisaAuPasseport(visa, nouveauPasseport);
+        // assignerVisaAuPasseport(visa, nouveauPasseport); // Decommentena raha tonga dia omena an le visa le passeport fa tsy mandalo validation
 
         return demandeTransfertVisaRepository.save(demandeTransfertVisa);
     }
 
-    private Map<String, Object> getNouveauPasseportData(Map<String, Object> donnees) {
+    private Passeport creerNouveauPasseport(Map<String, Object> donnees, Demande demande) {
+
         Map<String, Object> nouveauPasseportData = (Map<String, Object>) donnees.get("nouveau passeport");
         if (nouveauPasseportData == null) {
             throw new IllegalArgumentException("Les donnees du nouveau passeport sont obligatoires pour un transfert");
         }
-        return nouveauPasseportData;
+
+        Passeport nouveauPasseport = visaRequestService.createPasseport(nouveauPasseportData, demande.getPasseport().getDemandeur().getId());
+        return nouveauPasseport;
     }
 
     private DemandeTransfertVisa buildDemandeTransfert(Demande demande, Passeport nouveauPasseport) {
@@ -55,6 +57,14 @@ public class TransfertVisaService {
         return demandeTransfertVisa;
     }
 
+    /**
+     * 
+     * 
+     * UTILS
+     * 
+     * 
+     */
+
     public void setStatut(DemandeTransfertVisa transfert, String statutLibelle) {
         Statut statut = statutRepository.findByLibelle(statutLibelle)
             .orElseThrow(() -> new IllegalArgumentException("statut '" + statutLibelle + "' introuvable"));
@@ -68,6 +78,8 @@ public class TransfertVisaService {
             transfert.setHistoriques(new ArrayList<>());
         }
         transfert.getHistoriques().add(historique);
+
+        demandeTransfertVisaRepository.save(transfert);
     }
 
     // Tonga dia foroniko na sy ampiasaiko zao aza
@@ -81,13 +93,20 @@ public class TransfertVisaService {
             .orElse(null);
     }
 
-    
-    public static void assignerVisaAuPasseport(Visa visa, Passeport passeport) {
+    // TODO: mitady fika tsy mampa static an'ito amzay visaRepository tsy atao argument
+    public static void assignerVisaAuPasseport(Visa visa, Passeport passeport, VisaRepository visaRepository) {
         if (visa.getPasseports() == null) {
             visa.setPasseports(new HashSet<>());
         }
         visa.getPasseports().add(passeport);
+        visaRepository.save(visa);
     }
+
+    /**
+     * 
+     * Mamadika statut ho lasa: "Demande Acceptee"
+     * 
+     */
 
     @Transactional(rollbackFor = Exception.class)
     public void accepterTransfert(Integer transferId) {
@@ -101,11 +120,9 @@ public class TransfertVisaService {
             .findFirst()
             .orElseThrow(() -> new IllegalStateException("Aucun visa trouve pour la demande de visa: " + transfert.getDemande().getId()));
 
-        assignerVisaAuPasseport(visa, transfert.getNouveauPasseport());
-        visaRepository.save(visa);
+        assignerVisaAuPasseport(visa, transfert.getNouveauPasseport(), visaRepository);
 
-        setStatut(transfert, "Demande acceptee");
-        demandeTransfertVisaRepository.save(transfert);
+        setStatut(transfert, UtilService.STATUS_DEMANDE_ACCEPTEE);
     }
 
     private void controleStatusTransfert(DemandeTransfertVisa transfert) {
@@ -119,6 +136,13 @@ public class TransfertVisaService {
             }
         }
     }
+
+    /**
+     * 
+     * Solon'ny getAll()
+     * ho an'ny page /transfert-visa
+     * 
+     */
 
     @Transactional(readOnly = true)
     public List<Map<String, Object>> listTransfertsAvecInfos() {

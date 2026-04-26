@@ -16,6 +16,7 @@ public class AcceptationDemandeVisaService {
     private final VisaRepository visaRepository;
     private final CarteResidentRepository carteResidentRepository;
     private final DemandeService demandeService;
+    private final StatutRepository statutRepository;
     
 
     @Transactional(rollbackFor = Exception.class)
@@ -29,10 +30,8 @@ public class AcceptationDemandeVisaService {
         visa.setDemande(demande);
         
         // Assigner visa au passeport de la demande
-        TransfertVisaService.assignerVisaAuPasseport(visa, demande.getPasseport());
+        TransfertVisaService.assignerVisaAuPasseport(visa, demande.getPasseport(), visaRepository);
         
-        visa = visaRepository.save(visa);
-
         // Creation carte resident
         CarteResident carteResident = new CarteResident();
         carteResident.setDateCreation(LocalDateTime.now());

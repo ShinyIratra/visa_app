@@ -8,8 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Controller
 @RequestMapping("/transfert-visa")
@@ -44,19 +43,31 @@ public class TransfertVisaController {
     public String newFormSansDonneeAnterieure() {
         return "transfert-visa/new_sda.html";
     }
-
-    @PostMapping("/api")
-    @ResponseBody
-    public ResponseEntity<ApiResponse<Map<String, Object>>> create(@RequestBody Map<String, Object> donnees) {
+    
+    @PostMapping("/sda")
+    public ResponseEntity<ApiResponse<Map<String, Object>>> createSda(@RequestBody Map<String, Object> donnees) {
         try {
-            DemandeTransfertVisa data = transfertVisaService.creerDemandeTransfertSda(donnees);
-            return ResponseEntity.ok(new ApiResponse<>(true, Map.of("id", data.getId()), null));
+            DemandeTransfertVisa demandeTransfert = transfertVisaService.creerDemandeTransfertSda(donnees);
+            return ResponseEntity.ok(new ApiResponse<>(true, buildResponse(demandeTransfert), null));
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(new ApiResponse<>(false, null, e.getMessage()));
         } catch (Exception e) {
+            e.printStackTrace();
             return ResponseEntity.internalServerError()
-                .body(new ApiResponse<>(false, null, "Erreur lors de la creation de la demande de transfert de visa."));
+                .body(new ApiResponse<>(false, null, "Erreur lors de la creation de la demande de transfert de visa: " + e.getMessage()));
         }
+    }
+
+    // Tsisy ilaivana azy le reponse rehefa ok fa apetako eto ihany au cas ou ilaina
+    private Map<String, Object> buildResponse(DemandeTransfertVisa demandeTransfert) {
+        Map<String, Object> response = new HashMap<>();
+        response.put("id", demandeTransfert.getId());
+        response.put("nouveauPasseport", demandeTransfert.getNouveauPasseport());
+        // Mbola tsy haiko ihany, asina visa ve ?
+        // if (demandeTransfert.getVisa() != null) {
+        //     response.put("visaSource", demandeTransfert.getVisa());
+        // }
+        return response;
     }
 
     @PostMapping("/{id}/accepter")
