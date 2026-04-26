@@ -94,7 +94,7 @@ public class TransfertVisaService {
         DemandeTransfertVisa transfert = demandeTransfertVisaRepository.findById(transferId)
             .orElseThrow(() -> new IllegalArgumentException("Demande de transfert " + transferId + " introuvable"));
 
-        // TODO: check statut
+        controleStatusTransfert(transfert);
 
         Visa visa = visaRepository.findAll().stream()
             .filter(v -> v.getDemande().getId().equals(transfert.getDemande().getId()))
@@ -106,6 +106,18 @@ public class TransfertVisaService {
 
         setStatut(transfert, "Demande acceptee");
         demandeTransfertVisaRepository.save(transfert);
+    }
+
+    private void controleStatusTransfert(DemandeTransfertVisa transfert) {
+        Statut actuel = getStatut(transfert);
+        Statut cible = statutRepository.findByLibelle(UtilService.STATUS_DEMANDE_ACCEPTEE)
+            .orElseThrow(() -> new IllegalArgumentException("Statut '" + UtilService.STATUS_DEMANDE_ACCEPTEE + "' introuvable"));
+
+        if (actuel != null) {
+            if (actuel.getOrdre() >= cible.getOrdre()) {
+                throw new IllegalStateException("Demande deja acceptee");
+            }
+        }
     }
 
     @Transactional(readOnly = true)
