@@ -28,7 +28,7 @@ public class TransfertVisaService {
 
         DemandeTransfertVisa demandeTransfertVisa = buildDemandeTransfert(demande, nouveauPasseport);
 
-        assignerVisaAuPasseport(visa, nouveauPasseport);
+        // assignerVisaAuPasseport(visa, nouveauPasseport);
 
         return demandeTransfertVisaRepository.save(demandeTransfertVisa);
     }
