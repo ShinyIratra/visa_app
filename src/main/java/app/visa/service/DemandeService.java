@@ -5,9 +5,7 @@ import app.visa.entity.Demande;
 import app.visa.dto.VisaRequestDto;
 import app.visa.entity.Passeport;
 import app.visa.entity.VisaTransformable;
-import app.visa.entity.Demandeur;
-import app.visa.entity.Nationalite;
-import app.visa.entity.SituationFamiliale;
+import app.visa.entity.*;
 import app.visa.repository.DemandeurRepository;
 import app.visa.repository.NationaliteRepository;
 import app.visa.repository.SituationFamilialeRepository;
@@ -25,11 +23,10 @@ public class DemandeService {
     private final app.visa.repository.CategorieRepository categorieRepository;
     private final app.visa.repository.HistoriqueStatutRepository historiqueStatutRepository;
 
-    public String getDernierStatus(Demande demande) {
+    public Statut getDernierStatus(Demande demande) {
         if (demande == null || demande.getId() == null) return null;
         return historiqueStatutRepository.findLatestByDemandeId(demande.getId())
-            .map(app.visa.entity.HistoriqueStatut::getStatut)
-            .map(app.visa.entity.Statut::getLibelle)
+            .map(HistoriqueStatut::getStatut)
             .orElse(null);
     }
 

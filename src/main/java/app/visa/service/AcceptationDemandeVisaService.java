@@ -20,10 +20,8 @@ public class AcceptationDemandeVisaService {
 
     @Transactional(rollbackFor = Exception.class)
     public Visa creerVisaEtCarteResident(Demande demande) {
-        String status = demandeService.getDernierStatus(demande);
-        if (!"Visa accepte".equals(status)) { // TODO: atao >= fa tsy equals, asina ordre ny status
-            throw new IllegalStateException("La demande doit etre acceptee pour creer un visa et une carte de resident");
-        }
+        // Controle
+        controlerStatusDemande(demande);
 
         // Creation Visa
         Visa visa = new Visa();
@@ -31,9 +29,7 @@ public class AcceptationDemandeVisaService {
         visa.setDemande(demande);
         
         // Assigner visa au passeport de la demande
-        if (demande.getPasseport() != null) {
-            TransfertVisaService.assignerVisaAuPasseport(visa, demande.getPasseport());
-        }
+        TransfertVisaService.assignerVisaAuPasseport(visa, demande.getPasseport());
         
         visa = visaRepository.save(visa);
 
@@ -48,5 +44,13 @@ public class AcceptationDemandeVisaService {
         return visa;
     }
 
-    
+    private void controlerStatusDemande(Demande demande) {
+        Statut actuel = demandeService.getDernierStatus(demande);
+        Statut cible = statutRepository.findByLibelle(UtilService.STATUS_SCAN_TERMINE)
+            .orElseThrow(() -> new IllegalArgumentException("Statut '" + UtilService.STATUS_SCAN_TERMINE + "' introuvable"));
+
+        if (actuel == null || actuel.getOrdre() < cible.getOrdre()) {
+            throw new IllegalStateException("Les dossiers doivent etre scannes avant que la demande puisse etre acceptee");
+        }
+    }
 }
