@@ -9,52 +9,42 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import app.visa.controller.response.ApiResponse;
-import app.visa.dto.VisaRequestDto;
-import app.visa.entity.Demande;
-import app.visa.entity.Demandeur;
-import app.visa.entity.Passeport;
-import app.visa.entity.VisaTransformable;
-import app.visa.service.DemandeService;
-import app.visa.service.DemandeurService;
-import app.visa.service.PasseportService;
-import app.visa.service.VisaRequestService;
-import app.visa.service.VisaTransformableService;
-import app.visa.service.UtilService;
+import java.util.HashMap;
+import app.visa.entity.DemandeTransfertVisa;
+import app.visa.service.TransfertVisaService;
 
 @Controller
 @RequestMapping("/api/demande/transfert-visa")
 public class DemandeTransfertVisaController {
 
-    private final DemandeurService demandeurService;
-    private final PasseportService passeportService;
-    private final VisaTransformableService visaTransformableService;
-    private final DemandeService demandeService;
-    private final VisaRequestService visaRequestService;
+    private final TransfertVisaService transfertVisaService;
 
-    public DemandeTransfertVisaController(
-        DemandeurService demandeurService,
-        PasseportService passeportService,
-        VisaTransformableService visaTransformableService,
-        DemandeService demandeService,
-        VisaRequestService visaRequestService
-    ) {
-        this.demandeurService = demandeurService;
-        this.passeportService = passeportService;
-        this.visaTransformableService = visaTransformableService;
-        this.demandeService = demandeService;
-        this.visaRequestService = visaRequestService;
+    public DemandeTransfertVisaController(TransfertVisaService transfertVisaService) {
+        this.transfertVisaService = transfertVisaService;
     }
 
     @PostMapping("/sda")
-	public ResponseEntity<ApiResponse<Map<String, Object>>> create(@RequestBody Map<String, Object> donnees) {
-		try {
-			Map<String, Object> data = visaRequestService.creerDemandeVisa(donnees, "Transfert de visa", "Visa accepte");
-			return ResponseEntity.ok(new ApiResponse<>(true, data, null));
-		} catch (IllegalArgumentException e) {
-			return ResponseEntity.badRequest().body(new ApiResponse<>(false, null, e.getMessage()));
-		} catch (Exception e) {
-			return ResponseEntity.internalServerError()
-				.body(new ApiResponse<>(false, null, "Erreur lors de la creation de la demande de visa."));
-		}
-	}
+    public ResponseEntity<ApiResponse<Map<String, Object>>> create(@RequestBody Map<String, Object> donnees) {
+        try {
+            DemandeTransfertVisa demandeTransfert = transfertVisaService.creerDemandeTransfertSda(donnees);
+            return ResponseEntity.ok(new ApiResponse<>(true, buildResponse(demandeTransfert), null));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(new ApiResponse<>(false, null, e.getMessage()));
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.internalServerError()
+                .body(new ApiResponse<>(false, null, "Erreur lors de la creation de la demande de transfert de visa: " + e.getMessage()));
+        }
+    }
+
+    private Map<String, Object> buildResponse(DemandeTransfertVisa demandeTransfert) {
+        Map<String, Object> response = new HashMap<>();
+        response.put("id", demandeTransfert.getId());
+        response.put("nouveauPasseport", demandeTransfert.getNouveauPasseport());
+        // Mbola tsy haiko ihany, asina visa ve ?
+        // if (demandeTransfert.getVisa() != null) {
+        //     response.put("visaSource", demandeTransfert.getVisa());
+        // }
+        return response;
+    }
 }

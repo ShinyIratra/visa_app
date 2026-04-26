@@ -22,7 +22,7 @@ CREATE TABLE DemandeTransfertVisa (
    Id SERIAL,
    Id_Demande INTEGER NOT NULL,
    DateCreation TIMESTAMP NOT NULL, 
-   Id_NouveauPasseport INTEGER NOT NULL,
+   Id_NouveauPasseport INTEGER NOT NULL, -- TODO: Asina id visa ve ?
    PRIMARY KEY(Id),
    FOREIGN KEY (Id_Demande) REFERENCES Demande(Id),
    FOREIGN KEY (Id_NouveauPasseport) REFERENCES Passeport(Id)

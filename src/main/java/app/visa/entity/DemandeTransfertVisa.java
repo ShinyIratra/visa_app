@@ -16,14 +16,18 @@ public class DemandeTransfertVisa {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Integer id;
 
-    @Column(name = "Id_Demande", nullable = false)
-    private Integer idDemande;
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "Id_Demande", nullable = false)
+    private Demande demande;
 
     @Column(name = "DateCreation", nullable = false)
-    private LocalDateTime dateCreation;
+    private LocalDateTime dateCreation = LocalDateTime.now();
 
-    @Column(name = "Id_NouveauPasseport", nullable = false)
-    private Integer idNouveauPasseport;
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "Id_NouveauPasseport", nullable = false)
+    private Passeport nouveauPasseport;
+
+    // TODO: Asina id visa ve ? 
 }

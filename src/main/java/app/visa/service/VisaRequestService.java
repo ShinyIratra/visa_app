@@ -124,7 +124,7 @@ public class VisaRequestService {
      * tsy tiako kitihana intsony ze classe efa miantso an le fonction eo ambony
      */
     @Transactional(rollbackFor = Exception.class)
-    public Map<String, Object> creerDemandeVisa(Map<String, Object> donnees, String categorieLibelle, String statutDemandeLibelle) {
+    public Demande creerDemandeVisa(Map<String, Object> donnees, String categorieLibelle, String statutDemandeLibelle) {
         if (donnees == null) {
             throw new IllegalArgumentException("donnees de demande obligatoires.");
         }
@@ -151,7 +151,7 @@ public class VisaRequestService {
         saveReponseDossier(demande, dossiersApplicables, dossiersFournisIds);
         saveStatutDemande(demande, statutDemandeLibelle);
 
-        return reponseCreation(demandeur, passeport, visaTransformable, demande, dossiersFournisIds);
+        return demande;
     }
 
     @Transactional(rollbackFor = Exception.class)
@@ -190,7 +190,7 @@ public class VisaRequestService {
         return demandeurService.createDemandeur(demandeur);
     }
 
-    private Passeport createPasseport(Map<String, Object> passeportData, Integer demandeurId) {
+    public Passeport createPasseport(Map<String, Object> passeportData, Integer demandeurId) {
         Passeport passeport = new Passeport();
         passeport.setNumero((String) passeportData.get("numero"));
 
