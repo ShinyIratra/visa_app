@@ -87,41 +87,4 @@ public class VisaRequestController {
         model.addAttribute("demandeId", id);
         return "visa-requests/form-edit";
     }
-
-    @PostMapping
-    @ResponseBody
-    public ResponseEntity<ApiResponse<Object>> create(@RequestBody VisaRequestDto dto) {
-        try {
-            Demandeur demandeur = demandeurService.buildDemandeur(dto.getEtatCivil());
-            Passeport passeport = passeportService.buildPasseport(dto.getPasseport(), demandeur);
-            VisaTransformable vt = visaTransformableService.buildVisaTransformable(dto.getVisaTransformable(), demandeur, passeport);
-            Demande demande = demandeService.buildDemande(dto, passeport, vt);
-
-            // Tsy tonga dia ilay entite no nalefako en response fa tratrana olana recursion zah teo
-            // Mahakamo be koa raha fenoina anotation le manala json
-            // Dia aleo averina atao anaty variables hafa  
-            Map<String, Object> debugData = UtilService.buildDebugData(demandeur, passeport, vt, demande, dto.getDossiersFournis());
-
-            return ResponseEntity.ok(new ApiResponse<>(true, debugData, null)); // Tonga dia hitan'ny client hafa ankotran navigateur nefa tsy nanamboatra CORS akory isika ? Eny e zarantsika aza
-        } catch (Exception e) {
-            e.printStackTrace();
-            return ResponseEntity.badRequest().body(new ApiResponse<>(false, null, e.getMessage()));
-        }
-    } 
-
-    @PostMapping("/{id}")
-    public String update(@PathVariable Integer id, @ModelAttribute("demande") Demande demande) {
-        demande.setId(id);
-        if (demande.getDateCreation() == null) {
-            demande.setDateCreation(LocalDateTime.now());
-        }
-        visaRequestService.save(demande);
-        return "redirect:/visa-requests";
-    }
-
-    @PostMapping("/{id}/delete")
-    public String delete(@PathVariable Integer id) {
-        visaRequestService.deleteById(id);
-        return "redirect:/visa-requests";
-    }
 }
