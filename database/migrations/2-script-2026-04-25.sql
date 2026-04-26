@@ -37,3 +37,5 @@ CREATE TABLE HistoriqueStatutDemandeTransfert (
    FOREIGN KEY(Id_Transfert) REFERENCES DemandeTransfertVisa(Id),
    FOREIGN KEY(Id_Statut) REFERENCES Statut(Id)
 );
+
+ALTER TABLE Statut ADD COLUMN Ordre REAL NOT NULL; -- Asina , amzay afaka misy ordre intermediaire

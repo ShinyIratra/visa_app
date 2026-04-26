@@ -24,4 +24,7 @@ public class Statut {
 
     @Column(name = "libelle", nullable = false, length = 100)
     private String libelle;
+
+    @Column(name = "ordre", nullable = false)
+    private Float ordre;
 }
