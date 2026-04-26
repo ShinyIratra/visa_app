@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "HistoriqueStatutDemandeTransfert")
+@Table(name = "historiquestatutdemandetransfert")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -18,13 +18,13 @@ public class HistoriqueStatutDemandeTransfert {
     private Integer id;
 
     @ManyToOne(optional = false)
-    @JoinColumn(name = "Id_Transfert", nullable = false)
+    @JoinColumn(name = "id_transfert", nullable = false)
     private DemandeTransfertVisa transfert;
 
     @ManyToOne(optional = false)
-    @JoinColumn(name = "Id_Statut", nullable = false)
+    @JoinColumn(name = "id_statut", nullable = false)
     private Statut statut;
 
-    @Column(name = "DateModification", nullable = false)
+    @Column(name = "datemodification", nullable = false)
     private LocalDateTime dateModification = LocalDateTime.now();
 }

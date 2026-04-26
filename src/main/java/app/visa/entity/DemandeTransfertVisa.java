@@ -9,7 +9,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @Entity
-@Table(name = "DemandeTransfertVisa")
+@Table(name = "demandetransfertvisa")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -20,14 +20,14 @@ public class DemandeTransfertVisa {
     private Integer id;
 
     @ManyToOne(optional = false)
-    @JoinColumn(name = "Id_Demande", nullable = false)
+    @JoinColumn(name = "id_demande", nullable = false)
     private Demande demande;
 
-    @Column(name = "DateCreation", nullable = false)
+    @Column(name = "datecreation", nullable = false)
     private LocalDateTime dateCreation = LocalDateTime.now();
 
     @ManyToOne(optional = false)
-    @JoinColumn(name = "Id_NouveauPasseport", nullable = false)
+    @JoinColumn(name = "id_nouveaupasseport", nullable = false)
     private Passeport nouveauPasseport;
 
     @OneToMany(mappedBy = "transfert", cascade = CascadeType.ALL, orphanRemoval = true)
