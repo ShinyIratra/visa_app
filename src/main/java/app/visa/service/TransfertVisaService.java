@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.*;
 
 @Service
@@ -17,6 +18,7 @@ public class TransfertVisaService {
     private final AcceptationDemandeVisaService acceptationDemandeVisaService;
     private final DemandeTransfertVisaRepository demandeTransfertVisaRepository;
     private final VisaRepository visaRepository;
+    private final StatutRepository statutRepository;
 
     @Transactional(rollbackFor = Exception.class)
     public DemandeTransfertVisa creerDemandeTransfertSda(Map<String, Object> donnees) {
@@ -48,7 +50,35 @@ public class TransfertVisaService {
         demandeTransfertVisa.setNouveauPasseport(nouveauPasseport);
         demandeTransfertVisa.setDateCreation(demande.getDateCreation());
 
+        setStatut(demandeTransfertVisa, "Demande creee");
+
         return demandeTransfertVisa;
+    }
+
+    public void setStatut(DemandeTransfertVisa transfert, String statutLibelle) {
+        Statut statut = statutRepository.findByLibelle(statutLibelle)
+            .orElseThrow(() -> new IllegalArgumentException("statut '" + statutLibelle + "' introuvable"));
+
+        HistoriqueStatutDemandeTransfert historique = new HistoriqueStatutDemandeTransfert();
+        historique.setTransfert(transfert);
+        historique.setStatut(statut);
+        historique.setDateModification(LocalDateTime.now());
+
+        if (transfert.getHistoriques() == null) {
+            transfert.setHistoriques(new ArrayList<>());
+        }
+        transfert.getHistoriques().add(historique);
+    }
+
+    // Tonga dia foroniko na sy ampiasaiko zao aza
+    public Statut getStatut(DemandeTransfertVisa transfert) {
+        if (transfert.getHistoriques() == null || transfert.getHistoriques().isEmpty()) {
+            return null;
+        }
+        return transfert.getHistoriques().stream()
+            .max(Comparator.comparing(HistoriqueStatutDemandeTransfert::getDateModification))
+            .map(HistoriqueStatutDemandeTransfert::getStatut)
+            .orElse(null);
     }
 
     
