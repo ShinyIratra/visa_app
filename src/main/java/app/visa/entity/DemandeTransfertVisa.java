@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @Table(name = "DemandeTransfertVisa")
@@ -29,5 +30,6 @@ public class DemandeTransfertVisa {
     @JoinColumn(name = "Id_NouveauPasseport", nullable = false)
     private Passeport nouveauPasseport;
 
-    // TODO: Asina id visa ve ? 
+    @OneToMany(mappedBy = "transfert", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<HistoriqueStatutDemandeTransfert> historiques;
 }
