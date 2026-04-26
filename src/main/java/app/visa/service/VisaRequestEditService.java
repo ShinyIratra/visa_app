@@ -14,6 +14,8 @@ import lombok.RequiredArgsConstructor;
 @Service
 public class VisaRequestEditService extends VisaRequestService { // (Kamo be hanao statique an'i VisaRequestService.getBlock, VisaRequestServicereponseCreation) dia ataoko miextends
 
+    private final DemandeService demandeService;
+
     public VisaRequestEditService(VisaRequestRepository visaRequestRepository,
                                   TypeDemandeRepository typeDemandeRepository,
                                   CategorieRepository categorieRepository,
@@ -23,10 +25,12 @@ public class VisaRequestEditService extends VisaRequestService { // (Kamo be han
                                   StatutRepository statutRepository,
                                   DemandeurService demandeurService,
                                   PasseportService passeportService,
-                                  VisaTransformableService visaTransformableService) {
+                                  VisaTransformableService visaTransformableService,
+                                  DemandeService demandeService) {
         super(visaRequestRepository, typeDemandeRepository, categorieRepository, dossierRepository,
               reponseStatutVisaRepository, historiqueStatutRepository, statutRepository,
               demandeurService, passeportService, visaTransformableService);
+        this.demandeService = demandeService;
     }
 
     /**
@@ -123,6 +127,8 @@ public class VisaRequestEditService extends VisaRequestService { // (Kamo be han
         Demande demande = visaRequestRepository.findById(id)
             .orElseThrow(() -> new IllegalArgumentException("demande introuvable: " + id));
 
+        controleStatut(demande);
+
         Map<String, Object> etatCivilData = UtilService.getBloc(donnees, "etat civil");
         Map<String, Object> passeportData = UtilService.getBloc(donnees, "passeport");
         Map<String, Object> visaTransformableData = UtilService.getBloc(donnees, "visaTransformable");
@@ -151,6 +157,16 @@ public class VisaRequestEditService extends VisaRequestService { // (Kamo be han
         saveReponseDossier(demande, dossiersApplicables, dossiersFournisIds);
 
         return reponseCreation(demandeur, passeport, vt, demande, dossiersFournisIds);
+    }
+
+    private void controleStatut(Demande demande) {
+        Statut actuel = demandeService.getDernierStatus(demande);
+        Statut cible = statutRepository.findByLibelle(UtilService.STATUS_SCAN_TERMINE)
+            .orElseThrow(() -> new IllegalArgumentException("Statut '" + UtilService.STATUS_SCAN_TERMINE + "' introuvable"));
+
+        if (actuel != null && actuel.getOrdre() > cible.getOrdre()) {
+            throw new IllegalStateException("Impossible de modifier une demande dont les documents ont deja ete scannes");
+        }
     }
 
     private Demandeur updateDemandeurData(Integer id, Map<String, Object> data) {
