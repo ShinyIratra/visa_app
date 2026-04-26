@@ -38,7 +38,7 @@ public class Visa {
 
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
-        name = "visa_passeport",
+        name = "visapasseport",
         joinColumns = @JoinColumn(name = "id_visa"),
         inverseJoinColumns = @JoinColumn(name = "id_passeport")
     )
