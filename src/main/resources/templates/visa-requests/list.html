@@ -1,10 +1,11 @@
 <!DOCTYPE html>
-<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<html lang="fr" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{layout}">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Demandes de visa</title>
+    <title layout:fragment="title">Demandes de visa</title>
     <style>
+
         :root {
             --bg: #f4f7fb;
             --surface: #ffffff;
@@ -121,7 +122,9 @@
     </style>
 </head>
 <body>
-<div class="container">
+    <div layout:fragment="content">
+        <div class="container">
+
     <div class="header">
         <h1>Demandes de visa</h1>
         <a class="btn btn-primary" th:href="@{/visa-requests/new}">Nouvelle demande</a>
@@ -167,5 +170,7 @@
         </table>
     </div>
 </div>
+</div>
 </body>
 </html>
+

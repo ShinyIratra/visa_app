@@ -26,7 +26,7 @@ public class CarteResident {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
-    private Long id;
+    private Integer id;
 
     @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm")
     @Column(name = "datecreation", nullable = false)
@@ -39,4 +39,7 @@ public class CarteResident {
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "id_demande", nullable = false)
     private Demande demande;
+
+    @Column(name = "liaison", nullable = false)
+    private Integer liaison;
 }

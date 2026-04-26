@@ -4,5 +4,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import app.visa.entity.Demande;
 
-public interface VisaRequestRepository extends JpaRepository<Demande, Long> {
+public interface VisaRequestRepository extends JpaRepository<Demande, Integer> {
 }

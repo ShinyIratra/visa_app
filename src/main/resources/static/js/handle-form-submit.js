@@ -1,7 +1,7 @@
 (function () {
     'use strict';
 
-    function handleFormSubmit(event) {
+    function handleFormSubmit(event, lien_retour, lien_api, autresObjets) {
         event.preventDefault();
 
         const typeDemandeValue = document.getElementById('typesDemande').value;
@@ -33,7 +33,11 @@
             "dossiersFournis": Array.from(document.querySelectorAll('input[name="dossierIds"]:checked')).map(cb => Number(cb.value))
         };
 
-        fetch('/api/demandes-visa', {
+        if (autresObjets) {
+            Object.assign(formData, autresObjets);
+        }
+
+        fetch(lien_api, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(formData)
@@ -42,8 +46,8 @@
         .then(resp => {
             if (resp.success) {
                 // alert('Demande enregistree avec succes');
-                // console.log('Response:', resp.data); // TODO: redirection ?
-                window.location.href = '/visa-requests';
+                // console.log('Lien api: ', lien_api); // TODO: redirection ?
+                window.location.href = lien_retour || '/';
             } else {
                 throw new Error(resp.error);
             }

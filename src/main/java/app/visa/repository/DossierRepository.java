@@ -11,11 +11,11 @@ import org.springframework.stereotype.Repository;
 import app.visa.entity.Dossier;
 
 @Repository
-public interface DossierRepository extends JpaRepository<Dossier, Long> {
+public interface DossierRepository extends JpaRepository<Dossier, Integer> {
 
 	@Query("SELECT d FROM Dossier d WHERE d.typeDemande.id = :typeDemandeId OR d.typeDemande.libelle = 'Commun' ORDER BY d.id")
 
-	List<Dossier> findDossiersPourTypeDemande(@Param("typeDemandeId") Long typeDemandeId);
+	List<Dossier> findDossiersPourTypeDemande(@Param("typeDemandeId") Integer typeDemandeId);
 
-	List<Dossier> findByTypeDemande_IdIn(Collection<Long> typeDemandeIds);
+	List<Dossier> findByTypeDemande_IdIn(Collection<Integer> typeDemandeIds);
 }

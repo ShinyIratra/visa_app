@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{layout}">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title layout:fragment="title">Liste Transfert de Visa</title>
+</head>
+<body>
+    <div layout:fragment="content">
+        <h1>Liste Transfert de Visa</h1>
+        <table border=1>
+            <thead>
+                <tr>
+                    <th>Id</th>
+                    <th>Demandeur</th>
+                    <th>Ancien passeport</th>
+                    <th>Nouveau passeport</th>
+                    <th>Nationalité</th>
+                    <th>Statut</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Les données des demandes de transfert de visa seront affichées ici -->
+            </tbody>
+        </table>
+        <script th:src="@{/js/transferts.js}"></script>
+    </div>
+</body>
+</html>

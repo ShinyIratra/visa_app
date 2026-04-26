@@ -19,8 +19,8 @@ import lombok.Setter;
 public class HistoriqueStatutId implements Serializable {
 
     @Column(name = "id_demande")
-    private Long idDemande;
+    private Integer idDemande;
 
     @Column(name = "id_statut")
-    private Long idStatut;
+    private Integer idStatut;
 }

@@ -11,7 +11,7 @@ INSERT INTO Nationalite (Libelle) VALUES
 
 INSERT INTO Categorie (Libelle) VALUES
 ('Nouveau titre'),
-('Transfert'),
+('Transfert de visa'),
 ('Duplicata');
 
 INSERT INTO TypeDemande (Libelle) VALUES
@@ -35,9 +35,3 @@ INSERT INTO Dossier (Libelle, Obligatoire, Id_TypeDemande) VALUES
 
 ('Autorisation d''emploi delivree à Madagascar par le Ministère de la Fonction publique', true, 3),
 ('Attestation d''emploi delivre par l''employeur (Original)', true, 3);
-
-INSERT INTO Statut (Libelle) VALUES
-('Demande creee'),
-('Scan termine'),
-('Visa accepte');
-

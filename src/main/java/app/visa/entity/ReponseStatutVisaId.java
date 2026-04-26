@@ -19,8 +19,8 @@ import lombok.Setter;
 public class ReponseStatutVisaId implements Serializable {
 
     @Column(name = "id_dossier")
-    private Long idDossier;
+    private Integer idDossier;
 
     @Column(name = "id_demande")
-    private Long idDemande;
+    private Integer idDemande;
 }

@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{layout}">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title layout:fragment="title">Demande de duplicata (Avec donnée antérieure)</title>
+    <link id="global-css" rel="stylesheet" th:href="@{/css/global.css}">
+    <link id="visa-css" rel="stylesheet" th:href="@{/css/visa-form.css}">
+</head>
+<body>
+    <div layout:fragment="content">
+        <div class="visa-form-container">
+            <div class="header-top">
+                <h1>DEMANDE DE DUPLICATA (Avec donnée antérieure)</h1>
+            </div>
+            <form id="demandeForm">
+                <section>
+                    <h2>1. INFORMATIONS DU PASSEPORT</h2>
+                    <div class="grid-container">
+                        <div class="grid-item col-12">
+                            <label>NUMÉRO DE PASSEPORT</label>
+                            <input type="text" name="numeroPasseport" id="passeport_numero" placeholder="Ex: 12345678" required />
+                        </div>
+                    </div>
+                </section>
+
+                <div class="actions-bar">
+                    <button type="submit" class="btn btn-primary">Demander le duplicata</button>
+                    <a th:href="@{/duplicata}" class="btn btn-outline">Annuler</a>
+                </div>
+            </form>
+        </div>
+        <script>
+            function init() {
+                const demandeForm = document.getElementById('demandeForm');
+                demandeForm.addEventListener('submit', function (event) {
+                    event.preventDefault();
+
+                    const formData = new FormData(demandeForm);
+                    const data = {
+                        "numero passeport": formData.get('numeroPasseport')
+                    };
+
+                    fetch('/duplicata/new/ada', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(data)
+                    })
+                        .then(response => response.json())
+                        .then(apiResponse => {
+                            console.log(apiResponse);
+
+                            if (apiResponse.success) {
+                                // window.location.href = '/duplicata';
+                                alert("Duplicata demandé avec succès");
+                            } else {
+                                throw new Error(apiResponse.error)
+                            }
+                        })
+                        .catch(error => {
+                            alert(error);
+                        });
+                });
+            }
+
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', init);
+            } else {
+                init();
+            }
+        </script>
+    </div>
+</body>
+</html>

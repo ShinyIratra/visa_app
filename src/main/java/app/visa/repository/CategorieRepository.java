@@ -8,7 +8,7 @@ import org.springframework.data.repository.query.Param;
 
 import app.visa.entity.Categorie;
 
-public interface CategorieRepository extends JpaRepository<Categorie, Long> {
+public interface CategorieRepository extends JpaRepository<Categorie, Integer> {
 
 	@Query("SELECT c FROM Categorie c WHERE c.libelle = :libelle")
 

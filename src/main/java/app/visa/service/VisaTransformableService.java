@@ -1,3 +1,4 @@
+
 package app.visa.service;
 
 import app.visa.entity.Demandeur;
@@ -9,6 +10,8 @@ import app.visa.repository.VisaTransformableRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import java.util.Map;
+import java.time.LocalDateTime;
 
 @Service
 @RequiredArgsConstructor
@@ -18,12 +21,23 @@ public class VisaTransformableService {
     private final PasseportRepository passeportRepository;
     private final DemandeurRepository demandeurRepository;
 
+    public VisaTransformable buildVisaTransformable(Map<String, Object> vtMap, Demandeur demandeur, Passeport passeport) {
+        VisaTransformable vt = new VisaTransformable();
+        vt.setReference((String) vtMap.get("reference"));
+        vt.setDateEntree(LocalDateTime.parse((String) vtMap.get("dateEntree")));
+        vt.setLieuEntree((String) vtMap.get("lieuEntree"));
+        vt.setDateExpiration(LocalDateTime.parse((String) vtMap.get("dateExpiration")));
+        vt.setDemandeur(demandeur);
+        vt.setPasseport(passeport);
+        return vt;
+    }
+
     @Transactional(rollbackFor = Exception.class)
     public VisaTransformable createVisaTransformable(VisaTransformable visaTransformable) {
         validerVisaTransformable(visaTransformable);
 
-        Long passeportId = visaTransformable.getPasseport().getId();
-        Long demandeurId = visaTransformable.getDemandeur().getId();
+        Integer passeportId = visaTransformable.getPasseport().getId();
+        Integer demandeurId = visaTransformable.getDemandeur().getId();
 
         Passeport passeport = passeportRepository.findById(passeportId)
             .orElseThrow(() -> new IllegalArgumentException("passeport introuvable: " + passeportId));
@@ -44,7 +58,7 @@ public class VisaTransformableService {
     }
 
     @Transactional(rollbackFor = Exception.class)
-    public VisaTransformable updateVisaTransformable(Long id, VisaTransformable details) {
+    public VisaTransformable updateVisaTransformable(Integer id, VisaTransformable details) {
         VisaTransformable vt = visaTransformableRepository.findById(id)
             .orElseThrow(() -> new IllegalArgumentException("visa transformable introuvable: " + id));
 

@@ -14,6 +14,8 @@ import lombok.RequiredArgsConstructor;
 @Service
 public class VisaRequestEditService extends VisaRequestService { // (Kamo be hanao statique an'i VisaRequestService.getBlock, VisaRequestServicereponseCreation) dia ataoko miextends
 
+    private final DemandeService demandeService;
+
     public VisaRequestEditService(VisaRequestRepository visaRequestRepository,
                                   TypeDemandeRepository typeDemandeRepository,
                                   CategorieRepository categorieRepository,
@@ -23,10 +25,12 @@ public class VisaRequestEditService extends VisaRequestService { // (Kamo be han
                                   StatutRepository statutRepository,
                                   DemandeurService demandeurService,
                                   PasseportService passeportService,
-                                  VisaTransformableService visaTransformableService) {
+                                  VisaTransformableService visaTransformableService,
+                                  DemandeService demandeService) {
         super(visaRequestRepository, typeDemandeRepository, categorieRepository, dossierRepository,
               reponseStatutVisaRepository, historiqueStatutRepository, statutRepository,
               demandeurService, passeportService, visaTransformableService);
+        this.demandeService = demandeService;
     }
 
     /**
@@ -40,7 +44,7 @@ public class VisaRequestEditService extends VisaRequestService { // (Kamo be han
      */
 
     @Transactional(readOnly = true)
-    public Map<String, Object> getDemandeFormData(Long id) {
+    public Map<String, Object> getDemandeFormData(Integer id) {
         Demande demande = visaRequestRepository.findById(id)
             .orElseThrow(() -> new IllegalArgumentException("demande introuvable: " + id));
 
@@ -97,7 +101,7 @@ public class VisaRequestEditService extends VisaRequestService { // (Kamo be han
         return visa;
     }
 
-    private List<Long> getDossiersFournisIds(Long demandeId) {
+    private List<Integer> getDossiersFournisIds(Integer demandeId) {
         return reponseStatutVisaRepository.findByDemandeId(demandeId).stream()
             .filter(ReponseStatutVisa::getValeur)
             .map(r -> r.getDossier().getId())
@@ -115,7 +119,7 @@ public class VisaRequestEditService extends VisaRequestService { // (Kamo be han
      */
     
     @Transactional(rollbackFor = Exception.class)
-    public Map<String, Object> updateDemandeVisa(Long id, Map<String, Object> donnees) {
+    public Map<String, Object> updateDemandeVisa(Integer id, Map<String, Object> donnees) {
         if (donnees == null) {
             throw new IllegalArgumentException("donnees de demande obligatoires.");
         }
@@ -123,11 +127,13 @@ public class VisaRequestEditService extends VisaRequestService { // (Kamo be han
         Demande demande = visaRequestRepository.findById(id)
             .orElseThrow(() -> new IllegalArgumentException("demande introuvable: " + id));
 
-        Map<String, Object> etatCivilData = getBloc(donnees, "etat civil");
-        Map<String, Object> passeportData = getBloc(donnees, "passeport");
-        Map<String, Object> visaTransformableData = getBloc(donnees, "visaTransformable");
-        Long typeDemandeId = toLong(donnees.get("typeDemandeId"));
-        List<Long> dossiersFournisIds = getDossiersFournis(donnees);
+        controleStatut(demande);
+
+        Map<String, Object> etatCivilData = UtilService.getBloc(donnees, "etat civil");
+        Map<String, Object> passeportData = UtilService.getBloc(donnees, "passeport");
+        Map<String, Object> visaTransformableData = UtilService.getBloc(donnees, "visaTransformable");
+        Integer typeDemandeId = toLong(donnees.get("typeDemandeId"));
+        List<Integer> dossiersFournisIds = getDossiersFournis(donnees);
 
         TypeDemande typeDemande = getTypeDemandeValide(typeDemandeId);
         List<Dossier> dossiersApplicables = getDossiersApplicables(typeDemande);
@@ -153,7 +159,17 @@ public class VisaRequestEditService extends VisaRequestService { // (Kamo be han
         return reponseCreation(demandeur, passeport, vt, demande, dossiersFournisIds);
     }
 
-    private Demandeur updateDemandeurData(Long id, Map<String, Object> data) {
+    private void controleStatut(Demande demande) {
+        Statut actuel = demandeService.getDernierStatus(demande);
+        Statut cible = statutRepository.findByLibelle(UtilService.STATUS_SCAN_TERMINE)
+            .orElseThrow(() -> new IllegalArgumentException("Statut '" + UtilService.STATUS_SCAN_TERMINE + "' introuvable"));
+
+        if (actuel != null && actuel.getOrdre() > cible.getOrdre()) {
+            throw new IllegalStateException("Impossible de modifier une demande dont les documents ont deja ete scannes");
+        }
+    }
+
+    private Demandeur updateDemandeurData(Integer id, Map<String, Object> data) {
         Demandeur demandeur = new Demandeur();
         demandeur.setNom((String) data.get("nom"));
         demandeur.setPrenom((String) data.get("prenom"));
@@ -167,14 +183,14 @@ public class VisaRequestEditService extends VisaRequestService { // (Kamo be han
             demandeur.setDateNaissance(LocalDate.parse(dateNaissance.toString()));
         }
 
-        Long nationaliteId = toLong(data.get("nationalite"));
+        Integer nationaliteId = toLong(data.get("nationalite"));
         if (nationaliteId != null) {
             Nationalite nationalite = new Nationalite();
             nationalite.setId(nationaliteId);
             demandeur.setNationalite(nationalite);
         }
 
-        Long situationFamilialeId = toLong(data.get("situationFamiliale"));
+        Integer situationFamilialeId = toLong(data.get("situationFamiliale"));
         if (situationFamilialeId != null) {
             SituationFamiliale situationFamiliale = new SituationFamiliale();
             situationFamiliale.setId(situationFamilialeId);
@@ -184,7 +200,7 @@ public class VisaRequestEditService extends VisaRequestService { // (Kamo be han
         return demandeurService.updateDemandeur(id, demandeur);
     }
 
-    private Passeport updatePasseportData(Long id, Map<String, Object> data) {
+    private Passeport updatePasseportData(Integer id, Map<String, Object> data) {
         Passeport p = new Passeport();
         p.setNumero((String) data.get("numero"));
 
@@ -201,7 +217,7 @@ public class VisaRequestEditService extends VisaRequestService { // (Kamo be han
         return passeportService.updatePasseport(id, p);
     }
 
-    private VisaTransformable updateVisaTransformableData(Long id, Map<String, Object> data) {
+    private VisaTransformable updateVisaTransformableData(Integer id, Map<String, Object> data) {
         VisaTransformable vt = new VisaTransformable();
         vt.setReference((String) data.get("reference"));
         vt.setLieuEntree((String) data.get("lieuEntree"));

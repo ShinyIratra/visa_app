@@ -6,7 +6,7 @@ setlocal EnableDelayedExpansion
 set "DB_HOST=localhost"
 set "DB_USER=postgres"
 set "PGPASSWORD=post"
-set "DB_NAME=backoffice"
+set "DB_NAME=visa_db"
 set "PSQL_CMD=C:\Program Files\PostgreSQL\17\bin\psql.exe"
 :: -------------------------------------------------
 

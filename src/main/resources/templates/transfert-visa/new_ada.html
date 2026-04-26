@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+    layout:decorate="~{layout}">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title layout:fragment="title">Demande de transfert de visa (Avec donnée Antérieur)</title>
+    <link id="global-css" rel="stylesheet" th:href="@{/css/global.css}">
+    <link id="visa-css" rel="stylesheet" th:href="@{/css/visa-form.css}">
+</head>
+
+<body>
+    <div layout:fragment="content">
+        <div class="visa-form-container">
+            <div class="header-top">
+                <h1>DEMANDE DE TRANSFERT DE VISA (Avec données Antérieurs)</h1>
+            </div>
+
+            <form id="demandeForm">
+                <section>
+                    <h2>1. INFORMATIONS DU VISA ACTUEL</h2>
+                    <div class="grid-container">
+                        <div class="grid-item col-12">
+                            <label>ID DU VISA Travailleur/Investisseur</label>
+                            <input type="number" name="idVisa" id="idVisa" placeholder="Ex: 42" required />
+                        </div>
+                    </div>
+                </section>
+
+                <section>
+                    <h2>2. NOUVEAU PASSEPORT</h2>
+                    <div class="grid-container">
+                        <div class="grid-item col-4">
+                            <label>NUMÉRO DU DOCUMENT</label>
+                            <input type="text" name="nouveauPasseport.numero" id="passeport_numero" value="NEW123456"
+                                required />
+                        </div>
+                        <div class="grid-item col-4">
+                            <label>DATE DE DÉLIVRANCE</label>
+                            <input type="datetime-local" name="nouveauPasseport.dateDelivrance"
+                                id="passeport_dateDelivrance" value="2024-01-01T08:00" required />
+                        </div>
+                        <div class="grid-item col-4">
+                            <label>DATE D'EXPIRATION</label>
+                            <input type="datetime-local" name="nouveauPasseport.dateExpiration"
+                                id="passeport_dateExpiration" value="2034-01-01T08:00" required />
+                        </div>
+                    </div>
+                </section>
+
+                <div class="actions-bar">
+                    <button type="submit" class="btn btn-primary">Demander le transfert</button>
+                    <a th:href="@{/transfert-visa}" class="btn btn-outline">Annuler</a>
+                </div>
+            </form>
+        </div>
+
+        <script>
+            function init() {
+                const demandeForm = document.getElementById('demandeForm');
+                demandeForm.addEventListener('submit', function (event) {
+                    event.preventDefault();
+
+                    const formData = new FormData(demandeForm);
+                    const data = {
+                        idVisa: parseInt(formData.get('idVisa')),
+                        "nouveau passeport": {
+                            numero: formData.get('nouveauPasseport.numero'),
+                            dateDelivrance: formData.get('nouveauPasseport.dateDelivrance'),
+                            dateExpiration: formData.get('nouveauPasseport.dateExpiration')
+                        }
+                    };
+
+                    fetch('/transfert-visa/ada', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(data)
+                    })
+                        .then(response => response.json())
+                        .then(apiResponse => {
+                            console.log(apiResponse);
+
+                            if (apiResponse.success) {
+                                // window.location.href = '/transfert-visa';
+                            } else {
+                                throw new Error(apiResponse.error)
+                            }
+                        })
+                        .catch(error => {
+                            alert(error);
+                        });
+                });
+            }
+
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', init);
+            } else {
+                init();
+            }
+        </script>
+    </div>
+</body>
+
+</html>

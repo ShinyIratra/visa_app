@@ -1,6 +1,8 @@
 package app.visa.entity;
 
 import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.Set;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -9,6 +11,8 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.Getter;
@@ -26,15 +30,19 @@ public class Visa {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
-    private Long id;
+    private Integer id;
 
     @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm")
     @Column(name = "datecreation", nullable = false)
     private LocalDateTime dateCreation;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "id_passeport", nullable = false)
-    private Passeport passeport;
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(
+        name = "visapasseport",
+        joinColumns = @JoinColumn(name = "id_visa"),
+        inverseJoinColumns = @JoinColumn(name = "id_passeport")
+    )
+    private Set<Passeport> passeports = new HashSet<>();
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "id_demande", nullable = false)
