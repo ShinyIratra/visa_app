@@ -18,6 +18,8 @@ CREATE TABLE VisaPasseport (
 
 ALTER TABLE Visa DROP COLUMN IF EXISTS Id_Passeport;
 
+ALTER TABLE CarteResident ADD COLUMN Liaison INTEGER;
+
 CREATE TABLE DemandeTransfertVisa (
    Id SERIAL,
    Id_Demande INTEGER NOT NULL,

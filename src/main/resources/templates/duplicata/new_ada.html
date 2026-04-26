@@ -13,14 +13,64 @@
             <div class="header-top">
                 <h1>DEMANDE DE DUPLICATA (Avec donnée antérieure)</h1>
             </div>
-            <!-- Formulaire similaire à new_ada.html adapté pour duplicata avec donnée antérieure -->
-            <form id="duplicataForm" method="post">
-                <!-- Champs du formulaire ici -->
+            <form id="demandeForm">
+                <section>
+                    <h2>1. INFORMATIONS DU PASSEPORT</h2>
+                    <div class="grid-container">
+                        <div class="grid-item col-12">
+                            <label>NUMÉRO DE PASSEPORT</label>
+                            <input type="text" name="numeroPasseport" id="passeport_numero" placeholder="Ex: 12345678" required />
+                        </div>
+                    </div>
+                </section>
+
+                <div class="actions-bar">
+                    <button type="submit" class="btn btn-primary">Demander le duplicata</button>
+                    <a th:href="@{/duplicata}" class="btn btn-outline">Annuler</a>
+                </div>
             </form>
         </div>
-        <script th:src="@{/js/marquage-champ-requis.js}"></script>
-        <script th:src="@{/js/static-data.js}"></script>
-        <script th:src="@{/js/handle-form-submit.js}"></script>
+        <script>
+            function init() {
+                const demandeForm = document.getElementById('demandeForm');
+                demandeForm.addEventListener('submit', function (event) {
+                    event.preventDefault();
+
+                    const formData = new FormData(demandeForm);
+                    const data = {
+                        "numero passeport": formData.get('numeroPasseport')
+                    };
+
+                    fetch('/duplicata/new/ada', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(data)
+                    })
+                        .then(response => response.json())
+                        .then(apiResponse => {
+                            console.log(apiResponse);
+
+                            if (apiResponse.success) {
+                                // window.location.href = '/duplicata';
+                                alert("Duplicata demandé avec succès");
+                            } else {
+                                throw new Error(apiResponse.error)
+                            }
+                        })
+                        .catch(error => {
+                            alert(error);
+                        });
+                });
+            }
+
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', init);
+            } else {
+                init();
+            }
+        </script>
     </div>
 </body>
 </html>

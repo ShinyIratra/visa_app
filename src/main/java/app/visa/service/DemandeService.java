@@ -34,6 +34,10 @@ public class DemandeService {
         return demandeRepository.findById(id).orElse(null);
     }
 
+    public Demande findById(Integer id) {
+        return demandeRepository.findById(id).orElse(null);
+    }
+    
     public Demande buildDemande(VisaRequestDto dto, Passeport passeport, VisaTransformable vt) {
         Demande demande = new Demande();
         demande.setDateCreation(LocalDateTime.now());

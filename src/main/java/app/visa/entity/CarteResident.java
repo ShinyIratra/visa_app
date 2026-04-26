@@ -39,4 +39,7 @@ public class CarteResident {
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "id_demande", nullable = false)
     private Demande demande;
+
+    @Column(name = "liaison", nullable = false)
+    private Integer liaison;
 }

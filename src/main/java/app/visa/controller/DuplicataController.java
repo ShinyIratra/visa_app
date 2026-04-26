@@ -50,6 +50,21 @@ public class DuplicataController {
         return "duplicata/new_ada.html";
     }
 
+    @PostMapping("/new/ada")
+    @ResponseBody
+    public ResponseEntity<ApiResponse<Object>> createNewFormAvecDonneeAnterieure(@RequestBody Map<String, Object> donnees) {
+        try {
+            Map<String, Object> data = duplicataService.creerDemandeDuplicataAvecDonneeAnterieure(donnees);
+            
+			return ResponseEntity.ok(new ApiResponse<>(true, data, null));
+		} catch (IllegalArgumentException e) {
+			return ResponseEntity.badRequest().body(new ApiResponse<>(false, null, e.getMessage()));
+		} catch (Exception e) {
+			return ResponseEntity.internalServerError()
+				.body(new ApiResponse<>(false, null, "Erreur Duplicata : " + e.getMessage()));
+		}
+    }
+
     @GetMapping("/new/sda")
     public String newFormSansDonneeAnterieure() {
         return "duplicata/new_sda.html";
@@ -68,7 +83,7 @@ public class DuplicataController {
 			return ResponseEntity.badRequest().body(new ApiResponse<>(false, null, e.getMessage()));
 		} catch (Exception e) {
 			return ResponseEntity.internalServerError()
-				.body(new ApiResponse<>(false, null, "Erreur Duplicata : Erreur lors de la creation de la demande du duplicata."));
+				.body(new ApiResponse<>(false, null, "Erreur Duplicata : " + e.getMessage()));
 		}
     }
 }
