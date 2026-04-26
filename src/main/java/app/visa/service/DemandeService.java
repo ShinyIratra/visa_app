@@ -23,6 +23,15 @@ public class DemandeService {
     private final app.visa.repository.DemandeRepository demandeRepository;
     private final app.visa.repository.TypeDemandeRepository typeDemandeRepository;
     private final app.visa.repository.CategorieRepository categorieRepository;
+    private final app.visa.repository.HistoriqueStatutRepository historiqueStatutRepository;
+
+    public String getDernierStatus(Demande demande) {
+        if (demande == null || demande.getId() == null) return null;
+        return historiqueStatutRepository.findLatestByDemandeId(demande.getId())
+            .map(app.visa.entity.HistoriqueStatut::getStatut)
+            .map(app.visa.entity.Statut::getLibelle)
+            .orElse(null);
+    }
 
     public Demande getById(Integer id) {
         return demandeRepository.findById(id).orElse(null);
