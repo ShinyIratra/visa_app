@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import app.visa.controller.response.ApiResponse;
@@ -27,9 +28,11 @@ import app.visa.entity.Demandeur;
 import app.visa.entity.Nationalite;
 import app.visa.entity.Passeport;
 import app.visa.entity.SituationFamiliale;
+import app.visa.entity.Statut;
 import app.visa.entity.TypeDemande;
 import app.visa.entity.VisaTransformable;
 import app.visa.repository.CategorieRepository;
+import app.visa.repository.StatutRepository;
 import app.visa.repository.NationaliteRepository;
 import app.visa.repository.SituationFamilialeRepository;
 import app.visa.repository.TypeDemandeRepository;
@@ -45,6 +48,7 @@ public class VisaRequestController {
     private final DemandeService demandeService;
     private final PasseportService passeportService;
     private final VisaTransformableService visaTransformableService;
+    private final StatutRepository statutRepository;
 
     private final NationaliteRepository nationaliteRepository;
     private final SituationFamilialeRepository situationFamilialeRepository;
@@ -59,7 +63,8 @@ public class VisaRequestController {
                                 NationaliteRepository nationaliteRepository,
                                 SituationFamilialeRepository situationFamilialeRepository,
                                 TypeDemandeRepository typeDemandeRepository,
-                                CategorieRepository categorieRepository) {
+                                CategorieRepository categorieRepository,
+                                StatutRepository statutRepository) {
         this.visaRequestService = visaRequestService;
         this.demandeurService = demandeurService;
         this.demandeService = demandeService;
@@ -69,10 +74,14 @@ public class VisaRequestController {
         this.situationFamilialeRepository = situationFamilialeRepository;
         this.typeDemandeRepository = typeDemandeRepository;
         this.categorieRepository = categorieRepository;
+        this.statutRepository = statutRepository;
     }
 
     @GetMapping
-    public String list(Model model) {
+    public String list(Model model, @RequestParam(required = false) String error) {
+        if ("scan_termine".equals(error)) {
+            model.addAttribute("errorMessage", "Modification interdite. La demande est deja au statut Scan termine.");
+        }
         model.addAttribute("demandes", visaRequestService.findAll());
         return "visa-requests/list";
     }
@@ -84,6 +93,19 @@ public class VisaRequestController {
 
     @GetMapping("/{id}/edit")
     public String showEditForm(@PathVariable Integer id, Model model) {
+        Demande demande = visaRequestService.findById(id)
+            .orElseThrow(() -> new IllegalArgumentException("demande introuvable: " + id));
+
+        Statut actuel = demandeService.getDernierStatus(demande);
+        if (actuel != null) {
+            Statut scanTermine = statutRepository.findByLibelle(UtilService.STATUS_SCAN_TERMINE)
+                .orElseThrow(() -> new IllegalArgumentException("Statut '" + UtilService.STATUS_SCAN_TERMINE + "' introuvable"));
+
+            if (actuel.getOrdre() >= scanTermine.getOrdre()) {
+                return "redirect:/visa-requests?error=scan_termine";
+            }
+        }
+
         model.addAttribute("demandeId", id);
         return "visa-requests/form-edit";
     }
