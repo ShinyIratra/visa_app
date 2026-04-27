@@ -219,11 +219,21 @@
                 Veuillez télécharger les fichiers correspondant à chaque dossier. Cliquez sur le bouton de chaque dossier pour sélectionner un fichier.
             </div>
 
-            <form id="scanForm">
+            <form id="scanForm" th:attr="data-demande-id=${demandeId}">
                 <div class="section">
                     <h2>Dossiers à scanner</h2>
                     <div id="dossiersList">
-
+                        <div th:each="dossier : ${dossiers}" class="dossier-item">
+                            <div class="dossier-header">
+                                <span class="dossier-label" th:text="${dossier.libelle}">Dossier</span>
+                                <span class="badge obligatoire" th:if="${dossier.obligatoire}">Obligatoire</span>
+                            </div>
+                            <div class="file-input-wrapper">
+                                <input type="file" th:id="'file_dossier_' + ${dossier.id}" th:name="'dossier_' + ${dossier.id}">
+                                <label class="file-input-label" th:for="'file_dossier_' + ${dossier.id}">Choisir un fichier</label>
+                                <span class="file-name">(Aucun fichier selectionne)</span>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
@@ -232,6 +242,8 @@
                     <button type="submit" class="btn btn-primary">Terminer le scan</button>
                 </div>
             </form>
+
+            <script th:src="@{/js/scan.js}"></script>
         </div>
     </div>
 </body>
