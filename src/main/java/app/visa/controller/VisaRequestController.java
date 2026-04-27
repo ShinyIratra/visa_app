@@ -28,11 +28,9 @@ import app.visa.entity.Demandeur;
 import app.visa.entity.Nationalite;
 import app.visa.entity.Passeport;
 import app.visa.entity.SituationFamiliale;
-import app.visa.entity.Statut;
 import app.visa.entity.TypeDemande;
 import app.visa.entity.VisaTransformable;
 import app.visa.repository.CategorieRepository;
-import app.visa.repository.StatutRepository;
 import app.visa.repository.NationaliteRepository;
 import app.visa.repository.SituationFamilialeRepository;
 import app.visa.repository.TypeDemandeRepository;
@@ -48,8 +46,6 @@ public class VisaRequestController {
     private final DemandeService demandeService;
     private final PasseportService passeportService;
     private final VisaTransformableService visaTransformableService;
-    private final StatutRepository statutRepository;
-
     private final NationaliteRepository nationaliteRepository;
     private final SituationFamilialeRepository situationFamilialeRepository;
     private final TypeDemandeRepository typeDemandeRepository;
@@ -63,8 +59,7 @@ public class VisaRequestController {
                                 NationaliteRepository nationaliteRepository,
                                 SituationFamilialeRepository situationFamilialeRepository,
                                 TypeDemandeRepository typeDemandeRepository,
-                                CategorieRepository categorieRepository,
-                                StatutRepository statutRepository) {
+                                CategorieRepository categorieRepository) {
         this.visaRequestService = visaRequestService;
         this.demandeurService = demandeurService;
         this.demandeService = demandeService;
@@ -74,7 +69,6 @@ public class VisaRequestController {
         this.situationFamilialeRepository = situationFamilialeRepository;
         this.typeDemandeRepository = typeDemandeRepository;
         this.categorieRepository = categorieRepository;
-        this.statutRepository = statutRepository;
     }
 
     @GetMapping
@@ -96,14 +90,8 @@ public class VisaRequestController {
         Demande demande = visaRequestService.findById(id)
             .orElseThrow(() -> new IllegalArgumentException("demande introuvable: " + id));
 
-        Statut actuel = demandeService.getDernierStatus(demande);
-        if (actuel != null) {
-            Statut scanTermine = statutRepository.findByLibelle(UtilService.STATUS_SCAN_TERMINE)
-                .orElseThrow(() -> new IllegalArgumentException("Statut '" + UtilService.STATUS_SCAN_TERMINE + "' introuvable"));
-
-            if (actuel.getOrdre() >= scanTermine.getOrdre()) {
-                return "redirect:/visa-requests?error=scan_termine";
-            }
+        if (demandeService.isScanTermineOuPlus(demande.getId())) {
+            return "redirect:/visa-requests?error=scan_termine";
         }
 
         model.addAttribute("demandeId", id);

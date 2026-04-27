@@ -16,4 +16,6 @@ public interface HistoriqueStatutRepository extends JpaRepository<HistoriqueStat
 		nativeQuery = true
 	)
 	Optional<HistoriqueStatut> findLatestByDemandeId(@Param("demandeId") Integer demandeId);
+
+	boolean existsByDemandeIdAndStatutOrdreGreaterThanEqual(Integer demandeId, Float ordre);
 }

@@ -22,12 +22,30 @@ public class DemandeService {
     private final app.visa.repository.TypeDemandeRepository typeDemandeRepository;
     private final app.visa.repository.CategorieRepository categorieRepository;
     private final app.visa.repository.HistoriqueStatutRepository historiqueStatutRepository;
+    private final app.visa.repository.StatutRepository statutRepository;
 
     public Statut getDernierStatus(Demande demande) {
         if (demande == null || demande.getId() == null) return null;
         return historiqueStatutRepository.findLatestByDemandeId(demande.getId())
             .map(HistoriqueStatut::getStatut)
             .orElse(null);
+    }
+
+    @Transactional(readOnly = true)
+    public boolean isScanTermineOuPlus(Integer demandeId) {
+        if (demandeId == null) {
+            return false;
+        }
+
+        Statut scanTermine = statutRepository.findByLibelle(UtilService.STATUS_SCAN_TERMINE)
+            .orElseThrow(() -> new IllegalArgumentException(
+                "Statut '" + UtilService.STATUS_SCAN_TERMINE + "' introuvable"
+            ));
+
+        return historiqueStatutRepository.existsByDemandeIdAndStatutOrdreGreaterThanEqual(
+            demandeId,
+            scanTermine.getOrdre()
+        );
     }
 
     public Demande getById(Integer id) {
