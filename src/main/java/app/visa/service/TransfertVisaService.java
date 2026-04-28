@@ -36,7 +36,7 @@ public class TransfertVisaService {
 
     @Transactional(rollbackFor = Exception.class)
     public DemandeTransfertVisa creerDemandeTransfertSda(Map<String, Object> donnees) {
-        Demande demande = visaRequestService.creerDemandeVisa(donnees, "Transfert de visa", "Visa accepte");
+        Demande demande = visaRequestService.creerDemandeVisa(donnees, "Nouveau titre", "Visa accepte");
         Visa visa = acceptationDemandeVisaService.creerVisaEtCarteResident(demande);
 
         Passeport nouveauPasseport = creerNouveauPasseport(donnees, demande);
