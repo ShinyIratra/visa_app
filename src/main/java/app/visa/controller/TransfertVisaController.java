@@ -2,7 +2,7 @@ package app.visa.controller;
 
 import app.visa.controller.response.ApiResponse;
 import app.visa.entity.DemandeTransfertVisa;
-import app.visa.service.TransfertVisaService;
+import app.visa.service.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -16,6 +16,7 @@ import java.util.*;
 public class TransfertVisaController {
 
     private final TransfertVisaService transfertVisaService;
+    private final UpdateTransfertVisaService updateTransfertVisaService;
 
     @GetMapping
     public String list() {
@@ -42,6 +43,34 @@ public class TransfertVisaController {
     @GetMapping("/new/sda")
     public String newFormSansDonneeAnterieure() {
         return "transfert-visa/new_sda.html";
+    }
+
+    @GetMapping("/{id}/edit")
+    public String editForm(@PathVariable Integer id, org.springframework.ui.Model model) {
+        model.addAttribute("transfertId", id);
+        return "transfert-visa/form-edit.html";
+    }
+
+    @GetMapping("/api/{id}")
+    @ResponseBody
+    public ResponseEntity<ApiResponse<Map<String, Object>>> getForEdit(@PathVariable Integer id) {
+        try {
+            Map<String, Object> data = updateTransfertVisaService.getTransfertForEdit(id);
+            return ResponseEntity.ok(new ApiResponse<>(true, data, null));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(new ApiResponse<>(false, null, e.getMessage()));
+        }
+    }
+
+    @PutMapping("/{id}")
+    @ResponseBody
+    public ResponseEntity<ApiResponse<Void>> update(@PathVariable Integer id, @RequestBody Map<String, Object> donnees) {
+        try {
+            updateTransfertVisaService.updateNouveauPasseport(id, donnees);
+            return ResponseEntity.ok(new ApiResponse<>(true, null, null));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(new ApiResponse<>(false, null, e.getMessage()));
+        }
     }
     
     @PostMapping("/sda")

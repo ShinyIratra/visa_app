@@ -27,6 +27,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
         data.forEach(item => {
             const tr = document.createElement('tr');
+
             tr.innerHTML = `
                 <td>${item.id}</td>
                 <td>${item.demandeur}</td>
@@ -36,6 +37,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 <td>${item.statut}</td>
                 <td>
                     <button class="btn-action" onclick="accepterDemande(${item.id})">Accepter demande</button>
+                    <button class="btn-action" onclick="window.location.href='/transfert-visa/${item.id}/edit'">Modifier</button>
                 </td>
             `;
             tableBody.appendChild(tr);

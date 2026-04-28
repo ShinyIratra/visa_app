@@ -14,11 +14,11 @@ import java.util.*;
 @RequiredArgsConstructor
 public class TransfertVisaService {
 
-    private final VisaRequestService visaRequestService;
-    private final AcceptationDemandeVisaService acceptationDemandeVisaService;
-    private final DemandeTransfertVisaRepository demandeTransfertVisaRepository;
-    private final VisaRepository visaRepository;
-    private final StatutRepository statutRepository;
+    protected final VisaRequestService visaRequestService;
+    protected final AcceptationDemandeVisaService acceptationDemandeVisaService;
+    protected final DemandeTransfertVisaRepository demandeTransfertVisaRepository;
+    protected final VisaRepository visaRepository;
+    protected final StatutRepository statutRepository;
 
     @Transactional(rollbackFor = Exception.class)
     public DemandeTransfertVisa creerDemandeTransfertAda(Map<String, Object> donnees) {
