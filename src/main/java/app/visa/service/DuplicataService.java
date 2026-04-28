@@ -101,33 +101,8 @@ public class DuplicataService extends VisaRequestService {
         CarteResident carteResident = carteResidentService.findByLastNumeroPasseport(numeroPasseport);
         Demande ancienneDemande = carteResident.getDemande();
         
-        Demande demande = new Demande();
-        demande.setDateCreation(LocalDateTime.now());
-        demande.setPasseport(ancienneDemande.getPasseport());
-        demande.setVisaTransformable(ancienneDemande.getVisaTransformable());
-        demande.setTypeDemande(ancienneDemande.getTypeDemande());
-        demande.setCategorie(categorieRepository.findByLibelle("Duplicata")
-            .orElseThrow(() -> new IllegalArgumentException("Erreur Duplicata : Categorie 'Duplicata' introuvable")));
-        Statut statut = statutRepository.findByLibelle("Demande creee")
-            .orElseThrow(() -> new IllegalArgumentException("Erreur Duplicata : statut 'Demande creee' introuvable."));
-        // Pour récuperer l'id de la demande, il faut d'abord sauvegarder la demande pour que l'ID soit généré
-        demande = demandeRepository.save(demande);
-
-        HistoriqueStatut historique = new HistoriqueStatut();
-        historique.setDemande(demande);
-        historique.setStatut(statut);
-        historique.setDateModification(LocalDateTime.now());
-        historiqueStatutRepository.save(historique);
-
-        CarteResident nouvelle_carteResident = new CarteResident();
-        nouvelle_carteResident.setDateCreation(LocalDateTime.now());
-        nouvelle_carteResident.setPasseport(carteResident.getPasseport());
-        nouvelle_carteResident.setDemande(demande);
-        nouvelle_carteResident.setLiaison(carteResident.getLiaison());
-
-        carteResidentRepository.save(nouvelle_carteResident);
-
-        return demande;
+        Demande demandeDuplicata = creerDemandeDuplicata(ancienneDemande);
+        return demandeDuplicata;
     }
 
     @Transactional(rollbackFor = Exception.class)

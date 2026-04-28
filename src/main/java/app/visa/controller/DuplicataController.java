@@ -38,8 +38,11 @@ public class DuplicataController {
     public ResponseEntity<ApiResponse<Object>> createNewFormAvecDonneeAnterieure(@RequestBody Map<String, Object> donnees) {
         try {
             Demande demande = duplicataService.creerDemandeDuplicataAvecDonneeAnterieure(donnees);
+            Map<String, Object> response = new java.util.HashMap<>();
+            response.put("id", demande.getId());
+            response.put("message", "Demande de duplicata créée avec succès.");
             
-			return ResponseEntity.ok(new ApiResponse<Object>(true, (Object) demande, null));
+			return ResponseEntity.ok(new ApiResponse<Object>(true, response, null));
 		} catch (IllegalArgumentException e) {
 			return ResponseEntity.badRequest().body(new ApiResponse<Object>(false, null, (Object) e.getMessage()));
 		} catch (Exception e) {
@@ -58,7 +61,12 @@ public class DuplicataController {
     public ResponseEntity<ApiResponse<Object>> createNewFormSansDonneeAnterieure(@RequestBody Map<String, Object> donnees) {
         try {
             Demande demande = duplicataService.creerDemandeDuplicataSansDonneeAnterieure(donnees);
-			return ResponseEntity.ok(new ApiResponse<Object>(true, (Object) demande, null));
+            
+            Map<String, Object> response = new java.util.HashMap<>();
+            response.put("id", demande.getId());
+            response.put("message", "Demande de duplicata creee avec succes.");
+
+			return ResponseEntity.ok(new ApiResponse<Object>(true, response, null));
 		} catch (IllegalArgumentException e) {
 			return ResponseEntity.badRequest().body(new ApiResponse<>(false, null, e.getMessage()));
 		} catch (Exception e) {
