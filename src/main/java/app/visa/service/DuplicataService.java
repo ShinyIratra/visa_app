@@ -163,12 +163,20 @@ public class DuplicataService extends VisaRequestService {
             .orElse(0);
 
         int nouvelIdentifiant = dernier_identifiant + 1;
+        liaisonSansDonneeAnterieurService.saveLiaisonSansDonneeAnterieur(nouvelIdentifiant, demande_original);
+        liaisonSansDonneeAnterieurService.saveLiaisonSansDonneeAnterieur(nouvelIdentifiant, demande_duplicata);
         
-        CarteResident nouvelle_carteResident = new CarteResident();
-        nouvelle_carteResident.setDateCreation(LocalDateTime.now());
-        nouvelle_carteResident.setDemande(demande_duplicata);
-        nouvelle_carteResident.setLiaison((carteResidentRepository.findByLiaison().orElse(0) + 1));
-        carteResidentRepository.save(nouvelle_carteResident);
+        // 4. Creation carte resident dupliquee
+        // CarteResident nouvelleCarte = new CarteResident();
+        // nouvelleCarte.setDateCreation(LocalDateTime.now());
+        // nouvelleCarte.setPasseport(demande_duplicata.getPasseport());
+        // nouvelleCarte.setDemande(demande_duplicata);
+        
+        // // Calcul du liaison ID para la carte résident
+        // Integer maxLiaison = carteResidentRepository.findByLiaison().orElse(0);
+        // nouvelleCarte.setLiaison(maxLiaison + 1);
+        
+        // carteResidentRepository.save(nouvelleCarte);
 
         return demande_duplicata;
     }
