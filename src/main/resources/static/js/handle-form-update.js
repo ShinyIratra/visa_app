@@ -12,6 +12,11 @@
             const result = await response.json();
 
             if (result.success) {
+                /**
+                 * Mistoque an'ito dia omena an'i dossiers.js
+                 * amzay cocheny tsy ny dossiers rehetra no cocheny par defaut fa izay fournis ihany
+                 */
+                window.initialDossiersFournisIds = result.data.dossiersFournis || [];
                 fillForm(result.data);
             } else {
                 throw new Error(result.error);
