@@ -22,6 +22,7 @@ import app.visa.entity.ReponseStatutVisa;
 import app.visa.entity.SituationFamiliale;
 import app.visa.entity.Statut;
 import app.visa.entity.TypeDemande;
+import app.visa.entity.Visa;
 import app.visa.entity.VisaTransformable;
 import app.visa.entity.LiaisonSansDonneeAnterieur;
 import app.visa.repository.CarteResidentRepository;
@@ -33,6 +34,7 @@ import app.visa.repository.ReponseStatutVisaRepository;
 import app.visa.repository.StatutRepository;
 import app.visa.repository.TypeDemandeRepository;
 import app.visa.repository.LiaisonSansDonneeAnterieurRepository;
+import app.visa.repository.VisaRepository;
 import app.visa.repository.VisaRequestRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -49,6 +51,7 @@ public class DuplicataService extends VisaRequestService {
     private final CarteResidentService carteResidentService;
     private final CarteResidentRepository carteResidentRepository;
     private final AcceptationDemandeVisaService acceptationDemandeVisaService;
+    private final VisaRepository visaRepository;
 
     public DuplicataService(VisaRequestRepository visaRequestRepository,
                             TypeDemandeRepository typeDemandeRepository,
@@ -67,7 +70,8 @@ public class DuplicataService extends VisaRequestService {
                             LiaisonSansDonneeAnterieurRepository liaisonSansDonneeAnterieurRepository,
                             CarteResidentService carteResidentService,
                             CarteResidentRepository carteResidentRepository,
-                            AcceptationDemandeVisaService acceptationDemandeVisaService) {
+                            AcceptationDemandeVisaService acceptationDemandeVisaService,
+                            VisaRepository visaRepository) {
         super(visaRequestRepository, typeDemandeRepository, categorieRepository, dossierRepository,
               reponseStatutVisaRepository, historiqueStatutRepository, statutRepository,
               demandeurService, passeportService, visaTransformableService);
@@ -79,6 +83,7 @@ public class DuplicataService extends VisaRequestService {
         this.carteResidentService = carteResidentService;
         this.carteResidentRepository = carteResidentRepository;
         this.acceptationDemandeVisaService = acceptationDemandeVisaService;
+        this.visaRepository = visaRepository;
     }
 
     @Transactional(rollbackFor = Exception.class)
@@ -92,17 +97,52 @@ public class DuplicataService extends VisaRequestService {
 
     @Transactional(rollbackFor = Exception.class)
     public Demande creerDemandeDuplicataAvecDonneeAnterieure(Map<String, Object> donnees) {
-        String numeroPasseport = (String) donnees.get("numero passeport");
+        String typeRecherche = (String) donnees.get("type_recherche");
+        String valeur = (String) donnees.get("valeur");
 
-        if (numeroPasseport == null || numeroPasseport.isEmpty()) {
-            throw new IllegalArgumentException("Erreur Duplicata : Numero de passeport obligatoire.");
+        if (typeRecherche == null || valeur == null || valeur.isEmpty()) {
+            throw new IllegalArgumentException("Erreur Duplicata : Informations de recherche incompletes");
         }
 
-        CarteResident carteResident = carteResidentService.findByLastNumeroPasseport(numeroPasseport);
-        Demande ancienneDemande = carteResident.getDemande();
+        Demande ancienneDemande = null;
+
+        switch (typeRecherche) {
+            case "id_demande":
+                Integer idDemande = Integer.parseInt(valeur);
+                ancienneDemande = demandeRepository.findById(idDemande)
+                    .orElseThrow(() -> new IllegalArgumentException("Demande #" + idDemande + " introuvable."));
+                break;
+            case "id_visa":
+                Integer idVisa = Integer.parseInt(valeur);
+                Visa visa = visaRepository.findById(idVisa)
+                    .orElseThrow(() -> new IllegalArgumentException("Visa #" + idVisa + " introuvable."));
+                ancienneDemande = visa.getDemande();
+                break;
+            case "passeport_original":
+                ancienneDemande = findDemandeByPasseportOriginal(valeur);
+                break;
+            case "passeport_actuel":
+                // Otran le taloha ihany
+                CarteResident carteResident = carteResidentService.findByLastNumeroPasseport(valeur);
+                ancienneDemande = carteResident.getDemande();
+                break;
+            default:
+                throw new IllegalArgumentException("Type de recherche '" + typeRecherche + "' non supporte.");
+        }
+
+        if (ancienneDemande == null) {
+            throw new IllegalArgumentException("Aucune demande correspondante trouvee.");
+        }
         
-        Demande demandeDuplicata = creerDemandeDuplicata(ancienneDemande);
-        return demandeDuplicata;
+        return creerDemandeDuplicata(ancienneDemande);
+    }
+
+    private Demande findDemandeByPasseportOriginal(String numeroPasseport) {
+        return demandeRepository.findAll().stream()
+            .filter(d -> d.getPasseport().getNumero().equals(numeroPasseport))
+            .filter(d -> d.getCategorie().getLibelle().equals("Nouveau titre"))
+            .findFirst()
+            .orElseThrow(() -> new IllegalArgumentException("Aucune demande originale trouvee pour le passeport '" + numeroPasseport + "'."));
     }
 
     @Transactional(rollbackFor = Exception.class)

@@ -15,11 +15,20 @@
             </div>
             <form id="demandeForm">
                 <section>
-                    <h2>1. INFORMATIONS DU PASSEPORT</h2>
+                    <h2>1. RECHERCHE DE LA DEMANDE ORIGINALE</h2>
                     <div class="grid-container">
-                        <div class="grid-item col-12">
-                            <label>NUMÉRO DE PASSEPORT</label>
-                            <input type="text" name="numeroPasseport" id="passeport_numero" placeholder="Ex: 12345678" required />
+                        <div class="grid-item col-6">
+                            <label>RECHERCHER PAR</label>
+                            <select id="type_recherche" name="type_recherche" required>
+                                <option value="id_demande">ID de la demande</option>
+                                <option value="id_visa">ID du visa</option>
+                                <option value="passeport_original">N° Passeport de la demande originale</option>
+                                <option value="passeport_actuel">N° Passeport actuel</option>
+                            </select>
+                        </div>
+                        <div class="grid-item col-6">
+                            <label id="label_valeur">VALEUR</label>
+                            <input type="text" name="valeur" id="valeur_recherche" placeholder="Entrez la valeur..." required />
                         </div>
                     </div>
                 </section>
@@ -33,12 +42,28 @@
         <script>
             function init() {
                 const demandeForm = document.getElementById('demandeForm');
+                const typeRechercheSelect = document.getElementById('type_recherche');
+                const labelValeur = document.getElementById('label_valeur');
+                const valeurInput = document.getElementById('valeur_recherche');
+
+                typeRechercheSelect.addEventListener('change', function() {
+                    const labels = {
+                        'id_demande': 'ID DE LA DEMANDE',
+                        'id_visa': 'ID DU VISA',
+                        'passeport_original': 'NUMÉRO DU PASSEPORT ORIGINAL',
+                        'passeport_actuel': 'NUMÉRO DU PASSEPORT ACTUEL'
+                    };
+                    labelValeur.innerText = labels[this.value];
+                    valeurInput.placeholder = "Entrez " + labels[this.value].toLowerCase() + "...";
+                });
+
                 demandeForm.addEventListener('submit', function (event) {
                     event.preventDefault();
 
                     const formData = new FormData(demandeForm);
                     const data = {
-                        "numero passeport": formData.get('numeroPasseport')
+                        "type_recherche": formData.get('type_recherche'),
+                        "valeur": formData.get('valeur')
                     };
 
                     fetch('/duplicata/new/ada', {
