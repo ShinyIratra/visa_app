@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{layout}">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title layout:fragment="title">Scan des dossiers</title>
+    <style>
+        :root {
+            --bg: #f4f7fb;
+            --surface: #ffffff;
+            --text: #14213d;
+            --muted: #5b6474;
+            --accent: #0b7285;
+            --danger: #c92a2a;
+            --border: #dde2ea;
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            margin: 0;
+            font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #eef5ff 0%, #f8fbff 45%, #f4f7fb 100%);
+            color: var(--text);
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 40px auto;
+            padding: 24px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            box-shadow: 0 16px 38px rgba(20, 33, 61, 0.08);
+        }
+
+        .header {
+            margin-bottom: 24px;
+        }
+
+        h1 {
+            margin: 0 0 8px 0;
+            font-size: 1.6rem;
+        }
+
+        .info {
+            color: var(--muted);
+            font-size: 0.95rem;
+            margin-top: 8px;
+        }
+
+        .section {
+            margin-bottom: 28px;
+        }
+
+        .section h2 {
+            font-size: 1.1rem;
+            margin: 0 0 16px 0;
+            color: var(--accent);
+            border-bottom: 2px solid var(--border);
+            padding-bottom: 8px;
+        }
+
+        .dossier-item {
+            padding: 12px;
+            margin-bottom: 12px;
+            background: #f9fafb;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+        }
+
+        .dossier-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 8px;
+        }
+
+        .dossier-label {
+            font-weight: 600;
+            flex: 1;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 8px;
+            background: #e3f2fd;
+            color: var(--accent);
+            border-radius: 4px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .badge.obligatoire {
+            background: #fff3e0;
+            color: #e65100;
+        }
+
+        .file-input-wrapper {
+            position: relative;
+            display: inline-block;
+            width: 100%;
+        }
+
+        .file-input-wrapper input[type="file"] {
+            position: absolute;
+            left: -9999px;
+        }
+
+        .file-input-label {
+            display: inline-block;
+            padding: 8px 12px;
+            background: var(--accent);
+            color: white;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: background 0.2s;
+        }
+
+        .file-input-label:hover {
+            background: #066a7a;
+        }
+
+        .file-name {
+            margin-left: 8px;
+            color: var(--muted);
+            font-size: 0.9rem;
+        }
+
+        .btn {
+            border: none;
+            border-radius: 10px;
+            padding: 10px 16px;
+            font-weight: 600;
+            text-decoration: none;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+
+        .btn-primary {
+            background: var(--accent);
+            color: #fff;
+        }
+
+        .btn-primary:hover {
+            background: #066a7a;
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--text);
+        }
+
+        .btn-outline:hover {
+            background: var(--bg);
+        }
+
+        .actions-bar {
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+            margin-top: 24px;
+            padding-top: 16px;
+            border-top: 1px solid var(--border);
+        }
+
+        .alert {
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 16px;
+            font-size: 0.95rem;
+        }
+
+        .alert-info {
+            background: #e3f2fd;
+            border-left: 4px solid var(--accent);
+            color: var(--accent);
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            color: var(--muted);
+            margin-top: 16px;
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid var(--border);
+            border-top-color: var(--accent);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+
+<body>
+    <div layout:fragment="content">
+        <div class="container">
+            <div class="header">
+                <h1>SCAN DES DOSSIERS</h1>
+                <p class="info">Demande ID: <strong th:text="${demandeId}"></strong></p>
+            </div>
+
+            <div class="alert alert-info">
+                Veuillez télécharger les fichiers correspondant à chaque dossier. Cliquez sur le bouton de chaque dossier pour sélectionner un fichier.
+            </div>
+
+            <form id="scanForm" th:attr="data-demande-id=${demandeId}">
+                <div class="section">
+                    <h2>Dossiers à scanner</h2>
+                    <div id="dossiersList">
+                        <div th:each="dossier : ${dossiers}" class="dossier-item">
+                            <div class="dossier-header">
+                                <span class="dossier-label" th:text="${dossier.libelle}">Dossier</span>
+                                <span class="badge obligatoire" th:if="${dossier.obligatoire}">Obligatoire</span>
+                            </div>
+                            <div class="file-input-wrapper">
+                                <input type="file" th:id="'file_dossier_' + ${dossier.id}" th:name="'dossier_' + ${dossier.id}">
+                                <label class="file-input-label" th:for="'file_dossier_' + ${dossier.id}">Choisir un fichier</label>
+                                <span class="file-name">(Aucun fichier selectionne)</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="actions-bar">
+                    <button type="button" class="btn btn-outline" onclick="window.location.href='/visa-requests'">Annuler</button>
+                    <button type="submit" class="btn btn-primary">Terminer le scan</button>
+                </div>
+            </form>
+
+            <script th:src="@{/js/scan.js}"></script>
+        </div>
+    </div>
+</body>
+
+</html>

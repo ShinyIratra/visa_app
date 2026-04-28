@@ -3,41 +3,38 @@ document.addEventListener('DOMContentLoaded', function() {
 
     if (!tableBody) return;
 
-    fetch('/transfert-visa/list')
+    fetch('/duplicata/list')
         .then(response => response.json())
         .then(apiResponse => {
             if (apiResponse.success) {
                 renderTable(apiResponse.data);
             } else {
                 console.error('Erreur API:', apiResponse.error);
-                tableBody.innerHTML = `<tr><td colspan="7" style="text-align: center; color: red;">${apiResponse.message}</td></tr>`;
+                tableBody.innerHTML = `<tr><td colspan="6" style="text-align: center; color: red;">${apiResponse.message || 'Une erreur est survenue.'}</td></tr>`;
             }
         })
         .catch(error => {
             console.error('Erreur fetch:', error);
-            tableBody.innerHTML = `<tr><td colspan="7" style="text-align: center; color: red;">Erreur lors du chargement des données.</td></tr>`;
+            tableBody.innerHTML = `<tr><td colspan="6" style="text-align: center; color: red;">Erreur lors du chargement des données.</td></tr>`;
         });
 
     function renderTable(data) {
         tableBody.innerHTML = '';
         if (data.length === 0) {
-            tableBody.innerHTML = '<tr><td colspan="7" style="text-align: center;">Aucune demande de transfert trouvée.</td></tr>';
+            tableBody.innerHTML = '<tr><td colspan="6" style="text-align: center;">Aucune demande de duplicata trouvée.</td></tr>';
             return;
         }
 
         data.forEach(item => {
             const tr = document.createElement('tr');
-
             tr.innerHTML = `
                 <td>${item.id}</td>
                 <td>${item.demandeur}</td>
-                <td>${item.ancienPasseport}</td>
-                <td>${item.nouveauPasseport}</td>
+                <td>${item.numeroPasseport}</td>
                 <td>${item.nationalite}</td>
                 <td>${item.statut}</td>
                 <td>
                     <button class="btn-action" onclick="accepterDemande(${item.id})">Accepter demande</button>
-                    <button class="btn-action" onclick="window.location.href='/transfert-visa/${item.id}/edit'">Modifier</button>
                 </td>
             `;
             tableBody.appendChild(tr);
@@ -45,10 +42,10 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     window.accepterDemande = function(id) {
-        if (!confirm('Acceptr la demande ?')) 
+        if (!confirm('Accepter la demande de duplicata ?')) 
             return;
 
-        fetch(`/transfert-visa/${id}/accepter`, {
+        fetch(`/duplicata/${id}/accepter`, {
             method: 'POST'
         })
         .then(response => response.json())
@@ -56,11 +53,11 @@ document.addEventListener('DOMContentLoaded', function() {
             if (apiResponse.success) {
                 window.location.reload();
             } else {
-                throw new Error(apiResponse.error);
+                throw new Error(apiResponse.error || 'Erreur lors de l\'acceptation');
             }
         })
         .catch(error => {
-            alert(error);
+            alert(error.message);
         });
     };
 });

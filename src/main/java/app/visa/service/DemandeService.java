@@ -22,12 +22,33 @@ public class DemandeService {
     private final app.visa.repository.TypeDemandeRepository typeDemandeRepository;
     private final app.visa.repository.CategorieRepository categorieRepository;
     private final app.visa.repository.HistoriqueStatutRepository historiqueStatutRepository;
+    private final app.visa.repository.StatutRepository statutRepository;
+    private final app.visa.repository.VisaRepository visaRepository;
+    private final app.visa.repository.PasseportRepository passeportRepository;
+    private final CarteResidentService carteResidentService;
 
     public Statut getDernierStatus(Demande demande) {
         if (demande == null || demande.getId() == null) return null;
         return historiqueStatutRepository.findLatestByDemandeId(demande.getId())
             .map(HistoriqueStatut::getStatut)
             .orElse(null);
+    }
+
+    @Transactional(readOnly = true)
+    public boolean isScanTermineOuPlus(Integer demandeId) {
+        if (demandeId == null) {
+            return false;
+        }
+
+        Statut scanTermine = statutRepository.findByLibelle(UtilService.STATUS_SCAN_TERMINE)
+            .orElseThrow(() -> new IllegalArgumentException(
+                "Statut '" + UtilService.STATUS_SCAN_TERMINE + "' introuvable"
+            ));
+
+        return historiqueStatutRepository.existsByDemandeIdAndStatutOrdreGreaterThanEqual(
+            demandeId,
+            scanTermine.getOrdre()
+        );
     }
 
     public Demande getById(Integer id) {
@@ -53,5 +74,51 @@ public class DemandeService {
             .findFirst().orElse(null));
 
         return demande;
+    }
+
+    public Demande findDemandeByCritere(String typeRecherche, String valeur) {
+        if (typeRecherche == null || valeur == null || valeur.isEmpty()) {
+            throw new IllegalArgumentException("Informations de recherche incompletes.");
+        }
+
+        switch (typeRecherche) {
+            case "id_demande":
+                Integer idDemande = Integer.parseInt(valeur);
+                return demandeRepository.findById(idDemande)
+                    .orElseThrow(() -> new IllegalArgumentException("Demande #" + idDemande + " introuvable."));
+            case "id_visa":
+                Integer idVisa = Integer.parseInt(valeur);
+                Visa visa = visaRepository.findById(idVisa)
+                    .orElseThrow(() -> new IllegalArgumentException("Visa #" + idVisa + " introuvable."));
+                return visa.getDemande();
+            case "passeport_original":
+                return findDemandeByPasseportOriginal(valeur);
+            case "carte_resident_passeport":
+                // Otran le taloha ihany
+                CarteResident carteResident = carteResidentService.findByLastNumeroPasseport(valeur);
+                return carteResident.getDemande();
+            case "passeport_actuel":
+                return findDemandeByPasseportActuel(valeur);
+            default:
+                throw new IllegalArgumentException("Type de recherche '" + typeRecherche + "' non supporte.");
+        }
+    }
+
+    private Demande findDemandeByPasseportOriginal(String numeroPasseport) {
+        return demandeRepository.findAll().stream()
+            .filter(d -> d.getPasseport().getNumero().equalsIgnoreCase(numeroPasseport))
+            .filter(d -> d.getCategorie().getLibelle().equals("Nouveau titre"))
+            .findFirst()
+            .orElseThrow(() -> new IllegalArgumentException("Aucune demande originale trouvee pour le passeport '" + numeroPasseport + "'."));
+    }
+
+    private Demande findDemandeByPasseportActuel(String numeroPasseport) {
+        return visaRepository.findAll().stream()
+            .filter(v -> v.getPasseports().stream().anyMatch(p -> p.getNumero().equalsIgnoreCase(numeroPasseport)))
+            .filter(v -> v.getDemande().getCategorie().getLibelle().equals("Nouveau titre"))
+            .sorted((v1, v2) -> v2.getDateCreation().compareTo(v1.getDateCreation()))
+            .map(Visa::getDemande)
+            .findFirst()
+            .orElseThrow(() -> new IllegalArgumentException("Aucune demande trouvee pour le passeport '" + numeroPasseport + "'."));
     }
 }

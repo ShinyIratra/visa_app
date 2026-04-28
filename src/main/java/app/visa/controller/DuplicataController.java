@@ -4,40 +4,23 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.*;
 
-import app.visa.dto.VisaRequestDto;
 import app.visa.service.*;
 import app.visa.entity.*;
 import app.visa.controller.response.ApiResponse;
 import org.springframework.http.ResponseEntity;
 import java.util.Map;
+import java.util.List;
 
 @Controller
 @RequestMapping("/duplicata")
 public class DuplicataController {
 
-    private final VisaRequestService visaRequestService;
     private final DuplicataService duplicataService;
-    private final DemandeurService demandeurService;
-    private final DemandeService demandeService;
-    private final PasseportService passeportService;
-    private final VisaTransformableService visaTransformableService;
 
-    public DuplicataController(VisaRequestService visaRequestService,
-                                DuplicataService duplicataService,
-                                DemandeurService demandeurService,
-                                DemandeService demandeService,
-                                PasseportService passeportService,
-                                VisaTransformableService visaTransformableService) {
-        this.visaRequestService = visaRequestService;
+    public DuplicataController(DuplicataService duplicataService) {
         this.duplicataService = duplicataService;
-        this.demandeurService = demandeurService;
-        this.demandeService = demandeService;
-        this.passeportService = passeportService;
-        this.visaTransformableService = visaTransformableService;
     }
 
     @GetMapping
@@ -54,14 +37,17 @@ public class DuplicataController {
     @ResponseBody
     public ResponseEntity<ApiResponse<Object>> createNewFormAvecDonneeAnterieure(@RequestBody Map<String, Object> donnees) {
         try {
-            Map<String, Object> data = duplicataService.creerDemandeDuplicataAvecDonneeAnterieure(donnees);
+            Demande demande = duplicataService.creerDemandeDuplicataAvecDonneeAnterieure(donnees);
+            Map<String, Object> response = new java.util.HashMap<>();
+            response.put("id", demande.getId());
+            response.put("message", "Demande de duplicata créée avec succès.");
             
-			return ResponseEntity.ok(new ApiResponse<>(true, data, null));
+			return ResponseEntity.ok(new ApiResponse<Object>(true, response, null));
 		} catch (IllegalArgumentException e) {
-			return ResponseEntity.badRequest().body(new ApiResponse<>(false, null, e.getMessage()));
+			return ResponseEntity.badRequest().body(new ApiResponse<Object>(false, null, (Object) e.getMessage()));
 		} catch (Exception e) {
 			return ResponseEntity.internalServerError()
-				.body(new ApiResponse<>(false, null, "Erreur Duplicata : " + e.getMessage()));
+				.body(new ApiResponse<Object>(false, null, (Object) ("Erreur Duplicata : " + e.getMessage())));
 		}
     }
 
@@ -74,16 +60,43 @@ public class DuplicataController {
     @ResponseBody
     public ResponseEntity<ApiResponse<Object>> createNewFormSansDonneeAnterieure(@RequestBody Map<String, Object> donnees) {
         try {
-            Map<String, Object> data = duplicataService.creerDemandeDuplicataSansDonneeAnterieure(donnees);
-            Demande demande_original = (Demande) demandeService.getById((Integer) data.get("demandeId"));
+            Demande demande = duplicataService.creerDemandeDuplicataSansDonneeAnterieure(donnees);
+            
+            Map<String, Object> response = new java.util.HashMap<>();
+            response.put("id", demande.getId());
+            response.put("message", "Demande de duplicata creee avec succes.");
 
-            Map<String, Object> response = duplicataService.creerDuplicata(demande_original);
-			return ResponseEntity.ok(new ApiResponse<>(true, response, null));
+			return ResponseEntity.ok(new ApiResponse<Object>(true, response, null));
 		} catch (IllegalArgumentException e) {
 			return ResponseEntity.badRequest().body(new ApiResponse<>(false, null, e.getMessage()));
 		} catch (Exception e) {
 			return ResponseEntity.internalServerError()
 				.body(new ApiResponse<>(false, null, "Erreur Duplicata : " + e.getMessage()));
 		}
+    }
+
+    
+    @GetMapping("/list")
+    @ResponseBody
+    public ResponseEntity<ApiResponse<List<Map<String, Object>>>> listData() {
+        try {
+            List<Map<String, Object>> data = duplicataService.listDuplicataAvecInfos();
+            return ResponseEntity.ok(new ApiResponse<List<Map<String, Object>>>(true, data, null));
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError()
+                .body(new ApiResponse<>(false, null, "Erreur lors de la recuperation des demandes de duplicata"));
+        }
+    }
+
+    @PostMapping("/{id}/accepter")
+    @ResponseBody
+    public ResponseEntity<ApiResponse<Void>> accepter(@PathVariable Integer id) {
+        try {
+            duplicataService.accepterDuplicata(id);
+            return ResponseEntity.ok(new ApiResponse<>(true, null, null));
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError()
+                .body(new ApiResponse<>(false, null, "Erreur lors de l'acceptation: " + e.getMessage()));
+        }
     }
 }

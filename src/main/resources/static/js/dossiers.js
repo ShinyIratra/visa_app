@@ -53,7 +53,15 @@
             checkbox.name = 'dossierIds';
             checkbox.value = item.id;
             checkbox.id = 'dossier_' + item.id;
-            checkbox.checked = true;
+            
+            if (!window.initialDossiersFournisIds) { // Check hoe create sa update
+                checkbox.checked = true;
+            } else if (window.initialDossiersFournisIds.includes(Number(item.id))) { // Raha update ka efa nocochena le izy 
+                checkbox.checked = true;
+            } else {
+                checkbox.checked = false; // Par defaut, tsara apetaka eo ihany oz chat
+            }
+
             if (item.obligatoire === true) {
                 // Marquage cote code
                 checkbox.dataset.obligatoire = 'true';

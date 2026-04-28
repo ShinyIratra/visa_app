@@ -160,12 +160,20 @@ public class VisaRequestEditService extends VisaRequestService { // (Kamo be han
     }
 
     private void controleStatut(Demande demande) {
-        Statut actuel = demandeService.getDernierStatus(demande);
-        Statut cible = statutRepository.findByLibelle(UtilService.STATUS_SCAN_TERMINE)
-            .orElseThrow(() -> new IllegalArgumentException("Statut '" + UtilService.STATUS_SCAN_TERMINE + "' introuvable"));
+        if (demande == null || demande.getId() == null) {
+            return;
+        }
 
-        if (actuel != null && actuel.getOrdre() > cible.getOrdre()) {
-            throw new IllegalStateException("Impossible de modifier une demande dont les documents ont deja ete scannes");
+        if (demandeService.isScanTermineOuPlus(demande.getId())) {
+            Statut actuel = demandeService.getDernierStatus(demande);
+            String libelleActuel = (actuel != null && actuel.getLibelle() != null)
+                ? actuel.getLibelle()
+                : UtilService.STATUS_SCAN_TERMINE;
+
+            throw new IllegalStateException(
+                "Impossible de modifier une demande. Statut actuel: " + libelleActuel + 
+                ". Les documents ont déjà été scannés et ne peuvent plus être modifiés."
+            );
         }
     }
 

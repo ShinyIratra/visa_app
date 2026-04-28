@@ -13,8 +13,23 @@
             <div class="header-top">
                 <h1>LISTE DES DEMANDES DE DUPLICATA</h1>
             </div>
-            <!-- Table or list of duplicata requests here -->
+            <table border="1">
+                <thead>
+                    <tr>
+                        <th>Id</th>
+                        <th>Demandeur</th>
+                        <th>Passeport</th>
+                        <th>Nationalité</th>
+                        <th>Statut</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!--  duplicatas.js -->
+                </tbody>
+            </table>
         </div>
+        <script th:src="@{/js/duplicatas.js}"></script>
     </div>
 </body>
 </html>

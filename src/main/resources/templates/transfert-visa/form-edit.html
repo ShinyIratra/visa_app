@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+    layout:decorate="~{layout}">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title layout:fragment="title">Modifier la demande de transfert</title>
+    <link id="global-css" rel="stylesheet" th:href="@{/css/global.css}">
+    <link id="visa-css" rel="stylesheet" th:href="@{/css/visa-form.css}">
+</head>
+
+<body>
+    <div layout:fragment="content">
+        <div class="visa-form-container">
+            <div class="header-top">
+                <h1>MODIFIER LE TRANSFERT DE VISA [[${transfertId}]]</h1>
+            </div>
+
+            <form id="editTransfertForm">
+                <input type="hidden" id="transfertId" th:value="${transfertId}" />
+
+                <section>
+                    <h2>MISE A JOUR DU NOUVEAU PASSEPORT</h2>
+                    <div class="grid-container">
+                        <div class="grid-item col-4">
+                            <label>NUMÉRO DU DOCUMENT</label>
+                            <input type="text" id="passeport_numero" required />
+                        </div>
+                        <div class="grid-item col-4">
+                            <label>DATE DE DÉLIVRANCE</label>
+                            <input type="datetime-local" id="passeport_dateDelivrance" required />
+                        </div>
+                        <div class="grid-item col-4">
+                            <label>DATE D'EXPIRATION</label>
+                            <input type="datetime-local" id="passeport_dateExpiration" required />
+                        </div>
+                    </div>
+                </section>
+
+                <div class="actions-bar">
+                    <button type="submit" class="btn btn-primary">Mettre a jour</button>
+                    <a th:href="@{/transfert-visa}" class="btn btn-outline">Annuler</a>
+                </div>
+            </form>
+        </div>
+
+        <script>
+            document.addEventListener('DOMContentLoaded', async () => {
+                const transfertId = document.getElementById('transfertId').value;
+                const form = document.getElementById('editTransfertForm');
+
+                // Get data
+                try {
+                    const response = await fetch(`/transfert-visa/api/${transfertId}`);
+                    const result = await response.json();
+
+                    if (result.success) {
+                        const data = result.data;
+                        document.getElementById('passeport_numero').value = data.numero || '';
+                        // datetime-local (YYYY-MM-DDTHH:mm)
+                        if (data.dateDelivrance) 
+                            document.getElementById('passeport_dateDelivrance').value = data.dateDelivrance.substring(0, 16);
+                        if (data.dateExpiration) 
+                            document.getElementById('passeport_dateExpiration').value = data.dateExpiration.substring(0, 16);
+                    } else {
+                        alert('Erreur: ' + result.error);
+                    }
+                } catch (e) {
+                    console.error(e);
+                }
+
+                form.addEventListener('submit', async (e) => {
+                    e.preventDefault();
+                    const data = {
+                        "nouveau passeport": {
+                            numero: document.getElementById('passeport_numero').value,
+                            dateDelivrance: document.getElementById('passeport_dateDelivrance').value,
+                            dateExpiration: document.getElementById('passeport_dateExpiration').value
+                        }
+                    };
+
+                    try {
+                        const response = await fetch(`/transfert-visa/${transfertId}`, {
+                            method: 'PUT',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(data)
+                        });
+                        const res = await response.json();
+                        if (res.success) {
+                            window.location.href = '/transfert-visa';
+                        } else {
+                            alert('Erreur: ' + res.error);
+                        }
+                    } catch (err) {
+                        alert('Erreur lors de la mise a jour');
+                    }
+                });
+            });
+        </script>
+    </div>
+</body>
+
+</html>

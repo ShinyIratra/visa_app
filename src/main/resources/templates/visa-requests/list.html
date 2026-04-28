@@ -110,6 +110,18 @@
             align-items: center;
         }
 
+        .alert {
+            margin-bottom: 16px;
+            padding: 12px;
+            border-radius: 8px;
+        }
+
+        .alert-error {
+            background: #fff5f5;
+            border: 1px solid #ffc9c9;
+            color: var(--danger);
+        }
+
         form {
             margin: 0;
         }
@@ -129,6 +141,8 @@
         <h1>Demandes de visa</h1>
         <a class="btn btn-primary" th:href="@{/visa-requests/new}">Nouvelle demande</a>
     </div>
+
+    <div class="alert alert-error" th:if="${errorMessage}" th:text="${errorMessage}"></div>
 
     <div class="table-wrapper">
         <table>
@@ -159,6 +173,7 @@
                 <td>
                     <div class="actions">
                         <a class="btn btn-secondary" th:href="@{/visa-requests/{id}/edit(id=${demande.id})}">Modifier</a>
+                        <a class="btn btn-secondary" th:href="@{/visa-requests/scan/{id}(id=${demande.id})}">Scanner</a>
                         <form th:action="@{/api/demandes-visa/{id}(id=${demande.id})}" method="post"
                               onsubmit="return confirm('Supprimer cette demande ?');">
                             <button class="btn btn-danger" type="submit">Supprimer</button>

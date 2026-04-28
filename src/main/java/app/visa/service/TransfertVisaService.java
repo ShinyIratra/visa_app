@@ -14,19 +14,20 @@ import java.util.*;
 @RequiredArgsConstructor
 public class TransfertVisaService {
 
-    private final VisaRequestService visaRequestService;
-    private final AcceptationDemandeVisaService acceptationDemandeVisaService;
-    private final DemandeTransfertVisaRepository demandeTransfertVisaRepository;
-    private final VisaRepository visaRepository;
-    private final StatutRepository statutRepository;
+    protected final VisaRequestService visaRequestService;
+    protected final AcceptationDemandeVisaService acceptationDemandeVisaService;
+    protected final DemandeTransfertVisaRepository demandeTransfertVisaRepository;
+    protected final VisaRepository visaRepository;
+    protected final StatutRepository statutRepository;
+    protected final DemandeService demandeService;
 
     @Transactional(rollbackFor = Exception.class)
     public DemandeTransfertVisa creerDemandeTransfertAda(Map<String, Object> donnees) {
-        Integer idVisa = (Integer) donnees.get("idVisa");
-        Visa visa = visaRepository.findById(idVisa)
-            .orElseThrow(() -> new IllegalArgumentException("Visa " + idVisa + " introuvable"));
+        String typeRecherche = (String) donnees.get("type_recherche");
+        String valeur = (String) donnees.get("valeur");
+
+        Demande demandeOrigine = demandeService.findDemandeByCritere(typeRecherche, valeur);
         
-        Demande demandeOrigine = visa.getDemande();
         Passeport nouveauPasseport = creerNouveauPasseport(donnees, demandeOrigine);
 
         DemandeTransfertVisa demandeTransfertVisa = buildDemandeTransfert(demandeOrigine, nouveauPasseport);
@@ -36,7 +37,7 @@ public class TransfertVisaService {
 
     @Transactional(rollbackFor = Exception.class)
     public DemandeTransfertVisa creerDemandeTransfertSda(Map<String, Object> donnees) {
-        Demande demande = visaRequestService.creerDemandeVisa(donnees, "Transfert de visa", "Visa accepte");
+        Demande demande = visaRequestService.creerDemandeVisa(donnees, "Nouveau titre", "Visa accepte");
         Visa visa = acceptationDemandeVisaService.creerVisaEtCarteResident(demande);
 
         Passeport nouveauPasseport = creerNouveauPasseport(donnees, demande);
