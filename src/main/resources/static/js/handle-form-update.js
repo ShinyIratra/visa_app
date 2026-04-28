@@ -109,8 +109,8 @@
         .then(r => r.json())
         .then(resp => {
             if (resp.success) {
-                // window.location.href = '/visa-requests';
-                window.location.reload(true);
+                window.location.href = '/visa-requests';
+                // window.location.reload(true);
             } else {
                 throw new Error(resp.error);
             }

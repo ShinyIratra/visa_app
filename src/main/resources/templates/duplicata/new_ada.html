@@ -53,8 +53,8 @@
                             console.log(apiResponse);
 
                             if (apiResponse.success) {
-                                // window.location.href = '/duplicata';
-                                alert("Duplicata demandé avec succès");
+                                // alert("Duplicata demandé avec succès");
+                                window.location.href = '/duplicata';
                             } else {
                                 throw new Error(apiResponse.error)
                             }

@@ -68,12 +68,12 @@ public class TransfertVisaController {
     // Tsisy ilaivana azy le reponse rehefa ok fa apetako eto ihany au cas ou ilaina
     private Map<String, Object> buildResponse(DemandeTransfertVisa demandeTransfert) {
         Map<String, Object> response = new HashMap<>();
-        response.put("id", demandeTransfert.getId());
-        response.put("nouveauPasseport", demandeTransfert.getNouveauPasseport());
-        // Mbola tsy haiko ihany, asina visa ve ?
-        // if (demandeTransfert.getVisa() != null) {
-        //     response.put("visaSource", demandeTransfert.getVisa());
-        // }
+        if (demandeTransfert.getNouveauPasseport() != null) {
+            Map<String, Object> passMap = new HashMap<>();
+            passMap.put("id", demandeTransfert.getNouveauPasseport().getId());
+            passMap.put("numPasseport", demandeTransfert.getNouveauPasseport().getNumero());
+            response.put("nouveauPasseport", passMap);
+        }
         return response;
     }
 
