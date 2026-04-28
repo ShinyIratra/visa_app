@@ -76,7 +76,7 @@ public class VisaRequestController {
         if ("scan_termine".equals(error)) {
             model.addAttribute("errorMessage", "Action interdite. La demande est deja au statut Scan termine.");
         }
-        model.addAttribute("demandes", visaRequestService.findAll());
+        model.addAttribute("demandes", visaRequestService.listDemandesAvecInfos());
         return "visa-requests/list";
     }
 
