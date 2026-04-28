@@ -74,7 +74,7 @@ public class VisaRequestController {
     @GetMapping
     public String list(Model model, @RequestParam(required = false) String error) {
         if ("scan_termine".equals(error)) {
-            model.addAttribute("errorMessage", "Modification interdite. La demande est deja au statut Scan termine.");
+            model.addAttribute("errorMessage", "Action interdite. La demande est deja au statut Scan termine.");
         }
         model.addAttribute("demandes", visaRequestService.findAll());
         return "visa-requests/list";
