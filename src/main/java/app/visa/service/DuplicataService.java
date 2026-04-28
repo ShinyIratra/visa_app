@@ -189,4 +189,47 @@ public class DuplicataService extends VisaRequestService {
         response.put("nouveauStatut", statut.getLibelle());
         return response;
     }
+
+    @Transactional(readOnly = true)
+    public List<Map<String, Object>> listDuplicataAvecInfos() {
+        // Get demandes de duplicata
+        Categorie categorieDuplicata = categorieRepository.findByLibelle("Duplicata")
+            .orElseThrow(() -> new IllegalArgumentException("Categorie 'Duplicata' introuvable"));
+
+        List<Demande> demandes = demandeRepository.findAll().stream()
+            .filter(d -> d.getCategorie() != null && d.getCategorie().getId().equals(categorieDuplicata.getId()))
+            .toList();
+
+        List<Map<String, Object>> result = new ArrayList<>();
+        for (Demande d : demandes) {
+            Map<String, Object> map = new LinkedHashMap<>();
+            map.put("id", d.getId());
+            
+            if (d.getPasseport() != null && d.getPasseport().getDemandeur() != null) {
+                Demandeur dr = d.getPasseport().getDemandeur();
+                map.put("demandeur", dr.getNom() + " " + dr.getPrenom());
+                map.put("numeroPasseport", d.getPasseport().getNumero());
+                if (dr.getNationalite() != null) {
+                    map.put("nationalite", dr.getNationalite().getLibelle());
+                } else {
+                    map.put("nationalite", "Inconnue");
+                }
+            } else {
+                map.put("demandeur", "Inconnu");
+                map.put("numeroPasseport", "Inconnu");
+                map.put("nationalite", "Inconnue");
+            }
+
+            // LAst statut
+            String statutLibelle = historiqueStatutRepository.findLatestByDemandeId(d.getId())
+                .map(h -> h.getStatut().getLibelle())
+                .orElse("Aucun");
+            map.put("statut", statutLibelle);
+
+            result.add(map);
+        }
+
+        return result;
+    }
+
 }

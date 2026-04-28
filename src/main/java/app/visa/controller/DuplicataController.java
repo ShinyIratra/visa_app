@@ -14,6 +14,7 @@ import app.visa.entity.*;
 import app.visa.controller.response.ApiResponse;
 import org.springframework.http.ResponseEntity;
 import java.util.Map;
+import java.util.List;
 
 @Controller
 @RequestMapping("/duplicata")
@@ -85,5 +86,18 @@ public class DuplicataController {
 			return ResponseEntity.internalServerError()
 				.body(new ApiResponse<>(false, null, "Erreur Duplicata : " + e.getMessage()));
 		}
+    }
+
+    
+    @GetMapping("/list")
+    @ResponseBody
+    public ResponseEntity<ApiResponse<List<Map<String, Object>>>> listData() {
+        try {
+            List<Map<String, Object>> data = duplicataService.listDuplicataAvecInfos();
+            return ResponseEntity.ok(new ApiResponse<>(true, data, null));
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError()
+                .body(new ApiResponse<>(false, null, "Erreur lors de la recuperation des demandes de duplicata"));
+        }
     }
 }
