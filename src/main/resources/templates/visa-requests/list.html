@@ -149,35 +149,35 @@
             <thead>
             <tr>
                 <th>ID</th>
+                <th>Demandeur</th>
                 <th>Date creation</th>
                 <th>Type demande</th>
                 <th>Passeport</th>
                 <th>Categorie</th>
                 <th>Visa transformable</th>
+                <th>Statut</th>
                 <th>Actions</th>
             </tr>
             </thead>
             <tbody>
             <tr th:if="${#lists.isEmpty(demandes)}">
-                <td colspan="7" class="empty">Aucune demande enregistree.</td>
+                <td colspan="8" class="empty">Aucune demande enregistree.</td>
             </tr>
             <tr th:each="demande : ${demandes}">
-                <td th:text="${demande.id}">1</td>
+                <td th:text="${demande.demandeId}">1</td>
+                <td th:text="${demande.nomDemandeur != null ? demande.nomDemandeur + ' ' + demande.prenomDemandeur : ''}">Rakoto Jean</td>
                 <td th:text="${demande.dateCreation != null ? #temporals.format(demande.dateCreation, 'yyyy-MM-dd HH:mm') : ''}">
                     2026-10-10 10:30
                 </td>
-                <td th:text="${demande.typeDemande != null ? demande.typeDemande.libelle : ''}">Nouveau titre</td>
-                <td th:text="${demande.passeport != null ? demande.passeport.numero : ''}">P12345</td>
-                <td th:text="${demande.categorie != null ? demande.categorie.libelle : ''}">Travail</td>
-                <td th:text="${demande.visaTransformable != null ? demande.visaTransformable.reference : ''}">VT-001</td>
+                <td th:text="${demande.typeDemande != null ? demande.typeDemande : ''}">Travailleur</td>
+                <td th:text="${demande.referencePasseport != null ? demande.referencePasseport : ''}">P12345</td>
+                <td th:text="${demande.categorie != null ? demande.categorie : ''}">Nouveau Titre</td>
+                <td th:text="${demande.referenceVisaTransformable != null ? demande.referenceVisaTransformable : ''}">VT-001</td>
+                <td th:text="${demande.statut != null ? demande.statut : ''}">Demande créée</td>
                 <td>
                     <div class="actions">
-                        <a class="btn btn-secondary" th:href="@{/visa-requests/{id}/edit(id=${demande.id})}">Modifier</a>
-                        <a class="btn btn-secondary" th:href="@{/visa-requests/scan/{id}(id=${demande.id})}">Scanner</a>
-                        <form th:action="@{/api/demandes-visa/{id}(id=${demande.id})}" method="post"
-                              onsubmit="return confirm('Supprimer cette demande ?');">
-                            <button class="btn btn-danger" type="submit">Supprimer</button>
-                        </form>
+                        <a class="btn btn-secondary" th:href="@{/visa-requests/{id}/edit(id=${demande.demandeId})}">Modifier</a>
+                        <a class="btn btn-secondary" th:href="@{/visa-requests/scan/{id}(id=${demande.demandeId})}">Scanner</a>
                     </div>
                 </td>
             </tr>

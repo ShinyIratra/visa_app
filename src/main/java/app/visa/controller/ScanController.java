@@ -36,6 +36,10 @@ public class ScanController {
                 return "visa-requests/scan-error";
             }
 
+            if (demandeService.isScanTermineOuPlus(demande.getId())) {
+                return "redirect:/visa-requests?error=scan_termine";
+            }
+
             // Charger les dossiers pour affichage
             List<Map<String, Object>> dossiers = scanService.getDossiersAvecStatut(id);
             

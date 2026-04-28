@@ -69,6 +69,7 @@ public class VisaRequestService {
             item.put("nomDemandeur", demandeur != null ? demandeur.getNom() : null);
             item.put("prenomDemandeur", demandeur != null ? demandeur.getPrenom() : null);
             item.put("referencePasseport", demande.getPasseport() != null ? demande.getPasseport().getNumero() : null);
+            item.put("categorie", demande.getCategorie() != null ? demande.getCategorie().getLibelle() : null);
             item.put(
                 "referenceVisaTransformable",
                 demande.getVisaTransformable() != null ? demande.getVisaTransformable().getReference() : null
