@@ -37,6 +37,8 @@ public class AcceptationDemandeVisaService {
         carteResident.setDateCreation(LocalDateTime.now());
         carteResident.setDemande(demande);
         carteResident.setPasseport(demande.getPasseport());
+        Integer maxLiaison = carteResidentRepository.findByLiaison().orElse(0);
+        carteResident.setLiaison(maxLiaison + 1);
         
         carteResidentRepository.save(carteResident);
 
