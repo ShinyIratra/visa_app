@@ -19,14 +19,15 @@ public class TransfertVisaService {
     protected final DemandeTransfertVisaRepository demandeTransfertVisaRepository;
     protected final VisaRepository visaRepository;
     protected final StatutRepository statutRepository;
+    protected final DemandeService demandeService;
 
     @Transactional(rollbackFor = Exception.class)
     public DemandeTransfertVisa creerDemandeTransfertAda(Map<String, Object> donnees) {
-        Integer idVisa = (Integer) donnees.get("idVisa");
-        Visa visa = visaRepository.findById(idVisa)
-            .orElseThrow(() -> new IllegalArgumentException("Visa " + idVisa + " introuvable"));
+        String typeRecherche = (String) donnees.get("type_recherche");
+        String valeur = (String) donnees.get("valeur");
+
+        Demande demandeOrigine = demandeService.findDemandeByCritere(typeRecherche, valeur);
         
-        Demande demandeOrigine = visa.getDemande();
         Passeport nouveauPasseport = creerNouveauPasseport(donnees, demandeOrigine);
 
         DemandeTransfertVisa demandeTransfertVisa = buildDemandeTransfert(demandeOrigine, nouveauPasseport);

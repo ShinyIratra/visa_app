@@ -100,49 +100,9 @@ public class DuplicataService extends VisaRequestService {
         String typeRecherche = (String) donnees.get("type_recherche");
         String valeur = (String) donnees.get("valeur");
 
-        if (typeRecherche == null || valeur == null || valeur.isEmpty()) {
-            throw new IllegalArgumentException("Erreur Duplicata : Informations de recherche incompletes");
-        }
-
-        Demande ancienneDemande = null;
-
-        switch (typeRecherche) {
-            case "id_demande":
-                Integer idDemande = Integer.parseInt(valeur);
-                ancienneDemande = demandeRepository.findById(idDemande)
-                    .orElseThrow(() -> new IllegalArgumentException("Demande #" + idDemande + " introuvable."));
-                break;
-            case "id_visa":
-                Integer idVisa = Integer.parseInt(valeur);
-                Visa visa = visaRepository.findById(idVisa)
-                    .orElseThrow(() -> new IllegalArgumentException("Visa #" + idVisa + " introuvable."));
-                ancienneDemande = visa.getDemande();
-                break;
-            case "passeport_original":
-                ancienneDemande = findDemandeByPasseportOriginal(valeur);
-                break;
-            case "passeport_actuel":
-                // Otran le taloha ihany
-                CarteResident carteResident = carteResidentService.findByLastNumeroPasseport(valeur);
-                ancienneDemande = carteResident.getDemande();
-                break;
-            default:
-                throw new IllegalArgumentException("Type de recherche '" + typeRecherche + "' non supporte.");
-        }
-
-        if (ancienneDemande == null) {
-            throw new IllegalArgumentException("Aucune demande correspondante trouvee.");
-        }
+        Demande ancienneDemande = demandeService.findDemandeByCritere(typeRecherche, valeur);
         
         return creerDemandeDuplicata(ancienneDemande);
-    }
-
-    private Demande findDemandeByPasseportOriginal(String numeroPasseport) {
-        return demandeRepository.findAll().stream()
-            .filter(d -> d.getPasseport().getNumero().equals(numeroPasseport))
-            .filter(d -> d.getCategorie().getLibelle().equals("Nouveau titre"))
-            .findFirst()
-            .orElseThrow(() -> new IllegalArgumentException("Aucune demande originale trouvee pour le passeport '" + numeroPasseport + "'."));
     }
 
     @Transactional(rollbackFor = Exception.class)

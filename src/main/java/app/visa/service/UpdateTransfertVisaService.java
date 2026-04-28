@@ -19,8 +19,9 @@ public class UpdateTransfertVisaService extends TransfertVisaService {
             AcceptationDemandeVisaService acceptationDemandeVisaService,
             DemandeTransfertVisaRepository demandeTransfertVisaRepository,
             VisaRepository visaRepository,
-            StatutRepository statutRepository) {
-        super(visaRequestService, acceptationDemandeVisaService, demandeTransfertVisaRepository, visaRepository, statutRepository);
+            StatutRepository statutRepository,
+            DemandeService demandeService) {
+        super(visaRequestService, acceptationDemandeVisaService, demandeTransfertVisaRepository, visaRepository, statutRepository, demandeService);
     }
 
     public Map<String, Object> getTransfertForEdit(Integer id) {

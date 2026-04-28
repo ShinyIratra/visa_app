@@ -23,6 +23,8 @@ public class DemandeService {
     private final app.visa.repository.CategorieRepository categorieRepository;
     private final app.visa.repository.HistoriqueStatutRepository historiqueStatutRepository;
     private final app.visa.repository.StatutRepository statutRepository;
+    private final app.visa.repository.VisaRepository visaRepository;
+    private final CarteResidentService carteResidentService;
 
     public Statut getDernierStatus(Demande demande) {
         if (demande == null || demande.getId() == null) return null;
@@ -71,5 +73,39 @@ public class DemandeService {
             .findFirst().orElse(null));
 
         return demande;
+    }
+
+    public Demande findDemandeByCritere(String typeRecherche, String valeur) {
+        if (typeRecherche == null || valeur == null || valeur.isEmpty()) {
+            throw new IllegalArgumentException("Informations de recherche incompletes.");
+        }
+
+        switch (typeRecherche) {
+            case "id_demande":
+                Integer idDemande = Integer.parseInt(valeur);
+                return demandeRepository.findById(idDemande)
+                    .orElseThrow(() -> new IllegalArgumentException("Demande #" + idDemande + " introuvable."));
+            case "id_visa":
+                Integer idVisa = Integer.parseInt(valeur);
+                Visa visa = visaRepository.findById(idVisa)
+                    .orElseThrow(() -> new IllegalArgumentException("Visa #" + idVisa + " introuvable."));
+                return visa.getDemande();
+            case "passeport_original":
+                return findDemandeByPasseportOriginal(valeur);
+            case "passeport_actuel":
+                // Otran le taloha ihany
+                CarteResident carteResident = carteResidentService.findByLastNumeroPasseport(valeur);
+                return carteResident.getDemande();
+            default:
+                throw new IllegalArgumentException("Type de recherche '" + typeRecherche + "' non supporte.");
+        }
+    }
+
+    private Demande findDemandeByPasseportOriginal(String numeroPasseport) {
+        return demandeRepository.findAll().stream()
+            .filter(d -> d.getPasseport().getNumero().equals(numeroPasseport))
+            .filter(d -> d.getCategorie().getLibelle().equals("Nouveau titre"))
+            .findFirst()
+            .orElseThrow(() -> new IllegalArgumentException("Aucune demande originale trouvee pour le passeport '" + numeroPasseport + "'."));
     }
 }
