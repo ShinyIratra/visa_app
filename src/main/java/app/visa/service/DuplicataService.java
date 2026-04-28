@@ -165,18 +165,6 @@ public class DuplicataService extends VisaRequestService {
         int nouvelIdentifiant = dernier_identifiant + 1;
         liaisonSansDonneeAnterieurService.saveLiaisonSansDonneeAnterieur(nouvelIdentifiant, demande_original);
         liaisonSansDonneeAnterieurService.saveLiaisonSansDonneeAnterieur(nouvelIdentifiant, demande_duplicata);
-        
-        // 4. Creation carte resident dupliquee
-        // CarteResident nouvelleCarte = new CarteResident();
-        // nouvelleCarte.setDateCreation(LocalDateTime.now());
-        // nouvelleCarte.setPasseport(demande_duplicata.getPasseport());
-        // nouvelleCarte.setDemande(demande_duplicata);
-        
-        // // Calcul du liaison ID para la carte résident
-        // Integer maxLiaison = carteResidentRepository.findByLiaison().orElse(0);
-        // nouvelleCarte.setLiaison(maxLiaison + 1);
-        
-        // carteResidentRepository.save(nouvelleCarte);
 
         return demande_duplicata;
     }
@@ -221,6 +209,42 @@ public class DuplicataService extends VisaRequestService {
         }
 
         return result;
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    public void accepterDuplicata(Integer demandeId) {
+        Demande demande = demandeRepository.findById(demandeId)
+            .orElseThrow(() -> new IllegalArgumentException("Demande de duplicata " + demandeId + " introuvable"));
+
+        // 1. Controle
+        controleStatusDuplicata(demande);
+
+        // 2. Marquer comme acceptee
+        saveStatutDemande(demande, UtilService.STATUS_DEMANDE_ACCEPTEE);
+
+        // 3. Creation carte resident dupliquee
+        CarteResident nouvelleCarte = new CarteResident();
+        nouvelleCarte.setDateCreation(LocalDateTime.now());
+        nouvelleCarte.setPasseport(demande.getPasseport());
+        nouvelleCarte.setDemande(demande);
+        
+        // Calcul du liaison ID pour la carte resident
+        Integer maxLiaison = carteResidentRepository.findByLiaison().orElse(0);
+        nouvelleCarte.setLiaison(maxLiaison + 1);
+        
+        carteResidentRepository.save(nouvelleCarte);
+    }
+
+    private void controleStatusDuplicata(Demande demande) {
+        Statut actuel = demandeService.getDernierStatus(demande);
+        Statut cible = statutRepository.findByLibelle(UtilService.STATUS_DEMANDE_ACCEPTEE)
+            .orElseThrow(() -> new IllegalArgumentException("Statut '" + UtilService.STATUS_DEMANDE_ACCEPTEE + "' introuvable"));
+
+        if (actuel != null) {
+            if (actuel.getOrdre() >= cible.getOrdre()) {
+                throw new IllegalStateException("Demande deja acceptee");
+            }
+        }
     }
 
 }

@@ -4,9 +4,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.*;
 
 import app.visa.service.*;
 import app.visa.entity.*;
@@ -79,6 +77,18 @@ public class DuplicataController {
         } catch (Exception e) {
             return ResponseEntity.internalServerError()
                 .body(new ApiResponse<>(false, null, "Erreur lors de la recuperation des demandes de duplicata"));
+        }
+    }
+
+    @PostMapping("/{id}/accepter")
+    @ResponseBody
+    public ResponseEntity<ApiResponse<Void>> accepter(@PathVariable Integer id) {
+        try {
+            duplicataService.accepterDuplicata(id);
+            return ResponseEntity.ok(new ApiResponse<>(true, null, null));
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError()
+                .body(new ApiResponse<>(false, null, "Erreur lors de l'acceptation: " + e.getMessage()));
         }
     }
 }

@@ -313,7 +313,8 @@ public class VisaRequestService {
         reponseStatutVisaRepository.saveAll(reponses);
     }
 
-    private void saveStatutDemande(Demande dem, String statutLibelle) {
+    // Protected amzay afaka ampiasain DuplicataService
+    protected void saveStatutDemande(Demande dem, String statutLibelle) {
         Statut statut = statutRepository.findByLibelle(statutLibelle)
             .orElseThrow(() -> new IllegalArgumentException("statut '" + statutLibelle + "' introuvable."));
 
