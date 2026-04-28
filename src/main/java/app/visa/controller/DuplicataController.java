@@ -8,7 +8,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.PostMapping;
 
-import app.visa.dto.VisaRequestDto;
 import app.visa.service.*;
 import app.visa.entity.*;
 import app.visa.controller.response.ApiResponse;
@@ -20,25 +19,10 @@ import java.util.List;
 @RequestMapping("/duplicata")
 public class DuplicataController {
 
-    private final VisaRequestService visaRequestService;
     private final DuplicataService duplicataService;
-    private final DemandeurService demandeurService;
-    private final DemandeService demandeService;
-    private final PasseportService passeportService;
-    private final VisaTransformableService visaTransformableService;
 
-    public DuplicataController(VisaRequestService visaRequestService,
-                                DuplicataService duplicataService,
-                                DemandeurService demandeurService,
-                                DemandeService demandeService,
-                                PasseportService passeportService,
-                                VisaTransformableService visaTransformableService) {
-        this.visaRequestService = visaRequestService;
+    public DuplicataController(DuplicataService duplicataService) {
         this.duplicataService = duplicataService;
-        this.demandeurService = demandeurService;
-        this.demandeService = demandeService;
-        this.passeportService = passeportService;
-        this.visaTransformableService = visaTransformableService;
     }
 
     @GetMapping
@@ -55,14 +39,14 @@ public class DuplicataController {
     @ResponseBody
     public ResponseEntity<ApiResponse<Object>> createNewFormAvecDonneeAnterieure(@RequestBody Map<String, Object> donnees) {
         try {
-            Map<String, Object> data = duplicataService.creerDemandeDuplicataAvecDonneeAnterieure(donnees);
+            Demande demande = duplicataService.creerDemandeDuplicataAvecDonneeAnterieure(donnees);
             
-			return ResponseEntity.ok(new ApiResponse<>(true, data, null));
+			return ResponseEntity.ok(new ApiResponse<Object>(true, (Object) demande, null));
 		} catch (IllegalArgumentException e) {
-			return ResponseEntity.badRequest().body(new ApiResponse<>(false, null, e.getMessage()));
+			return ResponseEntity.badRequest().body(new ApiResponse<Object>(false, null, (Object) e.getMessage()));
 		} catch (Exception e) {
 			return ResponseEntity.internalServerError()
-				.body(new ApiResponse<>(false, null, "Erreur Duplicata : " + e.getMessage()));
+				.body(new ApiResponse<Object>(false, null, (Object) ("Erreur Duplicata : " + e.getMessage())));
 		}
     }
 
@@ -75,11 +59,8 @@ public class DuplicataController {
     @ResponseBody
     public ResponseEntity<ApiResponse<Object>> createNewFormSansDonneeAnterieure(@RequestBody Map<String, Object> donnees) {
         try {
-            Map<String, Object> data = duplicataService.creerDemandeDuplicataSansDonneeAnterieure(donnees);
-            Demande demande_original = (Demande) demandeService.getById((Integer) data.get("demandeId"));
-
-            Map<String, Object> response = duplicataService.creerDuplicata(demande_original);
-			return ResponseEntity.ok(new ApiResponse<>(true, response, null));
+            Demande demande = duplicataService.creerDemandeDuplicataSansDonneeAnterieure(donnees);
+			return ResponseEntity.ok(new ApiResponse<Object>(true, (Object) demande, null));
 		} catch (IllegalArgumentException e) {
 			return ResponseEntity.badRequest().body(new ApiResponse<>(false, null, e.getMessage()));
 		} catch (Exception e) {
@@ -94,7 +75,7 @@ public class DuplicataController {
     public ResponseEntity<ApiResponse<List<Map<String, Object>>>> listData() {
         try {
             List<Map<String, Object>> data = duplicataService.listDuplicataAvecInfos();
-            return ResponseEntity.ok(new ApiResponse<>(true, data, null));
+            return ResponseEntity.ok(new ApiResponse<List<Map<String, Object>>>(true, data, null));
         } catch (Exception e) {
             return ResponseEntity.internalServerError()
                 .body(new ApiResponse<>(false, null, "Erreur lors de la recuperation des demandes de duplicata"));

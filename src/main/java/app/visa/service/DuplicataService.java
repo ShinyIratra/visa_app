@@ -48,6 +48,7 @@ public class DuplicataService extends VisaRequestService {
     private final LiaisonSansDonneeAnterieurRepository liaisonSansDonneeAnterieurRepository;
     private final CarteResidentService carteResidentService;
     private final CarteResidentRepository carteResidentRepository;
+    private final AcceptationDemandeVisaService acceptationDemandeVisaService;
 
     public DuplicataService(VisaRequestRepository visaRequestRepository,
                             TypeDemandeRepository typeDemandeRepository,
@@ -65,7 +66,8 @@ public class DuplicataService extends VisaRequestService {
                             LiaisonSansDonneeAnterieurService liaisonSansDonneeAnterieurService,
                             LiaisonSansDonneeAnterieurRepository liaisonSansDonneeAnterieurRepository,
                             CarteResidentService carteResidentService,
-                            CarteResidentRepository carteResidentRepository) {
+                            CarteResidentRepository carteResidentRepository,
+                            AcceptationDemandeVisaService acceptationDemandeVisaService) {
         super(visaRequestRepository, typeDemandeRepository, categorieRepository, dossierRepository,
               reponseStatutVisaRepository, historiqueStatutRepository, statutRepository,
               demandeurService, passeportService, visaTransformableService);
@@ -76,32 +78,20 @@ public class DuplicataService extends VisaRequestService {
         this.liaisonSansDonneeAnterieurRepository = liaisonSansDonneeAnterieurRepository;
         this.carteResidentService = carteResidentService;
         this.carteResidentRepository = carteResidentRepository;
+        this.acceptationDemandeVisaService = acceptationDemandeVisaService;
     }
 
     @Transactional(rollbackFor = Exception.class)
-    public Map<String, Object> creerDemandeDuplicataSansDonneeAnterieure(Map<String, Object> donnees) {
-        Map<String, Object> response = this.creerDemandeVisa(donnees);
-
-        // Logique pour directement accepter le visa
-        Demande demande_nouveau_titre = demandeService.getById((Integer) response.get("demandeId"));
-        if(demande_nouveau_titre == null) {
-            throw new IllegalArgumentException("Erreur Duplicata : Demande introuvable pour l'ID: " + response.get("demandeId"));
-        }
+    public Demande creerDemandeDuplicataSansDonneeAnterieure(Map<String, Object> donnees) {
+        Demande demandeOriginale = this.creerDemandeVisa(donnees, "Nouveau titre", "Visa accepte");
         
-        // Let's create an HistoriqueStatut manually since saveStatutDemande is private in super
-        Statut statut = statutRepository.findByLibelle("Visa accepte")
-            .orElseThrow(() -> new IllegalArgumentException("statut 'Visa accepte' introuvable."));
-        HistoriqueStatut historique = new HistoriqueStatut();
-        historique.setDemande(demande_nouveau_titre);
-        historique.setStatut(statut);
-        historique.setDateModification(LocalDateTime.now());
-        historiqueStatutRepository.save(historique);
- 
-        return response;
+        acceptationDemandeVisaService.creerVisaEtCarteResident(demandeOriginale);
+
+        return this.creerDemandeDuplicata(demandeOriginale);
     }
 
     @Transactional(rollbackFor = Exception.class)
-    public Map<String, Object> creerDemandeDuplicataAvecDonneeAnterieure(Map<String, Object> donnees) {
+    public Demande creerDemandeDuplicataAvecDonneeAnterieure(Map<String, Object> donnees) {
         String numeroPasseport = (String) donnees.get("numero passeport");
 
         if (numeroPasseport == null || numeroPasseport.isEmpty()) {
@@ -137,20 +127,16 @@ public class DuplicataService extends VisaRequestService {
 
         carteResidentRepository.save(nouvelle_carteResident);
 
-        Map<String, Object> response = new LinkedHashMap<>();
-        response.put("message", "Demande de duplicata créée avec succès.");
-        response.put("demandeId", demande.getId());
-        response.put("nouveauStatut", statut.getLibelle());
-        return response;
+        return demande;
     }
 
     @Transactional(rollbackFor = Exception.class)
-    public Map<String, Object> creerDuplicata(Demande demande_original)
-    {
+    public Demande creerDemandeDuplicata(Demande demande_original) {
         if (demande_original == null) {
-            throw new IllegalArgumentException("Erreur Duplicata : Demandes obligatoires.");
+            throw new IllegalArgumentException("Erreur Duplicata : Demande originale obligatoire.");
         }
 
+        // 1. Nouvelle demande de duplicata
         Demande demande_duplicata = new Demande();
         demande_duplicata.setDateCreation(LocalDateTime.now());
         demande_duplicata.setPasseport(demande_original.getPasseport());
@@ -159,35 +145,32 @@ public class DuplicataService extends VisaRequestService {
         demande_duplicata.setCategorie(categorieRepository.findByLibelle("Duplicata")
             .orElseThrow(() -> new IllegalArgumentException("Categorie Duplicata introuvable")));
 
-        demande_duplicata = visaRequestRepository.save(demande_duplicata);  
+        demande_duplicata = demandeRepository.save(demande_duplicata);  
         
+        // 2. Statut initial
         Statut statut = statutRepository.findByLibelle("Demande creee")
-            .orElseThrow(() -> new IllegalArgumentException("statut 'Demande creee' introuvable."));
+            .orElseThrow(() -> new IllegalArgumentException("Statut 'Demande creee' introuvable."));
+        
         HistoriqueStatut historique = new HistoriqueStatut();
         historique.setDemande(demande_duplicata);
         historique.setStatut(statut);
         historique.setDateModification(LocalDateTime.now());
         historiqueStatutRepository.save(historique);
 
+        // 3. Liaison ?
         Integer dernier_identifiant = liaisonSansDonneeAnterieurRepository.findTopByOrderByIdentifiantDesc()
             .map(LiaisonSansDonneeAnterieur::getIdentifiant)
             .orElse(0);
 
-        liaisonSansDonneeAnterieurService.saveLiaisonSansDonneeAnterieur(dernier_identifiant + 1, demande_original);
-        liaisonSansDonneeAnterieurService.saveLiaisonSansDonneeAnterieur(dernier_identifiant + 1, demande_duplicata);
+        int nouvelIdentifiant = dernier_identifiant + 1;
         
         CarteResident nouvelle_carteResident = new CarteResident();
         nouvelle_carteResident.setDateCreation(LocalDateTime.now());
-        nouvelle_carteResident.setPasseport(demande_duplicata.getPasseport());
         nouvelle_carteResident.setDemande(demande_duplicata);
         nouvelle_carteResident.setLiaison((carteResidentRepository.findByLiaison().orElse(0) + 1));
         carteResidentRepository.save(nouvelle_carteResident);
 
-        Map<String, Object> response = new LinkedHashMap<>();
-        response.put("message", "Demande marquée comme duplicata avec succès.");
-        response.put("demandeId", demande_duplicata.getId());
-        response.put("nouveauStatut", statut.getLibelle());
-        return response;
+        return demande_duplicata;
     }
 
     @Transactional(readOnly = true)
