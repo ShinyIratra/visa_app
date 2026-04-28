@@ -149,6 +149,7 @@
             <thead>
             <tr>
                 <th>ID</th>
+                <th>Demandeur</th>
                 <th>Date creation</th>
                 <th>Type demande</th>
                 <th>Passeport</th>
@@ -164,6 +165,7 @@
             </tr>
             <tr th:each="demande : ${demandes}">
                 <td th:text="${demande.demandeId}">1</td>
+                <td th:text="${demande.nomDemandeur != null ? demande.nomDemandeur + ' ' + demande.prenomDemandeur : ''}">Rakoto Jean</td>
                 <td th:text="${demande.dateCreation != null ? #temporals.format(demande.dateCreation, 'yyyy-MM-dd HH:mm') : ''}">
                     2026-10-10 10:30
                 </td>
