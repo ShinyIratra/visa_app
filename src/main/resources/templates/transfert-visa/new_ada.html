@@ -27,7 +27,8 @@
                                 <option value="id_demande">ID de la demande</option>
                                 <option value="id_visa">ID du visa</option>
                                 <option value="passeport_original">N° Passeport de la demande originale</option>
-                                <option value="passeport_actuel">N° Passeport actuel</option>
+                                <option value="carte_resident_passeport">Carte résident liée au passeport</option>
+                                <option value="passeport_actuel">N° Passeport de la demande  (Derniere demande liee au passeport)</option>
                             </select>
                         </div>
                         <div class="grid-item col-6">
@@ -77,7 +78,8 @@
                         'id_demande': 'ID DE LA DEMANDE',
                         'id_visa': 'ID DU VISA',
                         'passeport_original': 'NUMÉRO DU PASSEPORT ORIGINAL',
-                        'passeport_actuel': 'NUMÉRO DU PASSEPORT ACTUEL'
+                        'carte_resident_passeport': 'N° PASSEPORT DE LA CARTE RÉSIDENT',
+                        'passeport_actuel': 'NUMÉRO DU PASSEPORT ACTUEL (DERNIERE DEMANDE LIEE AU PASSEPORT)'
                     };
                     labelValeur.innerText = labels[this.value];
                     valeurInput.placeholder = "Entrez " + labels[this.value].toLowerCase() + "...";

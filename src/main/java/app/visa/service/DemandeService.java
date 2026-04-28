@@ -24,6 +24,7 @@ public class DemandeService {
     private final app.visa.repository.HistoriqueStatutRepository historiqueStatutRepository;
     private final app.visa.repository.StatutRepository statutRepository;
     private final app.visa.repository.VisaRepository visaRepository;
+    private final app.visa.repository.PasseportRepository passeportRepository;
     private final CarteResidentService carteResidentService;
 
     public Statut getDernierStatus(Demande demande) {
@@ -92,10 +93,12 @@ public class DemandeService {
                 return visa.getDemande();
             case "passeport_original":
                 return findDemandeByPasseportOriginal(valeur);
-            case "passeport_actuel":
+            case "carte_resident_passeport":
                 // Otran le taloha ihany
                 CarteResident carteResident = carteResidentService.findByLastNumeroPasseport(valeur);
                 return carteResident.getDemande();
+            case "passeport_actuel":
+                return findDemandeByPasseportActuel(valeur);
             default:
                 throw new IllegalArgumentException("Type de recherche '" + typeRecherche + "' non supporte.");
         }
@@ -103,9 +106,19 @@ public class DemandeService {
 
     private Demande findDemandeByPasseportOriginal(String numeroPasseport) {
         return demandeRepository.findAll().stream()
-            .filter(d -> d.getPasseport().getNumero().equals(numeroPasseport))
+            .filter(d -> d.getPasseport().getNumero().equalsIgnoreCase(numeroPasseport))
             .filter(d -> d.getCategorie().getLibelle().equals("Nouveau titre"))
             .findFirst()
             .orElseThrow(() -> new IllegalArgumentException("Aucune demande originale trouvee pour le passeport '" + numeroPasseport + "'."));
+    }
+
+    private Demande findDemandeByPasseportActuel(String numeroPasseport) {
+        return visaRepository.findAll().stream()
+            .filter(v -> v.getPasseports().stream().anyMatch(p -> p.getNumero().equalsIgnoreCase(numeroPasseport)))
+            .filter(v -> v.getDemande().getCategorie().getLibelle().equals("Nouveau titre"))
+            .sorted((v1, v2) -> v2.getDateCreation().compareTo(v1.getDateCreation()))
+            .map(Visa::getDemande)
+            .findFirst()
+            .orElseThrow(() -> new IllegalArgumentException("Aucune demande trouvee pour le passeport '" + numeroPasseport + "'."));
     }
 }
