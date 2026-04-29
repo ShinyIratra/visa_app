@@ -13,6 +13,14 @@
             <div class="header-top">
                 <h1>LISTE DES DEMANDES DE DUPLICATA</h1>
             </div>
+
+            <div class="filters" style="margin-bottom: 20px; padding: 15px; background: #f4f4f4; border-radius: 5px;">
+                <label>Du: <input type="datetime-local" id="dateStart"></label>
+                <label>Au: <input type="datetime-local" id="dateEnd"></label>
+                <button onclick="filterByDate()">Filtrer</button>
+                <button onclick="resetFilter()">Réinitialiser</button>
+            </div>
+
             <table border="1">
                 <thead>
                     <tr>
@@ -21,6 +29,7 @@
                         <th>Passeport</th>
                         <th>Nationalité</th>
                         <th>Statut</th>
+                        <th>Date Création</th>
                         <th>Actions</th>
                     </tr>
                 </thead>

@@ -72,11 +72,32 @@ public class VisaRequestController {
     }
 
     @GetMapping
-    public String list(Model model, @RequestParam(required = false) String error) {
+    public String list(Model model, 
+                      @RequestParam(required = false) String error,
+                      @RequestParam(required = false) String start,
+                      @RequestParam(required = false) String end) {
         if ("scan_termine".equals(error)) {
             model.addAttribute("errorMessage", "Action interdite. La demande est deja au statut Scan termine.");
         }
-        model.addAttribute("demandes", visaRequestService.listDemandesAvecInfos());
+        
+        List<Map<String, Object>> demandes = visaRequestService.listDemandesAvecInfos();
+        
+        if (start != null && !start.isEmpty()) {
+            java.time.LocalDateTime startDate = java.time.LocalDateTime.parse(start);
+            demandes = demandes.stream()
+                .filter(d -> d.get("dateCreation") != null && !((java.time.LocalDateTime)d.get("dateCreation")).isBefore(startDate))
+                .collect(java.util.stream.Collectors.toList());
+        }
+        if (end != null && !end.isEmpty()) {
+            java.time.LocalDateTime endDate = java.time.LocalDateTime.parse(end);
+            demandes = demandes.stream()
+                .filter(d -> d.get("dateCreation") != null && !((java.time.LocalDateTime)d.get("dateCreation")).isAfter(endDate))
+                .collect(java.util.stream.Collectors.toList());
+        }
+
+        model.addAttribute("demandes", demandes);
+        model.addAttribute("start", start);
+        model.addAttribute("end", end);
         return "visa-requests/list";
     }
 
