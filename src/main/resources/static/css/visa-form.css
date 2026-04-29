@@ -1,6 +1,6 @@
 .visa-form-container {
-    max-width: 820px;
-    width: 100%;
+    max-width: 1200px;
+    width: 95%;
     margin: 0 auto;
     background: radial-gradient(circle, var(--paper) 60%, var(--paper-dark) 150%);
     padding: 2.2rem 2.8rem;

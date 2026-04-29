@@ -47,21 +47,27 @@
                 return;
             }
 
+            var formData = new FormData();
+            var inputs = form.querySelectorAll('input[type="file"]');
+            for (var i = 0; i < inputs.length; i++) {
+                if (inputs[i].files && inputs[i].files.length > 0) {
+                    formData.append(inputs[i].name, inputs[i].files[0]);
+                }
+            }
+
             fetch('/visa-requests/scan/api/' + demandeId + '/terminer', {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({})
+                body: formData
             })
             .then(function (response) {
                 return response.json();
             })
             .then(function (result) {
                 if (!result.success) {
-                    throw new Error(result.error || 'Erreur');
+                    throw new Error(result.error || result.message || 'Erreur');
                 }
-                window.location.href = '/visa-requests';
+                alert('Scan terminé avec succès !');
+                window.location.href = '/visa-requests/scan/dossiers/' + demandeId;
             })
             .catch(function (error) {
                 alert('Erreur: ' + error.message);

@@ -38,7 +38,7 @@
             </div>
 
             <div class="table-wrapper">
-                <table class="data-table">
+                <table class="data-table" style="min-width: 1000px;">
                     <thead>
                         <tr>
                             <th>ID</th>
@@ -71,6 +71,7 @@
                                 <div class="actions">
                                     <a class="btn btn-outline btn-sm" th:href="@{/visa-requests/{id}/edit(id=${demande.demandeId})}">Modifier</a>
                                     <a class="btn btn-outline btn-sm" th:href="@{/visa-requests/scan/{id}(id=${demande.demandeId})}">Scanner</a>
+                                    <a class="btn btn-secondary" th:href="@{/visa-requests/scan/dossiers/{id}(id=${demande.demandeId})}">Voir dossiers</a>
                                 </div>
                             </td>
                         </tr>

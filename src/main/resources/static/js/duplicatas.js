@@ -46,7 +46,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 <td>${item.statut}</td>
                 <td>${dateStr}</td>
                 <td>
-                    <button class="btn-action" onclick="accepterDemande(${item.id})">Accepter demande</button>
+                    <div class="actions">
+                        <button class="btn btn-outline btn-sm" onclick="accepterDemande(${item.id})">Accepter demande</button>
+                    </div>
                 </td>
             `;
             tableBody.appendChild(tr);
