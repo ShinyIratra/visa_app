@@ -5,123 +5,32 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title layout:fragment="title">Erreur accès scan</title>
-    <style>
-        :root {
-            --bg: #f4f7fb;
-            --surface: #ffffff;
-            --text: #14213d;
-            --muted: #5b6474;
-            --accent: #0b7285;
-            --danger: #c92a2a;
-            --border: #dde2ea;
-        }
-
-        * { box-sizing: border-box; }
-
-        body {
-            margin: 0;
-            font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #eef5ff 0%, #f8fbff 45%, #f4f7fb 100%);
-            color: var(--text);
-            min-height: 100vh;
-        }
-
-        .container {
-            max-width: 600px;
-            margin: 80px auto;
-            padding: 40px;
-            background: var(--surface);
-            border: 1px solid var(--border);
-            border-radius: 14px;
-            box-shadow: 0 16px 38px rgba(20, 33, 61, 0.08);
-            text-align: center;
-        }
-
-        .error-icon {
-            font-size: 3rem;
-            margin-bottom: 16px;
-        }
-
-        h1 {
-            margin: 0 0 12px 0;
-            font-size: 1.6rem;
-            color: var(--danger);
-        }
-
-        .error-message {
-            color: var(--muted);
-            font-size: 1rem;
-            line-height: 1.6;
-            margin-bottom: 24px;
-            background: #fff5f5;
-            padding: 16px;
-            border-left: 4px solid var(--danger);
-            border-radius: 6px;
-            text-align: left;
-        }
-
-        .error-message strong {
-            color: var(--danger);
-        }
-
-        .actions {
-            display: flex;
-            gap: 12px;
-            justify-content: center;
-        }
-
-        .btn {
-            border: none;
-            border-radius: 10px;
-            padding: 10px 20px;
-            font-weight: 600;
-            text-decoration: none;
-            cursor: pointer;
-            display: inline-block;
-            transition: all 0.2s;
-        }
-
-        .btn-primary {
-            background: var(--accent);
-            color: #fff;
-        }
-
-        .btn-primary:hover {
-            background: #066a7a;
-        }
-
-        .btn-outline {
-            background: transparent;
-            border: 1px solid var(--border);
-            color: var(--text);
-        }
-
-        .btn-outline:hover {
-            background: var(--bg);
-        }
-    </style>
 </head>
 
 <body>
     <div layout:fragment="content">
-        <div class="container">
-            <div class="error-icon">⚠️</div>
-            <h1>Accès au scan refusé</h1>
-            
-            <div class="error-message" th:text="${error}">
+        <div class="document-card narrow-card">
+            <div class="doc-header">
+                <h1 class="doc-title">Acces au scan refuse</h1>
+                <p class="doc-subtitle">Verification obligatoire</p>
+            </div>
+
+            <div class="seal-icon">!</div>
+
+            <div class="alert alert-error" th:text="${error}">
                 Erreur
             </div>
 
-            <p style="color: var(--muted); margin-bottom: 24px;">
-                Veuillez corriger tous les éléments requis avant de pouvoir accéder au scan des dossiers.
+            <p class="info-text">
+                Veuillez corriger tous les elements requis avant de pouvoir acceder au scan des dossiers.
             </p>
 
-            <div class="actions">
+            <div class="actions actions-center">
                 <a th:href="@{/visa-requests/{id}/edit(id=${demandeId})}" class="btn btn-primary">
-                    Mettre à jour la demande
+                    Mettre a jour la demande
                 </a>
                 <a th:href="@{/visa-requests}" class="btn btn-outline">
-                    Retour à la liste
+                    Retour a la liste
                 </a>
             </div>
         </div>
