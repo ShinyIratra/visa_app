@@ -5,7 +5,6 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title layout:fragment="title">Modifier la demande de visa</title>
-    <link id="global-css" rel="stylesheet" th:href="@{/css/global.css}">
     <link id="visa-css" rel="stylesheet" th:href="@{/css/visa-form.css}">
 </head>
 
@@ -14,7 +13,8 @@
         <div class="visa-form-container">
             <div class="header-top">
                 <!-- Enjana koa ilay syntax thymeleaf izany -->
-                <h1>MODIFIER LA DEMANDE DE VISA [[${demandeId}]]</h1>
+                <h1>Modifier la demande de visa [[${demandeId}]]</h1>
+                <p class="header-subtitle">Mise a jour du registre</p>
             </div>
 
             <form id="editDemandeForm" method="post">

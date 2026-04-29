@@ -10,18 +10,18 @@ document.addEventListener('DOMContentLoaded', function() {
                 renderTable(apiResponse.data);
             } else {
                 console.error('Erreur API:', apiResponse.error);
-                tableBody.innerHTML = `<tr><td colspan="6" style="text-align: center; color: red;">${apiResponse.message || 'Une erreur est survenue.'}</td></tr>`;
+                tableBody.innerHTML = `<tr><td colspan="6" class="empty empty-error">${apiResponse.message || 'Une erreur est survenue.'}</td></tr>`;
             }
         })
         .catch(error => {
             console.error('Erreur fetch:', error);
-            tableBody.innerHTML = `<tr><td colspan="6" style="text-align: center; color: red;">Erreur lors du chargement des données.</td></tr>`;
+            tableBody.innerHTML = '<tr><td colspan="6" class="empty empty-error">Erreur lors du chargement des donnees.</td></tr>';
         });
 
     function renderTable(data) {
         tableBody.innerHTML = '';
         if (data.length === 0) {
-            tableBody.innerHTML = '<tr><td colspan="6" style="text-align: center;">Aucune demande de duplicata trouvée.</td></tr>';
+            tableBody.innerHTML = '<tr><td colspan="6" class="empty">Aucune demande de duplicata trouvee.</td></tr>';
             return;
         }
 

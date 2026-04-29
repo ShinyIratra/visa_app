@@ -7,24 +7,43 @@
 </head>
 <body>
     <div layout:fragment="content">
-        <h1>Liste Transfert de Visa</h1>
-        <table border=1>
-            <thead>
-                <tr>
-                    <th>Id</th>
-                    <th>Demandeur</th>
-                    <th>Passeport original</th>
-                    <th>Nouveau passeport</th>
-                    <th>Nationalité</th>
-                    <th>Statut</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                <!-- transferts.js -->
-            </tbody>
-        </table>
-        <script th:src="@{/js/transferts.js}"></script>
+        <div class="document-card">
+            <div class="doc-header">
+                <h1 class="doc-title">Transferts de visa</h1>
+                <p class="doc-subtitle">Registre des dossiers transferes</p>
+            </div>
+
+            <div class="page-header">
+                <p class="lead-text">Consultez les anciens et nouveaux passeports lies a chaque demande.</p>
+                <div class="page-actions">
+                    <a class="btn btn-primary" th:href="@{/transfert-visa/new/sda}">Nouvelle demande</a>
+                </div>
+            </div>
+
+            <div class="table-wrapper">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Id</th>
+                            <th>Demandeur</th>
+                            <th>Ancien passeport</th>
+                            <th>Nouveau passeport</th>
+                            <th>Nationalite</th>
+                            <th>Statut</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- transferts.js -->
+                        <tr>
+                            <td colspan="7" class="empty">Aucune demande enregistree.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <script th:src="@{/js/transferts.js}"></script>
+        </div>
     </div>
 </body>
 </html>

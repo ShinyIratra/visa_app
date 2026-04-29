@@ -10,18 +10,18 @@ document.addEventListener('DOMContentLoaded', function() {
                 renderTable(apiResponse.data);
             } else {
                 console.error('Erreur API:', apiResponse.error);
-                tableBody.innerHTML = `<tr><td colspan="7" style="text-align: center; color: red;">${apiResponse.message}</td></tr>`;
+                tableBody.innerHTML = `<tr><td colspan="7" class="empty empty-error">${apiResponse.message}</td></tr>`;
             }
         })
         .catch(error => {
             console.error('Erreur fetch:', error);
-            tableBody.innerHTML = `<tr><td colspan="7" style="text-align: center; color: red;">Erreur lors du chargement des données.</td></tr>`;
+            tableBody.innerHTML = '<tr><td colspan="7" class="empty empty-error">Erreur lors du chargement des donnees.</td></tr>';
         });
 
     function renderTable(data) {
         tableBody.innerHTML = '';
         if (data.length === 0) {
-            tableBody.innerHTML = '<tr><td colspan="7" style="text-align: center;">Aucune demande de transfert trouvée.</td></tr>';
+            tableBody.innerHTML = '<tr><td colspan="7" class="empty">Aucune demande de transfert trouvee.</td></tr>';
             return;
         }
 
@@ -45,7 +45,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     window.accepterDemande = function(id) {
-        if (!confirm('Acceptr la demande ?')) 
+        if (!confirm('Accepter la demande ?')) 
             return;
 
         fetch(`/transfert-visa/${id}/accepter`, {

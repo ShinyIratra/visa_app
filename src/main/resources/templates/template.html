@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Laissez-Passer & Visas - 1960</title>
+    <!-- Polices royales et machines à écrire -->
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Pinyon+Script&family=Special+Elite&display=swap" rel="stylesheet">
+    
+    <style>
+        /* --- Palette Royale des Années 60 --- */
+        :root {
+            --royal-bg: #1A2824;      /* Vert impérial très sombre */
+            --gold: #C5A059;          /* Or vieilli / Laiton */
+            --gold-light: #DFCA9A;    /* Or clair */
+            --paper: #EFE9D8;         /* Papier parchemin / Crème */
+            --paper-dark: #DCD3B6;    /* Ombre du papier */
+            --ink: #2B2824;           /* Encre sépia foncée */
+            --stamp: #8F2525;         /* Rouge carmin pour le sceau/timbre */
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: var(--royal-bg);
+            /* Motif vintage subtil (rayures de tapisserie) */
+            background-image: repeating-linear-gradient(
+                90deg,
+                rgba(255,255,255, 0.02) 0px,
+                rgba(255,255,255, 0.02) 2px,
+                transparent 2px,
+                transparent 50px
+            );
+            color: var(--ink);
+            display: flex;
+            min-height: 100vh;
+            font-family: 'Cinzel', serif; /* Police à empattement romaine */
+        }
+
+        /* --- Sidebar style "Couverture de Registre Royal" --- */
+        .sidebar {
+            width: 280px;
+            background: linear-gradient(to right, #111B18, var(--royal-bg));
+            border-right: 2px solid var(--gold);
+            padding: 3rem 2rem;
+            display: flex;
+            flex-direction: column;
+            position: fixed;
+            height: 100vh;
+            box-shadow: 5px 0 20px rgba(0,0,0,0.5);
+            z-index: 10;
+        }
+
+        .crown-logo {
+            text-align: center;
+            font-size: 3rem;
+            color: var(--gold);
+            margin-bottom: 0.5rem;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+        }
+
+        .brand {
+            text-align: center;
+            margin-bottom: 3rem;
+            position: relative;
+        }
+
+        .brand h1 {
+            font-family: 'Pinyon Script', cursive; /* Calligraphie royale */
+            font-size: 2.2rem;
+            color: var(--gold-light);
+            line-height: 1.2;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.8);
+        }
+
+        .brand span {
+            display: block;
+            font-size: 0.7rem;
+            letter-spacing: 3px;
+            color: var(--gold);
+            margin-top: 10px;
+            text-transform: uppercase;
+        }
+
+        /* Ligne décorative */
+        .brand::after {
+            content: "❖";
+            display: block;
+            color: var(--gold);
+            font-size: 1.2rem;
+            margin-top: 15px;
+        }
+
+        .sidebar-menu {
+            list-style: none;
+            margin-top: 2rem;
+        }
+
+        .sidebar-menu li {
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+
+        .sidebar-menu a {
+            text-decoration: none;
+            color: var(--gold-light);
+            font-size: 0.85rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            transition: color 0.3s;
+            position: relative;
+        }
+
+        .sidebar-menu a:hover {
+            color: #FFF;
+        }
+
+        /* --- Contenu Principal (Le Bureau) --- */
+        .main-content {
+            margin-left: 280px;
+            flex-grow: 1;
+            padding: 3rem;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* --- La Fiche Consulaire (Le Document Compact) --- */
+        .document-card {
+            background: radial-gradient(circle, var(--paper) 60%, var(--paper-dark) 150%);
+            padding: 2.5rem 3.5rem;
+            width: 100%;
+            max-width: 750px; /* Très compact */
+            box-shadow: 
+                0 20px 50px rgba(0,0,0,0.6),
+                inset 0 0 50px rgba(197, 160, 89, 0.1);
+            position: relative;
+            /* Bordure double d'époque */
+            border: 2px solid var(--ink);
+            outline: 1px solid var(--ink);
+            outline-offset: -6px;
+        }
+
+        /* Le Timbre / Sceau en filigrane (CSS Pur) */
+        .vintage-stamp {
+            position: absolute;
+            top: 30px;
+            right: 30px;
+            border: 3px double var(--stamp);
+            color: var(--stamp);
+            padding: 10px;
+            border-radius: 50%;
+            width: 90px;
+            height: 90px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            font-size: 0.6rem;
+            font-weight: bold;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            transform: rotate(-15deg);
+            opacity: 0.8;
+            pointer-events: none;
+            font-family: 'Courier New', Courier, monospace;
+        }
+
+        .vintage-stamp::after {
+            content: "1964";
+            position: absolute;
+            font-size: 1.2rem;
+            font-family: 'Special Elite', monospace;
+        }
+
+        .doc-header {
+            text-align: center;
+            margin-bottom: 2rem;
+            border-bottom: 1px solid var(--ink);
+            padding-bottom: 1rem;
+            width: 80%;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .doc-header h2 {
+            font-size: 1.4rem;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+        }
+
+        .doc-header p {
+            font-family: 'Pinyon Script', cursive;
+            font-size: 1.6rem;
+            margin-top: 5px;
+            color: var(--stamp);
+        }
+
+        /* --- Champs "Machine à écrire" --- */
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem 2rem;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+        }
+
+        /* Pour prendre toute la largeur si besoin */
+        .full-width {
+            grid-column: 1 / -1;
+        }
+
+        .form-label {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .typewriter-input {
+            background: transparent;
+            border: none;
+            border-bottom: 2px dotted var(--ink); /* Ligne pointillée vintage */
+            font-family: 'Special Elite', cursive; /* Police machine à écrire */
+            font-size: 1.2rem;
+            color: #1A2824; /* Encre très noire/bleutée */
+            padding: 5px 0;
+            outline: none;
+            width: 100%;
+            transition: border-bottom 0.2s;
+        }
+
+        .typewriter-input:focus {
+            border-bottom: 2px solid var(--stamp);
+        }
+
+        /* Cases à cocher façon années 60 (Rondes et petites) */
+        .radio-group {
+            display: flex;
+            gap: 1.5rem;
+            margin-top: 8px;
+            font-family: 'Special Elite', cursive;
+            font-size: 0.9rem;
+        }
+
+        .radio-group label {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            cursor: pointer;
+        }
+
+        input[type="radio"] {
+            appearance: none;
+            width: 14px;
+            height: 14px;
+            border: 2px solid var(--ink);
+            border-radius: 50%;
+            display: inline-block;
+            position: relative;
+        }
+
+        input[type="radio"]:checked::after {
+            content: "";
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            width: 6px;
+            height: 6px;
+            background-color: var(--stamp);
+            border-radius: 50%;
+        }
+
+        /* Bouton "Sceau de cire / Approuver" */
+        .btn-submit {
+            display: block;
+            margin: 2.5rem auto 0;
+            background-color: var(--royal-bg);
+            color: var(--gold);
+            border: 1px solid var(--gold);
+            padding: 0.8rem 2.5rem;
+            font-family: 'Cinzel', serif;
+            font-size: 1rem;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: all 0.4s;
+            position: relative;
+        }
+
+        .btn-submit:hover {
+            background-color: var(--gold);
+            color: var(--royal-bg);
+            box-shadow: 0 0 15px rgba(197, 160, 89, 0.4);
+        }
+
+        /* Responsive */
+        @media (max-width: 800px) {
+            body { flex-direction: column; }
+            .sidebar {
+                width: 100%;
+                height: auto;
+                position: relative;
+                padding: 1.5rem;
+                border-right: none;
+                border-bottom: 2px solid var(--gold);
+            }
+            .main-content { margin-left: 0; padding: 1.5rem; }
+            .form-grid { grid-template-columns: 1fr; gap: 1rem; }
+            .document-card { padding: 2rem 1.5rem; }
+            .vintage-stamp { top: 10px; right: 10px; width: 60px; height: 60px; font-size: 0.4rem; }
+            .vintage-stamp::after { font-size: 0.9rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Barre latérale : Couverture du registre -->
+    <aside class="sidebar">
+        <div class="brand">
+            <div class="crown-logo">♛</div>
+            <h1>Chancellerie<br>Royale</h1>
+            <span>Département des Visas</span>
+        </div>
+
+        <ul class="sidebar-menu">
+            <li><a href="#">Émettre Laissez-passer</a></li>
+            <li><a href="#">Archives (Duplicatas)</a></li>
+            <li><a href="#">Registres des Sceaux</a></li>
+        </ul>
+    </aside>
+
+    <!-- Le Bureau avec le document posé dessus -->
+    <main class="main-content">
+        
+        <div class="document-card">
+            <!-- Sceau rouge en filigrane -->
+            <div class="vintage-stamp">Approuvé<br><br>Consulat</div>
+
+            <div class="doc-header">
+                <h2>Certificat Consulaire</h2>
+                <p>Demande d'audience & Duplicata</p>
+            </div>
+
+            <form action="#" method="POST">
+                
+                <!-- Grille ultra compacte du formulaire -->
+                <div class="form-grid">
+                    
+                    <div class="form-group">
+                        <label class="form-label" for="nom">Nom de Famille</label>
+                        <input type="text" id="nom" name="nom" class="typewriter-input" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="prenom">Prénoms</label>
+                        <input type="text" id="prenom" name="prenom" class="typewriter-input" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="passport">Matricule (Livre de Voyage)</label>
+                        <input type="text" id="passport" name="passport" class="typewriter-input" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="date">Fait le (Jour/Mois/Année)</label>
+                        <input type="text" id="date" name="date" class="typewriter-input" placeholder="... / ... / 196." required>
+                    </div>
+
+                    <!-- Motif en pleine largeur -->
+                    <div class="form-group full-width">
+                        <label class="form-label">Nature de la Requête Impériale</label>
+                        <div class="radio-group">
+                            <label><input type="radio" name="nature" value="visa" required> Octroi de Visa</label>
+                            <label><input type="radio" name="nature" value="duplicata"> Délivrance de Duplicata</label>
+                            <label><input type="radio" name="nature" value="prolongation"> Clémence / Prolongation</label>
+                        </div>
+                    </div>
+
+                    <!-- Zone de texte libre (machine à écrire) -->
+                    <div class="form-group full-width" style="margin-top: 1rem;">
+                        <label class="form-label" for="justification">Déclaration sur l'honneur (Motif) :</label>
+                        <input type="text" id="justification" name="justification" class="typewriter-input" style="margin-bottom: 1rem;" required>
+                        <input type="text" class="typewriter-input" style="margin-bottom: 1rem;">
+                        <input type="text" class="typewriter-input">
+                    </div>
+
+                </div>
+
+                <button type="submit" class="btn-submit">Apposer le Sceau</button>
+
+            </form>
+        </div>
+
+    </main>
+
+</body>
+</html>

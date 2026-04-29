@@ -1,36 +1,530 @@
 :root {
-    --primary-color: #000;
-    --bg-color: #fff;
-    --text-color: #333;
-    --border-color: #000;
-    --header-bg: #f5f5f5;
-    --font-main: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    --royal-bg: #1a2824;
+    --gold: #c5a059;
+    --gold-light: #dfca9a;
+    --paper: #efe9d8;
+    --paper-dark: #dcd3b6;
+    --ink: #2b2824;
+    --stamp: #8f2525;
+    --shadow: rgba(0, 0, 0, 0.45);
+    --border-soft: rgba(43, 40, 36, 0.35);
 }
 
 * {
     box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+html, body {
+    height: 100%;
 }
 
 body {
-    font-family: var(--font-main);
-    background-color: var(--bg-color);
-    color: var(--text-color);
-    line-height: 1.2;
-    margin: 0;
-    padding: 10px;
+    font-family: "Cinzel", serif;
+    background-color: var(--royal-bg);
+    background-image: repeating-linear-gradient(
+        90deg,
+        rgba(255, 255, 255, 0.02) 0px,
+        rgba(255, 255, 255, 0.02) 2px,
+        transparent 2px,
+        transparent 50px
+    );
+    color: var(--ink);
+    line-height: 1.4;
 }
 
-h1, h2, h3 {
-    color: var(--primary-color);
-    text-transform: uppercase;
+a {
+    color: inherit;
+    text-decoration: none;
 }
 
-input, select, textarea {
-    font-family: inherit;
-    font-size: 14px;
+img {
+    max-width: 100%;
+    display: block;
 }
 
 button {
+    font-family: "Cinzel", serif;
     cursor: pointer;
     transition: all 0.2s ease;
+}
+
+input, select, textarea {
+    font-family: "Special Elite", serif;
+    font-size: 1rem;
+}
+
+.layout {
+    display: flex;
+    min-height: 100vh;
+}
+
+.sidebar {
+    width: 280px;
+    background: linear-gradient(to right, #111b18, var(--royal-bg));
+    border-right: 2px solid var(--gold);
+    padding: 3rem 2rem;
+    display: flex;
+    flex-direction: column;
+    position: fixed;
+    height: 100vh;
+    box-shadow: 5px 0 20px rgba(0, 0, 0, 0.5);
+    z-index: 10;
+}
+
+.crown-logo {
+    text-align: center;
+    font-size: 2.6rem;
+    color: var(--gold);
+    margin-bottom: 0.2rem;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+.brand {
+    text-align: center;
+    margin-bottom: 1.8rem;
+    position: relative;
+}
+
+.brand h1 {
+    font-family: "Pinyon Script", cursive;
+    font-size: 2.2rem;
+    color: var(--gold-light);
+    line-height: 1.2;
+    margin: 0;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
+}
+
+.brand span {
+    display: block;
+    font-size: 0.65rem;
+    letter-spacing: 3px;
+    color: var(--gold);
+    margin-top: 6px;
+    text-transform: uppercase;
+}
+
+.brand::after {
+    content: "--";
+    display: block;
+    color: var(--gold);
+    font-size: 0.9rem;
+    margin-top: 10px;
+    letter-spacing: 4px;
+}
+
+.sidebar-nav {
+    margin-top: 1.5rem;
+}
+
+.sidebar-menu {
+    list-style: none;
+    display: grid;
+    gap: 1.4rem;
+}
+
+.menu-group {
+    text-align: left;
+    color: var(--gold-light);
+    font-size: 0.7rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+}
+
+.menu-title {
+    display: block;
+    margin-bottom: 0.6rem;
+    font-weight: 600;
+}
+
+.submenu {
+    list-style: none;
+    display: grid;
+    gap: 0.4rem;
+    margin-left: 0.4rem;
+    padding-left: 0.8rem;
+    border-left: 1px solid rgba(197, 160, 89, 0.3);
+}
+
+.submenu .submenu {
+    margin-top: 0.4rem;
+    margin-left: 0.4rem;
+    padding-left: 0.8rem;
+    border-left: 1px dashed rgba(197, 160, 89, 0.35);
+}
+
+.submenu .menu-title {
+    font-size: 0.6rem;
+    color: var(--gold);
+    margin-bottom: 0.4rem;
+}
+
+.menu-link {
+    color: var(--gold-light);
+    font-size: 0.7rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    transition: color 0.3s;
+}
+
+.menu-link:hover {
+    color: #fff;
+}
+
+.main-content {
+    margin-left: 280px;
+    flex: 1;
+    padding: 3rem;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+}
+
+.content-slot {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+}
+
+.document-card {
+    background: radial-gradient(circle, var(--paper) 60%, var(--paper-dark) 150%);
+    padding: 2.5rem 3.5rem;
+    width: 100%;
+    max-width: 820px;
+    box-shadow: 0 20px 50px var(--shadow), inset 0 0 50px rgba(197, 160, 89, 0.1);
+    position: relative;
+    border: 2px solid var(--ink);
+    outline: 1px solid var(--ink);
+    outline-offset: -6px;
+}
+
+.narrow-card {
+    max-width: 720px;
+}
+
+.doc-header {
+    text-align: center;
+    margin-bottom: 2rem;
+    border-bottom: 1px solid var(--ink);
+    padding-bottom: 1rem;
+    width: 85%;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.doc-title {
+    font-size: 1.5rem;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+}
+
+.doc-subtitle {
+    font-family: "Pinyon Script", cursive;
+    font-size: 1.6rem;
+    margin-top: 6px;
+    color: var(--stamp);
+}
+
+.lead-text {
+    font-family: "Special Elite", serif;
+    font-size: 0.95rem;
+    color: var(--ink);
+    margin-bottom: 1rem;
+}
+
+.page-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    flex-wrap: wrap;
+    margin-bottom: 1.5rem;
+}
+
+.page-actions {
+    display: flex;
+    gap: 0.8rem;
+    flex-wrap: wrap;
+}
+
+.section-title {
+    font-size: 0.75rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 0.8rem;
+    padding-bottom: 0.4rem;
+    border-bottom: 1px solid var(--border-soft);
+    color: var(--ink);
+}
+
+.section {
+    margin-bottom: 1.4rem;
+}
+
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 0.75rem 1.8rem;
+    font-size: 0.75rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    border: 1px solid var(--gold);
+    background: transparent;
+    color: var(--royal-bg);
+    transition: all 0.3s ease;
+}
+
+.btn-primary {
+    background: var(--royal-bg);
+    color: var(--gold);
+}
+
+.btn-primary:hover {
+    background: var(--gold);
+    color: var(--royal-bg);
+    box-shadow: 0 0 15px rgba(197, 160, 89, 0.4);
+}
+
+.btn-outline {
+    border-color: var(--ink);
+    color: var(--ink);
+}
+
+.btn-outline:hover {
+    background: rgba(43, 40, 36, 0.1);
+}
+
+.btn-sm {
+    padding: 0.4rem 0.9rem;
+    font-size: 0.65rem;
+    letter-spacing: 1px;
+}
+
+.btn-action {
+    font-family: "Cinzel", serif;
+    padding: 0.5rem 1rem;
+    font-size: 0.65rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    border: 1px solid var(--ink);
+    background: transparent;
+    color: var(--ink);
+}
+
+.btn-action:hover {
+    background: rgba(43, 40, 36, 0.1);
+}
+
+.table-wrapper {
+    overflow-x: auto;
+    border: 1px solid var(--border-soft);
+    padding: 0.6rem;
+    background: rgba(255, 255, 255, 0.45);
+}
+
+.data-table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 860px;
+    font-family: "Special Elite", serif;
+    font-size: 0.92rem;
+}
+
+.data-table th,
+.data-table td {
+    text-align: left;
+    padding: 0.75rem;
+    border-bottom: 1px dotted var(--border-soft);
+    vertical-align: middle;
+}
+
+.data-table th {
+    font-size: 0.65rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--ink);
+    background: rgba(197, 160, 89, 0.12);
+    border-bottom: 1px solid var(--ink);
+}
+
+.data-table tbody tr:hover {
+    background: rgba(197, 160, 89, 0.12);
+}
+
+.actions {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.actions-center {
+    justify-content: center;
+}
+
+.alert {
+    border: 1px solid var(--border-soft);
+    padding: 0.9rem 1rem;
+    border-radius: 4px;
+    margin-bottom: 1rem;
+    font-family: "Special Elite", serif;
+    font-size: 0.95rem;
+}
+
+.alert-info {
+    background: rgba(197, 160, 89, 0.12);
+    border-left: 4px solid var(--gold);
+}
+
+.alert-error {
+    background: rgba(143, 37, 37, 0.08);
+    border-left: 4px solid var(--stamp);
+    color: var(--stamp);
+}
+
+.info-text {
+    font-family: "Special Elite", serif;
+    color: var(--ink);
+    margin-top: 0.6rem;
+}
+
+.royal-list {
+    list-style: none;
+    display: grid;
+    gap: 0.6rem;
+    margin-top: 1.2rem;
+}
+
+.royal-list li {
+    font-family: "Special Elite", serif;
+    font-size: 0.95rem;
+    border-bottom: 1px dotted var(--border-soft);
+    padding-bottom: 0.5rem;
+}
+
+.text-link {
+    color: var(--stamp);
+    font-weight: 600;
+}
+
+.badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.25rem 0.5rem;
+    border: 1px solid var(--border-soft);
+    font-size: 0.6rem;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--ink);
+    background: rgba(255, 255, 255, 0.6);
+}
+
+.badge.obligatoire {
+    border-color: var(--stamp);
+    color: var(--stamp);
+    background: rgba(143, 37, 37, 0.08);
+}
+
+.dossier-item {
+    padding: 0.9rem 1rem;
+    margin-bottom: 1rem;
+    background: rgba(255, 255, 255, 0.5);
+    border: 1px solid var(--border-soft);
+}
+
+.dossier-header {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    margin-bottom: 0.6rem;
+}
+
+.dossier-label {
+    font-weight: 600;
+    flex: 1;
+}
+
+.file-input-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    flex-wrap: wrap;
+}
+
+.file-input-wrapper input[type="file"] {
+    position: absolute;
+    left: -9999px;
+}
+
+.file-input-label {
+    display: inline-block;
+    padding: 0.5rem 0.9rem;
+    background: var(--royal-bg);
+    color: var(--gold);
+    border: 1px solid var(--gold);
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    font-size: 0.65rem;
+}
+
+.file-name {
+    font-family: "Special Elite", serif;
+    font-size: 0.85rem;
+    color: var(--ink);
+}
+
+.empty {
+    text-align: center;
+    font-family: "Special Elite", serif;
+    color: var(--ink);
+    padding: 1.6rem 0;
+}
+
+.empty-error {
+    color: var(--stamp);
+}
+
+.seal-icon {
+    width: 60px;
+    height: 60px;
+    border: 3px double var(--stamp);
+    color: var(--stamp);
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.4rem;
+    margin-bottom: 1rem;
+}
+
+@media (max-width: 900px) {
+    .layout {
+        flex-direction: column;
+    }
+
+    .sidebar {
+        position: relative;
+        width: 100%;
+        height: auto;
+        border-right: none;
+        border-bottom: 2px solid var(--gold);
+        padding: 1.5rem;
+    }
+
+    .main-content {
+        margin-left: 0;
+        padding: 1.5rem;
+    }
+
+    .document-card {
+        padding: 2rem 1.6rem;
+    }
+
+    .doc-header {
+        width: 100%;
+    }
 }

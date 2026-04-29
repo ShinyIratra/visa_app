@@ -4,30 +4,41 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title layout:fragment="title">Liste des demandes de duplicata</title>
-    <link id="global-css" rel="stylesheet" th:href="@{/css/global.css}">
 </head>
 <body>
     <div layout:fragment="content">
-        <a href="/sans-donne-anterieur/duplicata"> Créer une nouvelle demande de duplicata </a>
-        <div class="container">
-            <div class="header-top">
-                <h1>LISTE DES DEMANDES DE DUPLICATA</h1>
+        <div class="document-card">
+            <div class="doc-header">
+                <h1 class="doc-title">Demandes de duplicata</h1>
+                <p class="doc-subtitle">Registre des reemissions</p>
             </div>
-            <table border="1">
-                <thead>
-                    <tr>
-                        <th>Id</th>
-                        <th>Demandeur</th>
-                        <th>Passeport</th>
-                        <th>Nationalité</th>
-                        <th>Statut</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <!--  duplicatas.js -->
-                </tbody>
-            </table>
+
+            <div class="page-header">
+                <p class="lead-text">Consultez les demandes de duplicata et leurs statuts.</p>
+                <div class="page-actions">
+                    <a class="btn btn-primary" href="/sans-donne-anterieur/duplicata">Nouvelle demande</a>
+                </div>
+            </div>
+            <div class="table-wrapper">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Id</th>
+                            <th>Demandeur</th>
+                            <th>Passeport</th>
+                            <th>Nationalite</th>
+                            <th>Statut</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- duplicatas.js -->
+                        <tr>
+                            <td colspan="6" class="empty">Aucune demande enregistree.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
         </div>
         <script th:src="@{/js/duplicatas.js}"></script>
     </div>

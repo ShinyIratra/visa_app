@@ -4,188 +4,66 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title layout:fragment="title">Demandes de visa</title>
-    <style>
-
-        :root {
-            --bg: #f4f7fb;
-            --surface: #ffffff;
-            --text: #14213d;
-            --muted: #5b6474;
-            --accent: #0b7285;
-            --danger: #c92a2a;
-            --border: #dde2ea;
-        }
-
-        * { box-sizing: border-box; }
-
-        body {
-            margin: 0;
-            font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #eef5ff 0%, #f8fbff 45%, #f4f7fb 100%);
-            color: var(--text);
-            min-height: 100vh;
-        }
-
-        .container {
-            max-width: 1080px;
-            margin: 40px auto;
-            padding: 24px;
-            background: var(--surface);
-            border: 1px solid var(--border);
-            border-radius: 14px;
-            box-shadow: 0 16px 38px rgba(20, 33, 61, 0.08);
-        }
-
-        .header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 16px;
-            flex-wrap: wrap;
-            margin-bottom: 20px;
-        }
-
-        h1 {
-            margin: 0;
-            font-size: 1.6rem;
-        }
-
-        .btn {
-            border: none;
-            border-radius: 10px;
-            padding: 10px 14px;
-            font-weight: 600;
-            text-decoration: none;
-            cursor: pointer;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .btn-primary {
-            background: var(--accent);
-            color: #fff;
-        }
-
-        .btn-secondary {
-            background: transparent;
-            border: 1px solid var(--border);
-            color: var(--text);
-        }
-
-        .btn-danger {
-            background: #fff5f5;
-            border: 1px solid #ffc9c9;
-            color: var(--danger);
-        }
-
-        .table-wrapper {
-            overflow-x: auto;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            min-width: 900px;
-        }
-
-        th,
-        td {
-            text-align: left;
-            padding: 12px;
-            border-bottom: 1px solid var(--border);
-            vertical-align: middle;
-        }
-
-        th {
-            color: var(--muted);
-            font-size: 0.88rem;
-            text-transform: uppercase;
-            letter-spacing: 0.04em;
-        }
-
-        .actions {
-            display: flex;
-            gap: 8px;
-            align-items: center;
-        }
-
-        .alert {
-            margin-bottom: 16px;
-            padding: 12px;
-            border-radius: 8px;
-        }
-
-        .alert-error {
-            background: #fff5f5;
-            border: 1px solid #ffc9c9;
-            color: var(--danger);
-        }
-
-        form {
-            margin: 0;
-        }
-
-        .empty {
-            color: var(--muted);
-            text-align: center;
-            padding: 28px;
-        }
-    </style>
 </head>
 <body>
     <div layout:fragment="content">
-        <div class="container">
+        <div class="document-card">
+            <div class="doc-header">
+                <h1 class="doc-title">Demandes de visa</h1>
+                <p class="doc-subtitle">Registre des demandes</p>
+            </div>
 
-    <div class="header">
-        <h1>Demandes de visa</h1>
-        <a class="btn btn-primary" th:href="@{/visa-requests/new}">Nouvelle demande</a>
+            <div class="page-header">
+                <p class="lead-text">Consultez, modifiez ou lancez le scan des dossiers en attente.</p>
+                <div class="page-actions">
+                    <a class="btn btn-primary" th:href="@{/visa-requests/new}">Nouvelle demande</a>
+                </div>
+            </div>
+
+            <div class="alert alert-error" th:if="${errorMessage}" th:text="${errorMessage}"></div>
+
+            <div class="table-wrapper">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Demandeur</th>
+                            <th>Date creation</th>
+                            <th>Type demande</th>
+                            <th>Passeport</th>
+                            <th>Categorie</th>
+                            <th>Visa transformable</th>
+                            <th>Statut</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:if="${#lists.isEmpty(demandes)}">
+                            <td colspan="9" class="empty">Aucune demande enregistree.</td>
+                        </tr>
+                        <tr th:each="demande : ${demandes}">
+                            <td th:text="${demande.demandeId}">1</td>
+                            <td th:text="${demande.nomDemandeur != null ? demande.nomDemandeur + ' ' + demande.prenomDemandeur : ''}">Rakoto Jean</td>
+                            <td th:text="${demande.dateCreation != null ? #temporals.format(demande.dateCreation, 'yyyy-MM-dd HH:mm') : ''}">
+                                2026-10-10 10:30
+                            </td>
+                            <td th:text="${demande.typeDemande != null ? demande.typeDemande : ''}">Travailleur</td>
+                            <td th:text="${demande.referencePasseport != null ? demande.referencePasseport : ''}">P12345</td>
+                            <td th:text="${demande.categorie != null ? demande.categorie : ''}">Nouveau Titre</td>
+                            <td th:text="${demande.referenceVisaTransformable != null ? demande.referenceVisaTransformable : ''}">VT-001</td>
+                            <td th:text="${demande.statut != null ? demande.statut : ''}">Demande creee</td>
+                            <td>
+                                <div class="actions">
+                                    <a class="btn btn-outline btn-sm" th:href="@{/visa-requests/{id}/edit(id=${demande.demandeId})}">Modifier</a>
+                                    <a class="btn btn-outline btn-sm" th:href="@{/visa-requests/scan/{id}(id=${demande.demandeId})}">Scanner</a>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
     </div>
-
-    <div class="alert alert-error" th:if="${errorMessage}" th:text="${errorMessage}"></div>
-
-    <div class="table-wrapper">
-        <table>
-            <thead>
-            <tr>
-                <th>ID</th>
-                <th>Demandeur</th>
-                <th>Date creation</th>
-                <th>Type demande</th>
-                <th>Passeport</th>
-                <th>Categorie</th>
-                <th>Visa transformable</th>
-                <th>Statut</th>
-                <th>Actions</th>
-            </tr>
-            </thead>
-            <tbody>
-            <tr th:if="${#lists.isEmpty(demandes)}">
-                <td colspan="8" class="empty">Aucune demande enregistree.</td>
-            </tr>
-            <tr th:each="demande : ${demandes}">
-                <td th:text="${demande.demandeId}">1</td>
-                <td th:text="${demande.nomDemandeur != null ? demande.nomDemandeur + ' ' + demande.prenomDemandeur : ''}">Rakoto Jean</td>
-                <td th:text="${demande.dateCreation != null ? #temporals.format(demande.dateCreation, 'yyyy-MM-dd HH:mm') : ''}">
-                    2026-10-10 10:30
-                </td>
-                <td th:text="${demande.typeDemande != null ? demande.typeDemande : ''}">Travailleur</td>
-                <td th:text="${demande.referencePasseport != null ? demande.referencePasseport : ''}">P12345</td>
-                <td th:text="${demande.categorie != null ? demande.categorie : ''}">Nouveau Titre</td>
-                <td th:text="${demande.referenceVisaTransformable != null ? demande.referenceVisaTransformable : ''}">VT-001</td>
-                <td th:text="${demande.statut != null ? demande.statut : ''}">Demande créée</td>
-                <td>
-                    <div class="actions">
-                        <a class="btn btn-secondary" th:href="@{/visa-requests/{id}/edit(id=${demande.demandeId})}">Modifier</a>
-                        <a class="btn btn-secondary" th:href="@{/visa-requests/scan/{id}(id=${demande.demandeId})}">Scanner</a>
-                    </div>
-                </td>
-            </tr>
-            </tbody>
-        </table>
-    </div>
-</div>
-</div>
 </body>
 </html>
 
