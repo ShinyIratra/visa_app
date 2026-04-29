@@ -59,6 +59,15 @@ public class VisaRequestService {
     @Transactional(readOnly = true)
     public List<Map<String, Object>> listDemandesAvecInfos() {
         List<Demande> demandes = visaRequestRepository.findAll();
+        /**
+         * TODO: Atao niveau base ny filtre 
+         * fa ny filtre rehetra ao natao niveau controller 
+         * na otran zao dol satria maika hitsara
+         */
+        demandes = demandes.stream()
+            .filter(d -> d.getCategorie() != null && "Nouveau titre".equals(d.getCategorie().getLibelle()))
+            .toList();
+
         List<Map<String, Object>> result = new ArrayList<>();
 
         for (Demande demande : demandes) {
