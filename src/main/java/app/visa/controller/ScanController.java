@@ -5,6 +5,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import app.visa.controller.response.ApiResponse;
 import app.visa.entity.Demande;
 import app.visa.service.ScanService;
@@ -89,9 +90,11 @@ public class ScanController {
         }
     }
 
-    @PostMapping("/api/{id}/terminer")
+    @PostMapping(value = "/api/{id}/terminer", consumes = "multipart/form-data")
     @ResponseBody
-    public ResponseEntity<ApiResponse<Map<String, Object>>> terminerScan(@PathVariable Integer id) {
+    public ResponseEntity<ApiResponse<Map<String, Object>>> terminerScan(
+            @PathVariable Integer id,
+            @RequestParam Map<String, MultipartFile> files) {
         try {
             // Vérification finale des contrôles avant de marquer comme terminé
             boolean allDossiersCoches = scanService.controleAllDossiersCoches(id);
@@ -100,13 +103,15 @@ public class ScanController {
                     .body(new ApiResponse<>(false, null, "Tous les dossiers doivent être cochés pour terminer le scan"));
             }
 
+            scanService.sauvegarderFichiersScan(id, files);
+
             // Marquer comme scan terminé
             scanService.marquerScanTermine(id);
 
             Map<String, Object> response = new LinkedHashMap<>();
             response.put("demandeId", id);
             response.put("statut", "Scan terminé");
-            response.put("message", "Scan marqué comme terminé avec succès");
+            response.put("message", "Scan marqué comme terminé et fichiers enregistrés avec succès");
 
             return ResponseEntity.ok(new ApiResponse<>(true, response, null));
         } catch (IllegalArgumentException e) {
