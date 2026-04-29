@@ -1,42 +1,56 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org"
-      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-      layout:decorate="~{layout}">
+<html lang="fr" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{layout}">
 <head>
-    <title>Liste des VISAs</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title layout:fragment="title">Liste des visas</title>
 </head>
 <body>
-<div layout:fragment="content">
-    <h2>Liste des VISAs délivrés</h2>
+    <div layout:fragment="content">
+        <div class="document-card">
+            <div class="doc-header">
+                <h1 class="doc-title">Visas delivres</h1>
+                <p class="doc-subtitle">Registre des visas</p>
+            </div>
 
-    <div style="margin-bottom: 20px; padding: 10px; border: 1px solid #ced4da; border-radius: 4px; background-color: #f8f9fa;">
-        <label for="startDate">Du :</label>
-        <input type="datetime-local" id="startDate">
-        
-        <label for="endDate" style="margin-left: 10px;">Au :</label>
-        <input type="datetime-local" id="endDate">
-        
-        <button id="btnFilter" style="margin-left: 10px;">Filtrer</button>
+            <p class="lead-text">Consultez les visas delivres et accedez aux demandes associees.</p>
+
+            <div class="filters">
+                <div class="filters-row">
+                    <label for="startDate">Du
+                        <input type="datetime-local" id="startDate">
+                    </label>
+                    <label for="endDate">Au
+                        <input type="datetime-local" id="endDate">
+                    </label>
+                    <div class="filters-actions">
+                        <button id="btnFilter" type="button" class="btn btn-primary">Filtrer</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="table-wrapper">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>ID visa</th>
+                            <th>Date creation</th>
+                            <th>Demandeur</th>
+                            <th>Ancien passeport</th>
+                            <th>Nouveau passeport</th>
+                            <th>ID demande</th>
+                        </tr>
+                    </thead>
+                    <tbody id="visaTableBody">
+                        <tr>
+                            <td colspan="6" class="empty">Aucun visa trouve.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <script th:src="@{/js/visas.js}"></script>
+        </div>
     </div>
-
-    <table border="1" style="width: 100%; border-collapse: collapse;">
-        <thead>
-        <tr style="background-color: #f2f2f2;">
-            <th>ID Visa</th>
-            <th>Date Création</th>
-            <th>Demandeur</th>
-            <th>Ancien Passeport</th>
-            <th>Nouveau Passeport</th>
-            <th>ID Demande</th>
-            <th>Actions</th>
-        </tr>
-        </thead>
-        <tbody id="visaTableBody">
-        <!-- JS -->
-        </tbody>
-    </table>
-
-    <script src="/js/visas.js"></script>
-</div>
 </body>
 </html>

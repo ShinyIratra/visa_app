@@ -7,7 +7,18 @@
 </head>
 <body>
     <div layout:fragment="content">
-        <h1>Gestion de visa</h1>
+        <div class="document-card">
+            <div class="doc-header">
+                <h1 class="doc-title">Registre Consulaire</h1>
+                <p class="doc-subtitle">Accueil des demandes de visa</p>
+            </div>
+            <p class="lead-text">Choisissez une section pour consulter le registre ou ouvrir une nouvelle demande.</p>
+            <ul class="royal-list">
+                <li><a class="text-link" th:href="@{/visa-requests}">Demandes de visa</a> - creation et suivi des titres.</li>
+                <li><a class="text-link" th:href="@{/transfert-visa}">Transferts de visa</a> - anciens et nouveaux passeports.</li>
+                <li><a class="text-link" th:href="@{/duplicata}">Duplicatas</a> - reemission et archives.</li>
+            </ul>
+        </div>
     </div>
 </body>
 </html>

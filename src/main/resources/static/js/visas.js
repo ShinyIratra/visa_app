@@ -20,7 +20,7 @@ document.addEventListener('DOMContentLoaded', function() {
             .then(data => {
                 tableBody.innerHTML = '';
                 if (data.length === 0) {
-                    tableBody.innerHTML = '<tr><td colspan="7" style="text-align:center;">Aucun visa trouvé</td></tr>';
+                    tableBody.innerHTML = '<tr><td colspan="6" class="empty">Aucun visa trouve.</td></tr>';
                     return;
                 }
                 data.forEach(visa => {
@@ -43,7 +43,7 @@ document.addEventListener('DOMContentLoaded', function() {
             })
             .catch(error => {
                 console.error('Erreur:', error);
-                tableBody.innerHTML = '<tr><td colspan="7" style="color:red; text-align:center;">Erreur lors du chargement des données</td></tr>';
+                tableBody.innerHTML = '<tr><td colspan="6" class="empty empty-error">Erreur lors du chargement des donnees.</td></tr>';
             });
     }
 
