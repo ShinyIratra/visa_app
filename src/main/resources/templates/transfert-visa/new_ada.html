@@ -19,6 +19,14 @@
 
             <form id="demandeForm">
                 <section>
+                    <div class="grid-container">
+                        <div class="grid-item col-12">
+                            <label>DATE DE CRÉATION</label>
+                            <input type="datetime-local" id="dateCreation" name="dateCreation" required />
+                        </div>
+                    </div>
+                </section>
+                <section>
                     <h2>1. RECHERCHE DE LA DEMANDE ORIGINALE</h2>
                     <div class="grid-container">
                         <div class="grid-item col-6">
@@ -68,6 +76,10 @@
 
         <script>
             function init() {
+                const now = new Date();
+                now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+                document.getElementById('dateCreation').value = now.toISOString().slice(0, 16);
+
                 const demandeForm = document.getElementById('demandeForm');
                 const typeRechercheSelect = document.getElementById('type_recherche');
                 const labelValeur = document.getElementById('label_valeur');
@@ -92,6 +104,7 @@
                     const data = {
                         type_recherche: formData.get('type_recherche'),
                         valeur: formData.get('valeur'),
+                        dateCreation: formData.get('dateCreation'),
                         "nouveau passeport": {
                             numero: formData.get('nouveauPasseport.numero'),
                             dateDelivrance: formData.get('nouveauPasseport.dateDelivrance'),

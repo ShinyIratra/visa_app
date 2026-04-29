@@ -19,6 +19,10 @@
             <form id="demandeForm" method="post">
                 <section>
                     <div class="grid-container">
+                        <div class="grid-item col-12">
+                            <label>DATE DE CRÉATION</label>
+                            <input type="datetime-local" id="dateCreation" name="dateCreation" required />
+                        </div>
 
                     <div class="grid-item col-12">
                         <label>VISA DEMANDE</label>
@@ -154,6 +158,12 @@
             demandeForm = document.getElementById('demandeForm');
 
             loadDonneesStatiques();
+            
+            // Date creation NOW
+            const now = new Date();
+            now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+            document.getElementById('dateCreation').value = now.toISOString().slice(0, 16);
+
             typeSelect.addEventListener('change', updateDossiersAFournir);
             demandeForm.addEventListener('submit', function(event) {
                 handleFormSubmit(event, '/visa-requests', '/api/demandes-visa');

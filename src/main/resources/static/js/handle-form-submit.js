@@ -5,9 +5,11 @@
         event.preventDefault();
 
         const typeDemandeValue = document.getElementById('typesDemande').value;
+        const dateCreationEl = document.getElementById('dateCreation');
 
         const formData = {
             typeDemandeId: typeDemandeValue ? Number(typeDemandeValue) : null,
+            dateCreation: dateCreationEl ? dateCreationEl.value : null,
             "etat civil": {
                 nom: document.getElementById('demandeur_nom').value,
                 prenom: document.getElementById('demandeur_prenom').value,
