@@ -122,4 +122,20 @@ public class ScanController {
                 .body(new ApiResponse<>(false, null, "Erreur lors de la terminaison du scan: " + e.getMessage()));
         }
     }
+
+    @GetMapping("/dossiers/{id}")
+    public String viewDossiers(@PathVariable Integer id, Model model) {
+        try {
+            Demande demande = visaRequestService.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Demande introuvable: " + id));
+            
+            List<Map<String, Object>> dossiers = scanService.getFichiersScannes(id);
+            
+            model.addAttribute("demande", demande);
+            model.addAttribute("dossiers", dossiers);
+            return "visa-requests/view-dossiers";
+        } catch (Exception e) {
+            return "redirect:/visa-requests?error=dossiers_read_error";
+        }
+    }
 }

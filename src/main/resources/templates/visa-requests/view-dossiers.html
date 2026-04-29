@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{layout}">
+<head>
+    <meta charset="UTF-8">
+    <title layout:fragment="title">Dossiers de la demande</title>
+    <style>
+        .files-grid { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); 
+            gap: 20px; 
+            margin-top: 20px; 
+        }
+        .file-card { 
+            background: #fff; 
+            border-radius: 8px; 
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1); 
+            overflow: hidden;
+            border: 1px solid #eee;
+            transition: transform 0.2s;
+        }
+        .file-card:hover {
+            transform: translateY(-5px);
+        }
+        .file-preview {
+            height: 200px;
+            background: #f8f9fa;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-bottom: 1px solid #eee;
+            overflow: hidden;
+        }
+        .file-preview img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .file-preview .file-icon {
+            font-size: 48px;
+            color: #6c757d;
+        }
+        .file-info {
+            padding: 15px;
+        }
+        .file-name {
+            font-weight: bold;
+            display: block;
+            margin-bottom: 5px;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            overflow: hidden;
+            font-size: 0.9em;
+        }
+        .file-meta {
+            font-size: 0.8em;
+            color: #6c757d;
+        }
+        .btn-back { display: inline-block; margin-bottom: 20px; padding: 10px 15px; background: #6c757d; color: #fff; text-decoration: none; border-radius: 4px; }
+        .btn-view {
+            display: inline-block;
+            margin-top: 10px;
+            font-size: 0.8em;
+            color: #007bff;
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+    <div layout:fragment="content">
+        <h1>Dossiers scannés</h1>
+        <p>Demande ID: <strong th:text="${demande.id}"></strong> | Demandeur: <strong th:text="${demande.passeport.demandeur.nom + ' ' + demande.passeport.demandeur.prenom}"></strong></p>
+
+        <a href="/visa-requests" class="btn-back">Retour à la liste</a>
+
+        <div th:if="${#lists.isEmpty(dossiers)}" style="padding: 20px; background: #fff3cd; border: 1px solid #ffeeba; border-radius: 4px; color: #856404;">
+            Aucun dossier scanné trouvé pour cette demande.
+        </div>
+
+        <div th:if="${not #lists.isEmpty(dossiers)}" class="files-grid">
+            <div th:each="doc : ${dossiers}" class="file-card">
+                <div class="file-preview">
+                    <!-- Preview for images -->
+                    <img th:if="${doc.nomFichier.toLowerCase().endsWith('.jpg') or doc.nomFichier.toLowerCase().endsWith('.jpeg') or doc.nomFichier.toLowerCase().endsWith('.png')}" 
+                         th:src="${doc.url}" th:alt="${doc.nomFichier}">
+                    
+                    <!-- Icon for others (PDF etc) -->
+                    <div th:unless="${doc.nomFichier.toLowerCase().endsWith('.jpg') or doc.nomFichier.toLowerCase().endsWith('.jpeg') or doc.nomFichier.toLowerCase().endsWith('.png')}"
+                         class="file-icon">
+                        <i class="fas" th:classappend="${doc.nomFichier.toLowerCase().endsWith('.pdf')} ? 'fa-file-pdf' : 'fa-file'"></i>
+                        <span th:text="${doc.nomFichier.substring(doc.nomFichier.lastIndexOf('.') + 1).toUpperCase()}"></span>
+                    </div>
+                </div>
+                <div class="file-info">
+                    <span class="file-name" th:text="${doc.nomFichier}" th:title="${doc.nomFichier}"></span>
+                    <div class="file-meta">
+                        <span th:text="${doc.taille}"></span> | 
+                        <span th:text="${#dates.format(doc.dateScan, 'dd/MM/yyyy HH:mm')}"></span>
+                    </div>
+                    <a th:href="${doc.url}" target="_blank" class="btn-view">Ouvrir le fichier</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

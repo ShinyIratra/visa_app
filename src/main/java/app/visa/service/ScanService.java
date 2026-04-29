@@ -49,7 +49,10 @@ public class ScanService {
         for (MultipartFile file : files.values()) {
             if (file != null && !file.isEmpty()) {
                 if (file.getSize() > MAX_FILE_SIZE) {
-                    throw new IllegalArgumentException("Le fichier " + file.getOriginalFilename() + " dépasse la taille maximale autorisée (5Mo)");
+                    double sizeInMb = (double) file.getSize() / (1024 * 1024);
+                    String message = String.format("Le fichier '%s' est trop volumineux (%.2f Mo). La limite est de 5 Mo.", 
+                        file.getOriginalFilename(), sizeInMb);
+                    throw new IllegalArgumentException(message);
                 }
                 
                 String originalFilename = file.getOriginalFilename();
@@ -118,6 +121,47 @@ public class ScanService {
         for (Map.Entry<MultipartFile, Path> entry : uploads.entrySet()) {
             entry.getKey().transferTo(entry.getValue().toFile());
         }
+    }
+
+    public List<Map<String, Object>> getFichiersScannes(Integer demandeId) {
+        Demande demande = visaRequestRepository.findById(demandeId)
+            .orElseThrow(() -> new IllegalArgumentException("Demande introuvable: " + demandeId));
+        
+        Demandeur demandeur = demande.getPasseport().getDemandeur();
+        String nomComplet = (demandeur.getNom() + "_" + demandeur.getPrenom()).replaceAll("[^a-zA-Z0-9_-]", "");
+        
+        String rootPath = System.getProperty("user.dir");
+        Path uploadPath = Paths.get(rootPath, UPLOAD_DIR, demandeur.getId() + "_" + nomComplet, "")
+            .toAbsolutePath().normalize();
+            
+        List<Map<String, Object>> result = new ArrayList<>();
+        if (!Files.exists(uploadPath)) {
+            return result;
+        }
+
+        try {
+            Files.list(uploadPath).forEach(path -> {
+                File file = path.toFile();
+                if (file.isFile()) {
+                    Map<String, Object> map = new LinkedHashMap<>();
+                    map.put("nomFichier", file.getName());
+                    map.put("chemin", file.getAbsolutePath());
+                    
+                    // URL 
+                    String relativePath = uploadPath.relativize(path).toString().replace("\\", "/");
+                    String folderName = demandeur.getId() + "_" + nomComplet;
+                    map.put("url", "/uploads/scans/" + folderName + "/" + file.getName());
+                    
+                    map.put("taille", (file.length() / 1024) + " KB");
+                    map.put("dateScan", new java.util.Date(file.lastModified()));
+                    result.add(map);
+                }
+            });
+        } catch (IOException e) {
+            throw new RuntimeException("Erreur lors de la lecture des dossiers scannés", e);
+        }
+        
+        return result;
     }
 
     /**
