@@ -126,9 +126,15 @@ public class DuplicataService extends VisaRequestService {
             throw new IllegalArgumentException("Erreur Duplicata : Demande originale obligatoire.");
         }
 
+        LocalDateTime dateFinale = dateCreation != null ? dateCreation : LocalDateTime.now();
+
+        if (dateFinale.isBefore(demande_original.getDateCreation())) {
+            throw new IllegalArgumentException("La date de demande de duplicata ne peut pas être antérieure à la date de la demande originale (" + demande_original.getDateCreation() + ")");
+        }
+
         // 1. Nouvelle demande de duplicata
         Demande demande_duplicata = new Demande();
-        demande_duplicata.setDateCreation(dateCreation != null ? dateCreation : LocalDateTime.now());
+        demande_duplicata.setDateCreation(dateFinale);
         demande_duplicata.setPasseport(demande_original.getPasseport());
         demande_duplicata.setVisaTransformable(demande_original.getVisaTransformable());
         demande_duplicata.setTypeDemande(demande_original.getTypeDemande());
@@ -138,7 +144,7 @@ public class DuplicataService extends VisaRequestService {
         demande_duplicata = demandeRepository.save(demande_duplicata);  
         
         // 2. Statut initial
-        saveStatutDemande(demande_duplicata, "Demande creee", dateCreation);
+        saveStatutDemande(demande_duplicata, "Demande creee", dateFinale);
 
         // 3. Liaison ?
         Integer dernier_identifiant = liaisonSansDonneeAnterieurRepository.findTopByOrderByIdentifiantDesc()

@@ -75,13 +75,19 @@ public class TransfertVisaService {
     }
 
     private DemandeTransfertVisa buildDemandeTransfert(Demande demande, Passeport nouveauPasseport, LocalDateTime dateCreation) {
+        LocalDateTime dateFinale = dateCreation != null ? dateCreation : LocalDateTime.now();
+
+        if (dateFinale.isBefore(demande.getDateCreation())) {
+            throw new IllegalArgumentException("La date de demande de transfert ne peut pas être antérieure à la date de la demande originale (" + demande.getDateCreation() + ")");
+        }
+
         DemandeTransfertVisa demandeTransfertVisa = new DemandeTransfertVisa();
         
         demandeTransfertVisa.setDemande(demande);
         demandeTransfertVisa.setNouveauPasseport(nouveauPasseport);
-        demandeTransfertVisa.setDateCreation(dateCreation != null ? dateCreation : demande.getDateCreation());
+        demandeTransfertVisa.setDateCreation(dateFinale);
 
-        setStatut(demandeTransfertVisa, "Demande creee", dateCreation);
+        setStatut(demandeTransfertVisa, "Demande creee", dateFinale);
 
         return demandeTransfertVisa;
     }
