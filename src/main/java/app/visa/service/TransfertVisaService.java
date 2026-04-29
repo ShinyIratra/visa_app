@@ -25,24 +25,34 @@ public class TransfertVisaService {
     public DemandeTransfertVisa creerDemandeTransfertAda(Map<String, Object> donnees) {
         String typeRecherche = (String) donnees.get("type_recherche");
         String valeur = (String) donnees.get("valeur");
+        
+        LocalDateTime dateCreation = null;
+        if (donnees.get("dateCreation") != null && !donnees.get("dateCreation").toString().isBlank()) {
+            dateCreation = LocalDateTime.parse(donnees.get("dateCreation").toString());
+        }
 
         Demande demandeOrigine = demandeService.findDemandeByCritere(typeRecherche, valeur);
         
         Passeport nouveauPasseport = creerNouveauPasseport(donnees, demandeOrigine);
 
-        DemandeTransfertVisa demandeTransfertVisa = buildDemandeTransfert(demandeOrigine, nouveauPasseport);
+        DemandeTransfertVisa demandeTransfertVisa = buildDemandeTransfert(demandeOrigine, nouveauPasseport, dateCreation);
 
         return demandeTransfertVisaRepository.save(demandeTransfertVisa);
     }
 
     @Transactional(rollbackFor = Exception.class)
     public DemandeTransfertVisa creerDemandeTransfertSda(Map<String, Object> donnees) {
+        LocalDateTime dateCreation = null;
+        if (donnees.get("dateCreation") != null && !donnees.get("dateCreation").toString().isBlank()) {
+            dateCreation = LocalDateTime.parse(donnees.get("dateCreation").toString());
+        }
+
         Demande demande = visaRequestService.creerDemandeVisa(donnees, "Nouveau titre", "Visa accepte");
         Visa visa = acceptationDemandeVisaService.creerVisaEtCarteResident(demande);
 
         Passeport nouveauPasseport = creerNouveauPasseport(donnees, demande);
 
-        DemandeTransfertVisa demandeTransfertVisa = buildDemandeTransfert(demande, nouveauPasseport);
+        DemandeTransfertVisa demandeTransfertVisa = buildDemandeTransfert(demande, nouveauPasseport, dateCreation);
 
         // assignerVisaAuPasseport(visa, nouveauPasseport); // Decommentena raha tonga dia omena an le visa le passeport fa tsy mandalo validation
 
@@ -61,13 +71,23 @@ public class TransfertVisaService {
     }
 
     private DemandeTransfertVisa buildDemandeTransfert(Demande demande, Passeport nouveauPasseport) {
+        return buildDemandeTransfert(demande, nouveauPasseport, null);
+    }
+
+    private DemandeTransfertVisa buildDemandeTransfert(Demande demande, Passeport nouveauPasseport, LocalDateTime dateCreation) {
+        LocalDateTime dateFinale = dateCreation != null ? dateCreation : LocalDateTime.now();
+
+        if (dateFinale.isBefore(demande.getDateCreation())) {
+            throw new IllegalArgumentException("La date de demande de transfert ne peut pas être antérieure à la date de la demande originale (" + demande.getDateCreation() + ")");
+        }
+
         DemandeTransfertVisa demandeTransfertVisa = new DemandeTransfertVisa();
         
         demandeTransfertVisa.setDemande(demande);
         demandeTransfertVisa.setNouveauPasseport(nouveauPasseport);
-        demandeTransfertVisa.setDateCreation(demande.getDateCreation());
+        demandeTransfertVisa.setDateCreation(dateFinale);
 
-        setStatut(demandeTransfertVisa, "Demande creee");
+        setStatut(demandeTransfertVisa, "Demande creee", dateFinale);
 
         return demandeTransfertVisa;
     }
@@ -81,13 +101,17 @@ public class TransfertVisaService {
      */
 
     public void setStatut(DemandeTransfertVisa transfert, String statutLibelle) {
+        setStatut(transfert, statutLibelle, null);
+    }
+
+    public void setStatut(DemandeTransfertVisa transfert, String statutLibelle, LocalDateTime dateModification) {
         Statut statut = statutRepository.findByLibelle(statutLibelle)
             .orElseThrow(() -> new IllegalArgumentException("statut '" + statutLibelle + "' introuvable"));
 
         HistoriqueStatutDemandeTransfert historique = new HistoriqueStatutDemandeTransfert();
         historique.setTransfert(transfert);
         historique.setStatut(statut);
-        historique.setDateModification(LocalDateTime.now());
+        historique.setDateModification(dateModification != null ? dateModification : LocalDateTime.now());
 
         if (transfert.getHistoriques() == null) {
             transfert.setHistoriques(new ArrayList<>());
@@ -192,6 +216,7 @@ public class TransfertVisaService {
 
             Statut s = getStatut(t);
             map.put("statut", s != null ? s.getLibelle() : "Aucun");
+            map.put("dateCreation", t.getDateCreation());
 
             result.add(map);
         }

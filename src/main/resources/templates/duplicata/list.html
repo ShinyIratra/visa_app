@@ -19,26 +19,29 @@
                     <a class="btn btn-primary" href="/sans-donne-anterieur/duplicata">Nouvelle demande</a>
                 </div>
             </div>
-            <div class="table-wrapper">
-                <table class="data-table">
-                    <thead>
-                        <tr>
-                            <th>Id</th>
-                            <th>Demandeur</th>
-                            <th>Passeport</th>
-                            <th>Nationalite</th>
-                            <th>Statut</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <!-- duplicatas.js -->
-                        <tr>
-                            <td colspan="6" class="empty">Aucune demande enregistree.</td>
-                        </tr>
-                    </tbody>
-                </table>
+            <div class="filters" style="margin-bottom: 20px; padding: 15px; background: #f4f4f4; border-radius: 5px;">
+                <label>Du: <input type="datetime-local" id="dateStart"></label>
+                <label>Au: <input type="datetime-local" id="dateEnd"></label>
+                <button onclick="filterByDate()">Filtrer</button>
+                <button onclick="resetFilter()">Réinitialiser</button>
             </div>
+
+            <table border="1">
+                <thead>
+                    <tr>
+                        <th>Id</th>
+                        <th>Demandeur</th>
+                        <th>Passeport</th>
+                        <th>Nationalité</th>
+                        <th>Statut</th>
+                        <th>Date Création</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!--  duplicatas.js -->
+                </tbody>
+            </table>
         </div>
         <script th:src="@{/js/duplicatas.js}"></script>
     </div>

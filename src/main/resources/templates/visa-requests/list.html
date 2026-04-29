@@ -64,6 +64,60 @@
             </div>
         </div>
     </div>
+
+    <div class="alert alert-error" th:if="${errorMessage}" th:text="${errorMessage}"></div>
+
+    <div class="filters" style="margin-bottom: 20px; padding: 15px; background: #f4f4f4; border-radius: 8px;">
+        <form method="get" action="/visa-requests">
+            <label>Du: <input type="datetime-local" name="start" th:value="${start}"></label>
+            <label>Au: <input type="datetime-local" name="end" th:value="${end}"></label>
+            <button type="submit" class="btn btn-primary">Filtrer</button>
+            <a href="/visa-requests" class="btn btn-secondary">Réinitialiser</a>
+        </form>
+    </div>
+
+    <div class="table-wrapper">
+        <table>
+            <thead>
+            <tr>
+                <th>ID</th>
+                <th>Demandeur</th>
+                <th>Date creation</th>
+                <th>Type demande</th>
+                <th>Passeport</th>
+                <th>Categorie</th>
+                <th>Visa transformable</th>
+                <th>Statut</th>
+                <th>Actions</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:if="${#lists.isEmpty(demandes)}">
+                <td colspan="8" class="empty">Aucune demande enregistree.</td>
+            </tr>
+            <tr th:each="demande : ${demandes}">
+                <td th:text="${demande.demandeId}">1</td>
+                <td th:text="${demande.nomDemandeur != null ? demande.nomDemandeur + ' ' + demande.prenomDemandeur : ''}">Rakoto Jean</td>
+                <td th:text="${demande.dateCreation != null ? #temporals.format(demande.dateCreation, 'yyyy-MM-dd HH:mm') : ''}">
+                    2026-10-10 10:30
+                </td>
+                <td th:text="${demande.typeDemande != null ? demande.typeDemande : ''}">Travailleur</td>
+                <td th:text="${demande.referencePasseport != null ? demande.referencePasseport : ''}">P12345</td>
+                <td th:text="${demande.categorie != null ? demande.categorie : ''}">Nouveau Titre</td>
+                <td th:text="${demande.referenceVisaTransformable != null ? demande.referenceVisaTransformable : ''}">VT-001</td>
+                <td th:text="${demande.statut != null ? demande.statut : ''}">Demande créée</td>
+                <td>
+                    <div class="actions">
+                        <a class="btn btn-secondary" th:href="@{/visa-requests/{id}/edit(id=${demande.demandeId})}">Modifier</a>
+                        <a class="btn btn-secondary" th:href="@{/visa-requests/scan/{id}(id=${demande.demandeId})}">Scanner</a>
+                    </div>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+</div>
 </body>
 </html>
 
