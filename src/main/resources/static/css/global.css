@@ -64,7 +64,7 @@ input, select, textarea {
     width: 280px;
     background: linear-gradient(to right, #111b18, var(--royal-bg));
     border-right: 2px solid var(--gold);
-    padding: 3rem 2rem;
+    padding: 2rem 1rem;
     display: flex;
     flex-direction: column;
     position: fixed;
@@ -75,7 +75,7 @@ input, select, textarea {
 
 .crown-logo {
     text-align: center;
-    font-size: 2.6rem;
+    font-size: 2rem;
     color: var(--gold);
     margin-bottom: 0.2rem;
     text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
@@ -83,13 +83,13 @@ input, select, textarea {
 
 .brand {
     text-align: center;
-    margin-bottom: 1.8rem;
+    margin-bottom: 1.5rem;
     position: relative;
 }
 
 .brand h1 {
     font-family: "Pinyon Script", cursive;
-    font-size: 2.2rem;
+    font-size: 2rem;
     color: var(--gold-light);
     line-height: 1.2;
     margin: 0;
@@ -115,13 +115,13 @@ input, select, textarea {
 }
 
 .sidebar-nav {
-    margin-top: 1.5rem;
+    margin-top: 1.2rem;
 }
 
 .sidebar-menu {
     list-style: none;
     display: grid;
-    gap: 1.4rem;
+    gap: 1.2rem;
 }
 
 .menu-group {
@@ -134,8 +134,8 @@ input, select, textarea {
 
 .menu-title {
     display: block;
-    margin-bottom: 0.6rem;
-    font-weight: 600;
+    margin-bottom: 0.5rem;
+    font-weight: 500;
 }
 
 .submenu {
@@ -248,6 +248,46 @@ input, select, textarea {
     flex-wrap: wrap;
 }
 
+.filters {
+    margin-bottom: 1.4rem;
+    padding: 1rem 1.2rem;
+    border: 1px dashed var(--border-soft);
+    background: rgba(255, 255, 255, 0.55);
+    display: grid;
+    gap: 0.2rem;
+}
+
+.filters form,
+.filters-row {
+    display: flex;
+    gap: 0.5rem;
+    align-items: flex-end;
+}
+
+.filters label {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+    font-size: 0.50rem;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--ink);
+}
+
+.filters input {
+    background: transparent;
+    border: none;
+    border-bottom: 2px dotted var(--ink);
+    padding: 2px 0;
+    min-width: 130px;
+    color: var(--ink);
+}
+
+.filters-actions {
+    display: flex;
+    gap: 0.2rem;
+}
+
 .section-title {
     font-size: 0.75rem;
     letter-spacing: 2px;
@@ -267,8 +307,8 @@ input, select, textarea {
     align-items: center;
     justify-content: center;
     gap: 6px;
-    padding: 0.75rem 1.8rem;
-    font-size: 0.75rem;
+    padding: 0.65rem 1.6rem;
+    font-size: 0.70rem;
     letter-spacing: 2px;
     text-transform: uppercase;
     border: 1px solid var(--gold);
@@ -352,6 +392,11 @@ input, select, textarea {
 
 .data-table tbody tr:hover {
     background: rgba(197, 160, 89, 0.12);
+}
+
+.data-table a {
+    color: var(--stamp);
+    font-weight: 600;
 }
 
 .actions {

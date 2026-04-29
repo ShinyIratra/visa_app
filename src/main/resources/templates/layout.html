@@ -9,47 +9,58 @@
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Pinyon+Script&family=Special+Elite&display=swap" rel="stylesheet">
     <link rel="stylesheet" th:href="@{/css/global.css}">
 </head>
-<body style="margin: 0;">
-    <div style="display: flex; min-height: 100vh;">
-        <nav style="width: 250px; border-right: 1px solid #ccc; padding: 10px; background-color: #f8f9fa;">
-            <ul>
-                <li>Demande de nouveau titre
-                    <ul>
-                        <li><a th:href="@{/visa-requests}">Liste</a></li>
-                        <li><a th:href="@{/visa-requests/new}">Creation</a></li>
-                    </ul>
-                </li>
-                <li>Demande de transfert de visa
-                    <ul>
-                        <li><a th:href="@{/transfert-visa}">Liste</a></li>
-                        <li>Creation
-                            <ul>
-                                <li><a th:href="@{/transfert-visa/new/sda}">Sans donnees anterieures</a></li>
-                                <li><a th:href="@{/transfert-visa/new/ada}">Avec donnees anterieures</a></li>
-                            </ul>
-                        </li>
-                    </ul>
-                </li>
-                <li>Demande de duplicata
-                    <ul>
-                        <li><a th:href="@{/duplicata}">Liste</a></li>
-                        <li>Creation
-                            <ul>
-                                <li><a th:href="@{/duplicata/new/sda}">Sans donnees anterieures</a></li>
-                                <li><a th:href="@{/duplicata/new/ada}">Avec donnees anterieures</a></li>
-                            </ul>
-                        </li>
-                    </ul>
-                </li>
-                <li>VISA
-                    <ul>
-                        <li><a th:href="@{/visas}">Liste des VISAs délivrés</a></li>
-                    </ul>
-                </li>
-            </ul>
-        </nav>
-        <main style="flex: 1; padding: 20px;">
-            <div layout:fragment="content">
+<body>
+    <div class="layout">
+        <aside class="sidebar">
+            <div class="brand">
+                <div class="crown-logo">&#9819;</div>
+                <h1>VISA</h1>
+                <span>Departement des visas</span>
+            </div>
+            <nav class="sidebar-nav">
+                <ul class="sidebar-menu">
+                    <li class="menu-group">
+                        <span class="menu-title">Demande de nouveau titre</span>
+                        <ul class="submenu">
+                            <li><a class="menu-link" th:href="@{/visa-requests}">Liste</a></li>
+                            <li><a class="menu-link" th:href="@{/visa-requests/new}">Creation</a></li>
+                        </ul>
+                    </li>
+                    <li class="menu-group">
+                        <span class="menu-title">Demande de transfert de visa</span>
+                        <ul class="submenu">
+                            <li><a class="menu-link" th:href="@{/transfert-visa}">Liste</a></li>
+                            <li><span class="menu-title">Creation</span>
+                                <ul class="submenu">
+                                    <li><a class="menu-link" th:href="@{/transfert-visa/new/sda}">Sans donnees anterieures</a></li>
+                                    <li><a class="menu-link" th:href="@{/transfert-visa/new/ada}">Avec donnees anterieures</a></li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </li>
+                    <li class="menu-group">
+                        <span class="menu-title">Demande de duplicata</span>
+                        <ul class="submenu">
+                            <li><a class="menu-link" th:href="@{/duplicata}">Liste</a></li>
+                            <li><span class="menu-title">Creation</span>
+                                <ul class="submenu">
+                                    <li><a class="menu-link" th:href="@{/duplicata/new/sda}">Sans donnees anterieures</a></li>
+                                    <li><a class="menu-link" th:href="@{/duplicata/new/ada}">Avec donnees anterieures</a></li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </li>
+                    <li class="menu-group">
+                        <span class="menu-title">Visa</span>
+                        <ul class="submenu">
+                            <li><a class="menu-link" th:href="@{/visas}">Liste des visas delivres</a></li>
+                        </ul>
+                    </li>
+                </ul>
+            </nav>
+        </aside>
+        <main class="main-content">
+            <div class="content-slot" layout:fragment="content">
                 <!-- Content will be replaced here -->
             </div>
         </main>
