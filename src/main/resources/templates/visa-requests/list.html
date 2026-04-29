@@ -144,6 +144,15 @@
 
     <div class="alert alert-error" th:if="${errorMessage}" th:text="${errorMessage}"></div>
 
+    <div class="filters" style="margin-bottom: 20px; padding: 15px; background: #f4f4f4; border-radius: 8px;">
+        <form method="get" action="/visa-requests">
+            <label>Du: <input type="datetime-local" name="start" th:value="${start}"></label>
+            <label>Au: <input type="datetime-local" name="end" th:value="${end}"></label>
+            <button type="submit" class="btn btn-primary">Filtrer</button>
+            <a href="/visa-requests" class="btn btn-secondary">Réinitialiser</a>
+        </form>
+    </div>
+
     <div class="table-wrapper">
         <table>
             <thead>

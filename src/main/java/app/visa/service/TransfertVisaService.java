@@ -192,6 +192,7 @@ public class TransfertVisaService {
 
             Statut s = getStatut(t);
             map.put("statut", s != null ? s.getLibelle() : "Aucun");
+            map.put("dateCreation", t.getDateCreation());
 
             result.add(map);
         }

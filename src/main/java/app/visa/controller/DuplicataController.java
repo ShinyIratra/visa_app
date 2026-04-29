@@ -78,9 +78,25 @@ public class DuplicataController {
     
     @GetMapping("/list")
     @ResponseBody
-    public ResponseEntity<ApiResponse<List<Map<String, Object>>>> listData() {
+    public ResponseEntity<ApiResponse<List<Map<String, Object>>>> listData(
+            @RequestParam(required = false) String start,
+            @RequestParam(required = false) String end) {
         try {
             List<Map<String, Object>> data = duplicataService.listDuplicataAvecInfos();
+
+            if (start != null && !start.isEmpty()) {
+                java.time.LocalDateTime startDate = java.time.LocalDateTime.parse(start);
+                data = data.stream()
+                        .filter(d -> d.get("dateCreation") != null && !((java.time.LocalDateTime) d.get("dateCreation")).isBefore(startDate))
+                        .toList();
+            }
+            if (end != null && !end.isEmpty()) {
+                java.time.LocalDateTime endDate = java.time.LocalDateTime.parse(end);
+                data = data.stream()
+                        .filter(d -> d.get("dateCreation") != null && !((java.time.LocalDateTime) d.get("dateCreation")).isAfter(endDate))
+                        .toList();
+            }
+
             return ResponseEntity.ok(new ApiResponse<List<Map<String, Object>>>(true, data, null));
         } catch (Exception e) {
             return ResponseEntity.internalServerError()

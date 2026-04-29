@@ -179,6 +179,7 @@ public class DuplicataService extends VisaRequestService {
                 .map(h -> h.getStatut().getLibelle())
                 .orElse("Aucun");
             map.put("statut", statutLibelle);
+            map.put("dateCreation", d.getDateCreation());
 
             result.add(map);
         }
