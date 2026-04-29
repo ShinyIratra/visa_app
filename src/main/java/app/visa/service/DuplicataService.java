@@ -88,11 +88,16 @@ public class DuplicataService extends VisaRequestService {
 
     @Transactional(rollbackFor = Exception.class)
     public Demande creerDemandeDuplicataSansDonneeAnterieure(Map<String, Object> donnees) {
+        LocalDateTime dateCreation = null;
+        if (donnees.get("dateCreation") != null && !donnees.get("dateCreation").toString().isBlank()) {
+            dateCreation = LocalDateTime.parse(donnees.get("dateCreation").toString());
+        }
+
         Demande demandeOriginale = this.creerDemandeVisa(donnees, "Nouveau titre", "Visa accepte");
         
         acceptationDemandeVisaService.creerVisaEtCarteResident(demandeOriginale);
 
-        return this.creerDemandeDuplicata(demandeOriginale);
+        return this.creerDemandeDuplicata(demandeOriginale, dateCreation);
     }
 
     @Transactional(rollbackFor = Exception.class)
@@ -100,20 +105,30 @@ public class DuplicataService extends VisaRequestService {
         String typeRecherche = (String) donnees.get("type_recherche");
         String valeur = (String) donnees.get("valeur");
 
+        LocalDateTime dateCreation = null;
+        if (donnees.get("dateCreation") != null && !donnees.get("dateCreation").toString().isBlank()) {
+            dateCreation = LocalDateTime.parse(donnees.get("dateCreation").toString());
+        }
+
         Demande ancienneDemande = demandeService.findDemandeByCritere(typeRecherche, valeur);
         
-        return creerDemandeDuplicata(ancienneDemande);
+        return creerDemandeDuplicata(ancienneDemande, dateCreation);
     }
 
     @Transactional(rollbackFor = Exception.class)
     public Demande creerDemandeDuplicata(Demande demande_original) {
+        return creerDemandeDuplicata(demande_original, null);
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    public Demande creerDemandeDuplicata(Demande demande_original, LocalDateTime dateCreation) {
         if (demande_original == null) {
             throw new IllegalArgumentException("Erreur Duplicata : Demande originale obligatoire.");
         }
 
         // 1. Nouvelle demande de duplicata
         Demande demande_duplicata = new Demande();
-        demande_duplicata.setDateCreation(LocalDateTime.now());
+        demande_duplicata.setDateCreation(dateCreation != null ? dateCreation : LocalDateTime.now());
         demande_duplicata.setPasseport(demande_original.getPasseport());
         demande_duplicata.setVisaTransformable(demande_original.getVisaTransformable());
         demande_duplicata.setTypeDemande(demande_original.getTypeDemande());
@@ -123,14 +138,7 @@ public class DuplicataService extends VisaRequestService {
         demande_duplicata = demandeRepository.save(demande_duplicata);  
         
         // 2. Statut initial
-        Statut statut = statutRepository.findByLibelle("Demande creee")
-            .orElseThrow(() -> new IllegalArgumentException("Statut 'Demande creee' introuvable."));
-        
-        HistoriqueStatut historique = new HistoriqueStatut();
-        historique.setDemande(demande_duplicata);
-        historique.setStatut(statut);
-        historique.setDateModification(LocalDateTime.now());
-        historiqueStatutRepository.save(historique);
+        saveStatutDemande(demande_duplicata, "Demande creee", dateCreation);
 
         // 3. Liaison ?
         Integer dernier_identifiant = liaisonSansDonneeAnterieurRepository.findTopByOrderByIdentifiantDesc()

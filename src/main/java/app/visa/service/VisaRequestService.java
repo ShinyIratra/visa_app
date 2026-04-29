@@ -100,6 +100,11 @@ public class VisaRequestService {
         Map<String, Object> visaTransformableData = UtilService.getBloc(donnees, "visaTransformable");
         Integer typeDemandeId = toLong(donnees.get("typeDemandeId"));
         List<Integer> dossiersFournisIds = getDossiersFournis(donnees);
+        
+        LocalDateTime dateCreation = null;
+        if (donnees.get("dateCreation") != null && !donnees.get("dateCreation").toString().isBlank()) {
+            dateCreation = LocalDateTime.parse(donnees.get("dateCreation").toString());
+        }
 
         TypeDemande typeDemande = getTypeDemandeValide(typeDemandeId);
         List<Dossier> dossiersApplicables = getDossiersApplicables(typeDemande);
@@ -113,9 +118,9 @@ public class VisaRequestService {
             passeport.getId()
         );
 
-        Demande demande = createDemande(typeDemande, "Nouveau titre", passeport, visaTransformable);
+        Demande demande = createDemande(typeDemande, "Nouveau titre", passeport, visaTransformable, dateCreation);
         saveReponseDossier(demande, dossiersApplicables, dossiersFournisIds);
-        saveStatutDemande(demande, "Demande creee");
+        saveStatutDemande(demande, "Demande creee", dateCreation);
 
         return reponseCreation(demandeur, passeport, visaTransformable, demande, dossiersFournisIds);
     }
@@ -135,6 +140,11 @@ public class VisaRequestService {
         Map<String, Object> visaTransformableData = UtilService.getBloc(donnees, "visaTransformable");
         Integer typeDemandeId = toLong(donnees.get("typeDemandeId"));
         List<Integer> dossiersFournisIds = getDossiersFournis(donnees);
+        
+        LocalDateTime dateCreation = null;
+        if (donnees.get("dateCreation") != null && !donnees.get("dateCreation").toString().isBlank()) {
+            dateCreation = LocalDateTime.parse(donnees.get("dateCreation").toString());
+        }
 
         TypeDemande typeDemande = getTypeDemandeValide(typeDemandeId);
         List<Dossier> dossiersApplicables = getDossiersApplicables(typeDemande);
@@ -148,9 +158,9 @@ public class VisaRequestService {
             passeport.getId()
         );
 
-        Demande demande = createDemande(typeDemande, categorieLibelle, passeport, visaTransformable);
+        Demande demande = createDemande(typeDemande, categorieLibelle, passeport, visaTransformable, dateCreation);
         saveReponseDossier(demande, dossiersApplicables, dossiersFournisIds);
-        saveStatutDemande(demande, statutDemandeLibelle);
+        saveStatutDemande(demande, statutDemandeLibelle, dateCreation);
 
         return demande;
     }
@@ -243,11 +253,15 @@ public class VisaRequestService {
     }
 
     protected Demande createDemande(TypeDemande typeDemande, String libelle, Passeport passeport, VisaTransformable visaTransformable) {
+        return createDemande(typeDemande, libelle, passeport, visaTransformable, null);
+    }
+
+    protected Demande createDemande(TypeDemande typeDemande, String libelle, Passeport passeport, VisaTransformable visaTransformable, LocalDateTime dateCreation) {
         Categorie categorie = categorieRepository.findByLibelle(libelle)
             .orElseThrow(() -> new IllegalArgumentException("categorie '" + libelle + "' introuvable."));
 
         Demande demande = new Demande();
-        demande.setDateCreation(LocalDateTime.now());
+        demande.setDateCreation(dateCreation != null ? dateCreation : LocalDateTime.now());
         demande.setTypeDemande(typeDemande);
         demande.setCategorie(categorie);
         demande.setPasseport(passeport);
@@ -314,15 +328,18 @@ public class VisaRequestService {
         reponseStatutVisaRepository.saveAll(reponses);
     }
 
-    // Protected amzay afaka ampiasain DuplicataService
     protected void saveStatutDemande(Demande dem, String statutLibelle) {
+        saveStatutDemande(dem, statutLibelle, null);
+    }
+
+    protected void saveStatutDemande(Demande dem, String statutLibelle, LocalDateTime dateModification) {
         Statut statut = statutRepository.findByLibelle(statutLibelle)
             .orElseThrow(() -> new IllegalArgumentException("statut '" + statutLibelle + "' introuvable."));
 
         HistoriqueStatut historique = new HistoriqueStatut();
         historique.setDemande(dem);
         historique.setStatut(statut);
-        historique.setDateModification(LocalDateTime.now());
+        historique.setDateModification(dateModification != null ? dateModification : LocalDateTime.now());
 
         historiqueStatutRepository.save(historique);
     }
