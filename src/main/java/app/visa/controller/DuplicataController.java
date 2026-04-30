@@ -37,7 +37,7 @@ public class DuplicataController {
     @ResponseBody
     public ResponseEntity<ApiResponse<Object>> createNewFormAvecDonneeAnterieure(@RequestBody Map<String, Object> donnees) {
         try {
-            Demande demande = duplicataService.creerDemandeDuplicataAvecDonneeAnterieure(donnees);
+            DemandeDuplicata demande = duplicataService.creerDemandeDuplicataAda(donnees);
             Map<String, Object> response = new java.util.HashMap<>();
             response.put("id", demande.getId());
             response.put("message", "Demande de duplicata créée avec succès.");
@@ -60,7 +60,7 @@ public class DuplicataController {
     @ResponseBody
     public ResponseEntity<ApiResponse<Object>> createNewFormSansDonneeAnterieure(@RequestBody Map<String, Object> donnees) {
         try {
-            Demande demande = duplicataService.creerDemandeDuplicataSansDonneeAnterieure(donnees);
+            DemandeDuplicata demande = duplicataService.creerDemandeDuplicataSda(donnees);
             
             Map<String, Object> response = new java.util.HashMap<>();
             response.put("id", demande.getId());
