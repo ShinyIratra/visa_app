@@ -24,7 +24,7 @@ public class DemandeurInfoService {
     @Transactional(readOnly = true)
     public Map<String, Object> getInfos(String numero) {
         Demandeur demandeur = getDemandeurByNumero(numero);
-        Map<String, Object> infos = buildDemandeurInfos(demandeur);
+        Map<String, Object> infos = buildDemandeurInfos(demandeur, numero);
         return infos;
     }
 
@@ -48,7 +48,7 @@ public class DemandeurInfoService {
         return demandeur;
     }
 
-    private Map<String, Object> buildDemandeurInfos(Demandeur demandeur) {
+    private Map<String, Object> buildDemandeurInfos(Demandeur demandeur, String numeroPrioritaire) {
         Map<String, Object> result = new LinkedHashMap<>();
         result.put("demandeur", Map.of(
             "id", demandeur.getId(),
@@ -59,13 +59,23 @@ public class DemandeurInfoService {
         // 2. Get all demandes (Transformation, Transfert, Duplicata)
         List<Map<String, Object>> toutesLesDemandes = new ArrayList<>();
 
+        // TODO: mampiasa DTO
         toutesLesDemandes.addAll(getTransformations(demandeur.getId()));
         toutesLesDemandes.addAll(getTransferts(demandeur.getId()));
         toutesLesDemandes.addAll(getDuplicatas(demandeur.getId()));
 
-        // Tri decroissante fosiny hatreto
-        toutesLesDemandes.sort((a, b) -> ((LocalDateTime) b.get("dateCreation"))
-                .compareTo((LocalDateTime) a.get("dateCreation")));
+        // Tri decroissante, fa demande.numero == numeroPrioritaire no mandeha aloha
+        toutesLesDemandes.sort((a, b) -> {
+            String numA = (String) a.get("numero");
+            String numB = (String) b.get("numero");
+
+            if (numeroPrioritaire != null && numeroPrioritaire.equals(numA)) 
+                return -1;
+            if (numeroPrioritaire != null && numeroPrioritaire.equals(numB)) 
+                return 1;
+
+            return ((LocalDateTime) b.get("dateCreation")).compareTo((LocalDateTime) a.get("dateCreation"));
+        });
 
         result.put("demandes", toutesLesDemandes);
 
