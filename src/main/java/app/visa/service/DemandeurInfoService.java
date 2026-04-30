@@ -61,7 +61,6 @@ public class DemandeurInfoService {
         // 2. Get all demandes (Transformation, Transfert, Duplicata)
         List<DemandeDto> toutesLesDemandes = new ArrayList<>();
 
-        // TODO: mampiasa DTO
         toutesLesDemandes.addAll(getTransformations(demandeur.getId()));
         toutesLesDemandes.addAll(getTransferts(demandeur.getId()));
         toutesLesDemandes.addAll(getDuplicatas(demandeur.getId()));
