@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
+import java.time.*;
 
 @Service
 @RequiredArgsConstructor
@@ -37,46 +38,103 @@ public class DemandeurInfoService {
         // 2. Get all demandes (Transformation, Transfert, Duplicata)
         List<Map<String, Object>> toutesLesDemandes = new ArrayList<>();
 
-        // Transformation (Nouveau Titre)
-        List<Demande> transformations = visaRequestRepository.findByPasseportDemandeurId(demandeur.getId());
-        for (Demande d : transformations) {
-            toutesLesDemandes.add(Map.of(
-                "type", "TRANSFORMATION",
-                "numero", d.getNumero(),
-                "dateCreation", d.getDateCreation(),
-                "statut", getStatus(d)
-            ));
-        }
-
-        // Transfert
-        List<DemandeTransfertVisa> transferts = transfertRepository.findByDemandePasseportDemandeurId(demandeur.getId());
-        for (DemandeTransfertVisa t : transferts) {
-            toutesLesDemandes.add(Map.of(
-                "type", "TRANSFERT",
-                "numero", t.getNumero(),
-                "dateCreation", t.getDateCreation(),
-                "statut", getStatus(t)
-            ));
-        }
-
-        // Duplicata
-        List<DemandeDuplicata> duplicatas = duplicataRepository.findByDemandePasseportDemandeurId(demandeur.getId());
-        for (DemandeDuplicata d : duplicatas) {
-            toutesLesDemandes.add(Map.of(
-                "type", "DUPLICATA",
-                "numero", d.getNumero(),
-                "dateCreation", d.getDateCreation(),
-                "statut", getStatus(d)
-            ));
-        }
+        toutesLesDemandes.addAll(getTransformations(demandeur.getId()));
+        toutesLesDemandes.addAll(getTransferts(demandeur.getId()));
+        toutesLesDemandes.addAll(getDuplicatas(demandeur.getId()));
 
         // Tri decroissante fosiny hatreto
-        toutesLesDemandes.sort((a, b) -> ((java.time.LocalDateTime) b.get("dateCreation"))
-                .compareTo((java.time.LocalDateTime) a.get("dateCreation")));
+        toutesLesDemandes.sort((a, b) -> ((LocalDateTime) b.get("dateCreation"))
+                .compareTo((LocalDateTime) a.get("dateCreation")));
 
         result.put("demandes", toutesLesDemandes);
 
         return result;
+    }
+
+    private List<Map<String, Object>> getTransformations(Integer demandeurId) {
+        List<Demande> transformations = visaRequestRepository.findByPasseportDemandeurId(demandeurId);
+        List<Map<String, Object>> result = new ArrayList<>();
+        for (Demande d : transformations) {
+            Map<String, Object> map = new LinkedHashMap<>();
+            map.put("type", "TRANSFORMATION");
+            map.put("numero", d.getNumero());
+            map.put("dateCreation", d.getDateCreation());
+            map.put("statut", getStatus(d));
+            map.put("historique", formatHistoriqueTransformation(d));
+            result.add(map);
+        }
+        return result;
+    }
+
+    private List<Map<String, Object>> getTransferts(Integer demandeurId) {
+        List<DemandeTransfertVisa> transferts = transfertRepository.findByDemandePasseportDemandeurId(demandeurId);
+        List<Map<String, Object>> result = new ArrayList<>();
+        for (DemandeTransfertVisa t : transferts) {
+            Map<String, Object> map = new LinkedHashMap<>();
+            map.put("type", "TRANSFERT");
+            map.put("numero", t.getNumero());
+            map.put("dateCreation", t.getDateCreation());
+            map.put("statut", getStatus(t));
+            map.put("historique", formatHistoriqueTransfert(t));
+            result.add(map);
+        }
+        return result;
+    }
+
+    private List<Map<String, Object>> getDuplicatas(Integer demandeurId) {
+        List<DemandeDuplicata> duplicatas = duplicataRepository.findByDemandePasseportDemandeurId(demandeurId);
+        List<Map<String, Object>> result = new ArrayList<>();
+        for (DemandeDuplicata d : duplicatas) {
+            Map<String, Object> map = new LinkedHashMap<>();
+            map.put("type", "DUPLICATA");
+            map.put("numero", d.getNumero());
+            map.put("dateCreation", d.getDateCreation());
+            map.put("statut", getStatus(d));
+            map.put("historique", formatHistoriqueDuplicata(d));
+            result.add(map);
+        }
+        return result;
+    }
+
+    private List<Map<String, Object>> formatHistoriqueTransformation(Demande d) {
+        if (d.getHistoriques() == null) return Collections.emptyList();
+        return d.getHistoriques().stream()
+            .sorted(Comparator.comparing(HistoriqueStatut::getDateModification).reversed())
+            .map(h -> {
+                Map<String, Object> map = new LinkedHashMap<>();
+                map.put("statut", h.getStatut().getLibelle());
+                map.put("date", h.getDateModification());
+                return map;
+            })
+            .toList();
+    }
+
+    private List<Map<String, Object>> formatHistoriqueTransfert(DemandeTransfertVisa t) {
+        if (t.getHistoriques() == null) return Collections.emptyList();
+        return t.getHistoriques().stream()
+            .sorted(Comparator.comparing(HistoriqueStatutDemandeTransfert::getDateModification).reversed())
+            .map(h -> {
+                Map<String, Object> map = new LinkedHashMap<>();
+                map.put("statut", h.getStatut().getLibelle());
+                map.put("date", h.getDateModification());
+                return map;
+            })
+            .toList();
+    }
+
+    private List<Map<String, Object>> formatHistoriqueDuplicata(DemandeDuplicata d) {
+        if (d.getHistoriques() == null) 
+            return Collections.emptyList();
+
+        return d.getHistoriques().stream()
+            .sorted(Comparator.comparing(HistoriqueStatutDemandeDuplicata::getDateModification).reversed())
+            .map(h -> {
+                Map<String, Object> map = new LinkedHashMap<>();
+                map.put("statut", h.getStatut().getLibelle());
+                map.put("date", h.getDateModification());
+                return map;
+            })
+            .toList();
     }
 
     private Demandeur findDemandeurByNumeroDemande(String numero) {
