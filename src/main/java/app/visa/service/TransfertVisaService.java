@@ -90,6 +90,12 @@ public class TransfertVisaService {
             throw new IllegalArgumentException("La date de demande de transfert ne peut pas être antérieure à la date de la demande originale (" + demande.getDateCreation() + ")");
         }
 
+        if (nouveauPasseport != null && nouveauPasseport.getDateExpiration() != null) {
+            if (dateFinale.isAfter(nouveauPasseport.getDateExpiration())) {
+                throw new IllegalArgumentException("La date de la demande de transfert (" + dateFinale + ") ne peut pas être postérieure à la date d'expiration du nouveau passeport (" + nouveauPasseport.getDateExpiration() + ")");
+            }
+        }
+
         DemandeTransfertVisa demandeTransfertVisa = new DemandeTransfertVisa();
         
         demandeTransfertVisa.setDemande(demande);

@@ -70,6 +70,12 @@ public class DuplicataService {
             throw new IllegalArgumentException("La date de demande de duplicata ne peut pas etre anterieure a la date de la demande originale (" + demande.getDateCreation() + ")");
         }
 
+        if (demande.getPasseport() != null && demande.getPasseport().getDateExpiration() != null) {
+            if (dateFinale.isAfter(demande.getPasseport().getDateExpiration())) {
+                throw new IllegalArgumentException("La date de la demande de duplicata (" + dateFinale + ") ne peut pas être postérieure à la date d'expiration du passeport (" + demande.getPasseport().getDateExpiration() + ")");
+            }
+        }
+
         DemandeDuplicata demandeDuplicata = new DemandeDuplicata();
         demandeDuplicata.setDemande(demande);
         demandeDuplicata.setDateCreation(dateFinale);

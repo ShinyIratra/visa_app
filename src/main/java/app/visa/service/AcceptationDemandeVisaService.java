@@ -23,6 +23,7 @@ public class AcceptationDemandeVisaService {
     public Visa creerVisaEtCarteResident(Demande demande, LocalDateTime dateDebut, LocalDateTime dateExpiration) {
         // Controle
         controlerStatusDemande(demande);
+        controlerDatesVisa(demande, dateDebut);
 
         // Creation Visa
         Visa visa = new Visa();
@@ -56,6 +57,15 @@ public class AcceptationDemandeVisaService {
 
         if (actuel == null || actuel.getOrdre() < cible.getOrdre()) {
             throw new IllegalStateException("Les dossiers doivent etre scannes avant que la demande puisse etre acceptee");
+        }
+    }
+
+    private void controlerDatesVisa(Demande demande, LocalDateTime dateDebutVisaDemande) {
+        if (dateDebutVisaDemande != null && demande.getVisaTransformable() != null) {
+            LocalDateTime dateEntreeVT = demande.getVisaTransformable().getDateEntree();
+            if (dateDebutVisaDemande.isBefore(dateEntreeVT)) {
+                throw new IllegalArgumentException("La date de debut du VISA (" + dateDebutVisaDemande + ") ne peut pas etre anterieure a la date d'entree du visa transformable (" + dateEntreeVT + ")");
+            }
         }
     }
 }
