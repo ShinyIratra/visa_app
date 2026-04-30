@@ -42,4 +42,10 @@ public class CarteResident {
 
     // @Column(name = "liaison", nullable = false)
     // private Integer liaison;
+
+    @Column(name = "datedebut")
+    private LocalDateTime dateDebut;
+
+    @Column(name = "dateexpiration")
+    private LocalDateTime dateExpiration;
 }
