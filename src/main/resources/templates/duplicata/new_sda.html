@@ -130,6 +130,20 @@
                 </div>
             </section>
 
+            <section>
+                <h2>5. DÉTAILS VISA</h2>
+                <div class="grid-container">
+                    <div class="grid-item col-6">
+                        <label>DÉBUT VISA</label>
+                        <input type="datetime-local" id="dateDebutVisa" name="dateDebutVisa" required />
+                    </div>
+                    <div class="grid-item col-6">
+                        <label>EXPIRATION VISA</label>
+                        <input type="datetime-local" id="dateExpirationVisa" name="dateExpirationVisa" required />
+                    </div>
+                </div>
+            </section>
+
             <div class="actions-bar">
                 <button type="submit" class="btn btn-primary">Enregistrer</button>
                 <a th:href="@{/visa-requests}" class="btn btn-outline">Annuler</a>
@@ -157,6 +171,17 @@
             const now = new Date();
             now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
             document.getElementById('dateCreation').value = now.toISOString().slice(0, 16);
+
+            // Date Debut: 1 mois ago
+            const oneMonthAgo = new Date();
+            oneMonthAgo.setMonth(oneMonthAgo.getMonth() - 1);
+            oneMonthAgo.setMinutes(oneMonthAgo.getMinutes() - oneMonthAgo.getTimezoneOffset());
+            document.getElementById('dateDebutVisa').value = oneMonthAgo.toISOString().slice(0, 16);
+
+            // Date Expiration: 1 mois ago + 1 an
+            const oneYearLater = new Date(oneMonthAgo);
+            oneYearLater.setFullYear(oneYearLater.getFullYear() + 1);
+            document.getElementById('dateExpirationVisa').value = oneYearLater.toISOString().slice(0, 16);
 
             typeSelect = document.getElementById('typesDemande');
             dossierList = document.getElementById('dossiersList');

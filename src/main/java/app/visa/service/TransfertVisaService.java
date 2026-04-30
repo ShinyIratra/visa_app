@@ -47,8 +47,17 @@ public class TransfertVisaService {
             dateCreation = LocalDateTime.parse(donnees.get("dateCreation").toString());
         }
 
+        LocalDateTime dateDebut = null;
+        if (donnees.get("dateDebutVisa") != null && !donnees.get("dateDebutVisa").toString().isBlank()) {
+            dateDebut = LocalDateTime.parse(donnees.get("dateDebutVisa").toString());
+        }
+        LocalDateTime dateExpiration = null;
+        if (donnees.get("dateExpirationVisa") != null && !donnees.get("dateExpirationVisa").toString().isBlank()) {
+            dateExpiration = LocalDateTime.parse(donnees.get("dateExpirationVisa").toString());
+        }
+
         Demande demande = visaRequestService.creerDemandeVisa(donnees, "Nouveau titre", "Visa accepte");
-        Visa visa = acceptationDemandeVisaService.creerVisaEtCarteResident(demande);
+        Visa visa = acceptationDemandeVisaService.creerVisaEtCarteResident(demande, dateDebut, dateExpiration);
 
         Passeport nouveauPasseport = creerNouveauPasseport(donnees, demande);
 

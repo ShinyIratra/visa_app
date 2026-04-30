@@ -20,7 +20,7 @@ public class AcceptationDemandeVisaService {
     
 
     @Transactional(rollbackFor = Exception.class)
-    public Visa creerVisaEtCarteResident(Demande demande) {
+    public Visa creerVisaEtCarteResident(Demande demande, LocalDateTime dateDebut, LocalDateTime dateExpiration) {
         // Controle
         controlerStatusDemande(demande);
 
@@ -28,6 +28,8 @@ public class AcceptationDemandeVisaService {
         Visa visa = new Visa();
         visa.setDateCreation(LocalDateTime.now());
         visa.setDemande(demande);
+        visa.setDateDebut(dateDebut);
+        visa.setDateExpiration(dateExpiration);
         
         // Assigner visa au passeport de la demande
         TransfertVisaService.assignerVisaAuPasseport(visa, demande.getPasseport(), visaRepository);
@@ -37,6 +39,8 @@ public class AcceptationDemandeVisaService {
         carteResident.setDateCreation(LocalDateTime.now());
         carteResident.setDemande(demande);
         carteResident.setPasseport(demande.getPasseport());
+        carteResident.setDateDebut(dateDebut);
+        carteResident.setDateExpiration(dateExpiration);
         // Integer maxLiaison = carteResidentRepository.findByLiaison().orElse(0);
         // carteResident.setLiaison(maxLiaison + 1);
         

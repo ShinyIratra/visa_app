@@ -17,6 +17,7 @@ public class DuplicataService {
     private final VisaRequestService visaRequestService;
     private final AcceptationDemandeVisaService acceptationDemandeVisaService;
     private final DemandeDuplicataRepository demandeDuplicataRepository;
+    private final VisaRepository visaRepository;
     private final CarteResidentRepository carteResidentRepository;
     private final StatutRepository statutRepository;
     private final DemandeService demandeService;
@@ -45,8 +46,17 @@ public class DuplicataService {
             dateCreation = LocalDateTime.parse(donnees.get("dateCreation").toString());
         }
 
+        LocalDateTime dateDebut = null;
+        if (donnees.get("dateDebutVisa") != null && !donnees.get("dateDebutVisa").toString().isBlank()) {
+            dateDebut = LocalDateTime.parse(donnees.get("dateDebutVisa").toString());
+        }
+        LocalDateTime dateExpiration = null;
+        if (donnees.get("dateExpirationVisa") != null && !donnees.get("dateExpirationVisa").toString().isBlank()) {
+            dateExpiration = LocalDateTime.parse(donnees.get("dateExpirationVisa").toString());
+        }
+
         Demande demande = visaRequestService.creerDemandeVisa(donnees, "Nouveau titre", "Visa accepte");
-        acceptationDemandeVisaService.creerVisaEtCarteResident(demande);
+        Visa visa = acceptationDemandeVisaService.creerVisaEtCarteResident(demande, dateDebut, dateExpiration);
 
         DemandeDuplicata demandeDuplicata = buildDemandeDuplicata(demande, dateCreation);
 
