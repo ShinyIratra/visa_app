@@ -47,4 +47,7 @@ public class Demande {
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "id_categorie", nullable = false)
     private Categorie categorie;
+
+    @Column(name = "numero", unique = true)
+    private String numero;
 }

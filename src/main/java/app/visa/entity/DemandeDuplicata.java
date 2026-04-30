@@ -26,6 +26,9 @@ public class DemandeDuplicata {
     @Column(name = "datecreation", nullable = false)
     private LocalDateTime dateCreation = LocalDateTime.now();
 
+    @Column(name = "numero", unique = true)
+    private String numero;
+
     @OneToMany(mappedBy = "duplicata", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<HistoriqueStatutDemandeDuplicata> historiques;
 }

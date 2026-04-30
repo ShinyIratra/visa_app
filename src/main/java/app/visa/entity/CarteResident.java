@@ -40,6 +40,9 @@ public class CarteResident {
     @JoinColumn(name = "id_demande", nullable = false)
     private Demande demande;
 
+    @Column(name = "numero", unique = true)
+    private String numero;
+
     // @Column(name = "liaison", nullable = false)
     // private Integer liaison;
 

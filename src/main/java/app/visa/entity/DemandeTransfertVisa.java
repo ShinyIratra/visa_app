@@ -26,6 +26,9 @@ public class DemandeTransfertVisa {
     @Column(name = "datecreation", nullable = false)
     private LocalDateTime dateCreation = LocalDateTime.now();
 
+    @Column(name = "numero", unique = true)
+    private String numero;
+
     @ManyToOne(optional = false)
     @JoinColumn(name = "id_nouveaupasseport", nullable = false)
     private Passeport nouveauPasseport;
