@@ -15,10 +15,10 @@ public class DetailsDemandeurController {
 
     private final DemandeurInfoService demandeurInfoService;
 
-    @GetMapping("/infos/{numeroDemande}")
-    public ResponseEntity<ApiResponse<Map<String, Object>>> getInfos(@PathVariable String numeroDemande) {
+    @GetMapping("/infos/{numero}")
+    public ResponseEntity<ApiResponse<Map<String, Object>>> getInfos(@PathVariable String numero) {
         try {
-            Map<String, Object> infos = demandeurInfoService.getInfosByNumeroDemande(numeroDemande);
+            Map<String, Object> infos = demandeurInfoService.getInfos(numero);
             return ResponseEntity.ok(new ApiResponse<>(true, infos, null));
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(new ApiResponse<>(false, null, e.getMessage()));

@@ -19,15 +19,36 @@ public class DemandeurInfoService {
     private final VisaRequestService visaRequestService;
     private final TransfertVisaService transfertVisaService;
     private final DuplicataService duplicataService;
+    private final PasseportRepository passeportRepository;
 
     @Transactional(readOnly = true)
-    public Map<String, Object> getInfosByNumeroDemande(String numero) {
-        // 1. Get demandeur
-        Demandeur demandeur = findDemandeurByNumeroDemande(numero);
-        if (demandeur == null) {
-            throw new IllegalArgumentException("Aucun demandeur trouvé pour le numéro de demande : " + numero);
+    public Map<String, Object> getInfos(String numero) {
+        Demandeur demandeur = getDemandeurByNumero(numero);
+        Map<String, Object> infos = buildDemandeurInfos(demandeur);
+        return infos;
+    }
+
+    private Demandeur getDemandeurByNumero(String numero) {
+        Demandeur demandeur;
+        
+        // DEM-..., DEMTRF-..., DEMDUP-...
+        if (numero != null && numero.toUpperCase().startsWith("DEM")) {
+            demandeur = findDemandeurByNumeroDemande(numero);
+            if (demandeur == null) {
+                throw new IllegalArgumentException("Aucun demandeur trouve pour le numero de demande : " + numero);
+            }
+        } else {
+            Passeport passeport = passeportRepository.findByNumero(numero).orElse(null);
+            if (passeport == null || passeport.getDemandeur() == null) {
+                throw new IllegalArgumentException("Aucun demandeur trouve pour le numero de passeport : " + numero);
+            }
+            demandeur = passeport.getDemandeur();
         }
 
+        return demandeur;
+    }
+
+    private Map<String, Object> buildDemandeurInfos(Demandeur demandeur) {
         Map<String, Object> result = new LinkedHashMap<>();
         result.put("demandeur", Map.of(
             "id", demandeur.getId(),
