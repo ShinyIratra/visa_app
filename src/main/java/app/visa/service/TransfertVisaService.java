@@ -47,8 +47,17 @@ public class TransfertVisaService {
             dateCreation = LocalDateTime.parse(donnees.get("dateCreation").toString());
         }
 
+        LocalDateTime dateDebut = null;
+        if (donnees.get("dateDebutVisa") != null && !donnees.get("dateDebutVisa").toString().isBlank()) {
+            dateDebut = LocalDateTime.parse(donnees.get("dateDebutVisa").toString());
+        }
+        LocalDateTime dateExpiration = null;
+        if (donnees.get("dateExpirationVisa") != null && !donnees.get("dateExpirationVisa").toString().isBlank()) {
+            dateExpiration = LocalDateTime.parse(donnees.get("dateExpirationVisa").toString());
+        }
+
         Demande demande = visaRequestService.creerDemandeVisa(donnees, "Nouveau titre", "Visa accepte");
-        Visa visa = acceptationDemandeVisaService.creerVisaEtCarteResident(demande);
+        Visa visa = acceptationDemandeVisaService.creerVisaEtCarteResident(demande, dateDebut, dateExpiration);
 
         Passeport nouveauPasseport = creerNouveauPasseport(donnees, demande);
 
@@ -79,6 +88,12 @@ public class TransfertVisaService {
 
         if (dateFinale.isBefore(demande.getDateCreation())) {
             throw new IllegalArgumentException("La date de demande de transfert ne peut pas être antérieure à la date de la demande originale (" + demande.getDateCreation() + ")");
+        }
+
+        if (nouveauPasseport != null && nouveauPasseport.getDateExpiration() != null) {
+            if (dateFinale.isAfter(nouveauPasseport.getDateExpiration())) {
+                throw new IllegalArgumentException("La date de la demande de transfert (" + dateFinale + ") ne peut pas être postérieure à la date d'expiration du nouveau passeport (" + nouveauPasseport.getDateExpiration() + ")");
+            }
         }
 
         DemandeTransfertVisa demandeTransfertVisa = new DemandeTransfertVisa();

@@ -40,6 +40,12 @@ public class CarteResident {
     @JoinColumn(name = "id_demande", nullable = false)
     private Demande demande;
 
-    @Column(name = "liaison", nullable = false)
-    private Integer liaison;
+    // @Column(name = "liaison", nullable = false)
+    // private Integer liaison;
+
+    @Column(name = "datedebut")
+    private LocalDateTime dateDebut;
+
+    @Column(name = "dateexpiration")
+    private LocalDateTime dateExpiration;
 }

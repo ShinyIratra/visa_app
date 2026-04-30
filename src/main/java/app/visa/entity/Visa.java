@@ -47,4 +47,10 @@ public class Visa {
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "id_demande", nullable = false)
     private Demande demande;
+
+    @Column(name = "datedebut")
+    private LocalDateTime dateDebut;
+
+    @Column(name = "dateexpiration")
+    private LocalDateTime dateExpiration;
 }

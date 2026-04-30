@@ -127,6 +127,8 @@ public class VisaRequestService {
             passeport.getId()
         );
 
+        controlerDatesDemande(dateCreation, passeport, visaTransformable);
+
         Demande demande = createDemande(typeDemande, "Nouveau titre", passeport, visaTransformable, dateCreation);
         saveReponseDossier(demande, dossiersApplicables, dossiersFournisIds);
         saveStatutDemande(demande, "Demande creee", dateCreation);
@@ -167,11 +169,29 @@ public class VisaRequestService {
             passeport.getId()
         );
 
+        controlerDatesDemande(dateCreation, passeport, visaTransformable);
+
         Demande demande = createDemande(typeDemande, categorieLibelle, passeport, visaTransformable, dateCreation);
         saveReponseDossier(demande, dossiersApplicables, dossiersFournisIds);
         saveStatutDemande(demande, statutDemandeLibelle, dateCreation);
 
         return demande;
+    }
+
+    private void controlerDatesDemande(LocalDateTime dateCreation, Passeport passeport, VisaTransformable visaTransformable) {
+        LocalDateTime dc = dateCreation != null ? dateCreation : LocalDateTime.now();
+        
+        if (passeport != null && passeport.getDateExpiration() != null) {
+            if (dc.isAfter(passeport.getDateExpiration())) {
+                throw new IllegalArgumentException("La date de creation de la demande (" + dc + ") ne peut pas etre posterieure a la date d'expiration du passeport (" + passeport.getDateExpiration() + ")");
+            }
+        }
+        
+        if (visaTransformable != null && visaTransformable.getDateExpiration() != null) {
+            if (dc.isAfter(visaTransformable.getDateExpiration())) {
+                throw new IllegalArgumentException("La date de creation de la demande (" + dc + ") ne peut pas etre posterieure a la date d'expiration du visa transformable (" + visaTransformable.getDateExpiration() + ")");
+            }
+        }
     }
 
     @Transactional(rollbackFor = Exception.class)

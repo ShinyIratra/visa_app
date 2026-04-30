@@ -20,14 +20,17 @@ public class AcceptationDemandeVisaService {
     
 
     @Transactional(rollbackFor = Exception.class)
-    public Visa creerVisaEtCarteResident(Demande demande) {
+    public Visa creerVisaEtCarteResident(Demande demande, LocalDateTime dateDebut, LocalDateTime dateExpiration) {
         // Controle
         controlerStatusDemande(demande);
+        controlerDatesVisa(demande, dateDebut);
 
         // Creation Visa
         Visa visa = new Visa();
         visa.setDateCreation(LocalDateTime.now());
         visa.setDemande(demande);
+        visa.setDateDebut(dateDebut);
+        visa.setDateExpiration(dateExpiration);
         
         // Assigner visa au passeport de la demande
         TransfertVisaService.assignerVisaAuPasseport(visa, demande.getPasseport(), visaRepository);
@@ -37,8 +40,10 @@ public class AcceptationDemandeVisaService {
         carteResident.setDateCreation(LocalDateTime.now());
         carteResident.setDemande(demande);
         carteResident.setPasseport(demande.getPasseport());
-        Integer maxLiaison = carteResidentRepository.findByLiaison().orElse(0);
-        carteResident.setLiaison(maxLiaison + 1);
+        carteResident.setDateDebut(dateDebut);
+        carteResident.setDateExpiration(dateExpiration);
+        // Integer maxLiaison = carteResidentRepository.findByLiaison().orElse(0);
+        // carteResident.setLiaison(maxLiaison + 1);
         
         carteResidentRepository.save(carteResident);
 
@@ -52,6 +57,15 @@ public class AcceptationDemandeVisaService {
 
         if (actuel == null || actuel.getOrdre() < cible.getOrdre()) {
             throw new IllegalStateException("Les dossiers doivent etre scannes avant que la demande puisse etre acceptee");
+        }
+    }
+
+    private void controlerDatesVisa(Demande demande, LocalDateTime dateDebutVisaDemande) {
+        if (dateDebutVisaDemande != null && demande.getVisaTransformable() != null) {
+            LocalDateTime dateEntreeVT = demande.getVisaTransformable().getDateEntree();
+            if (dateDebutVisaDemande.isBefore(dateEntreeVT)) {
+                throw new IllegalArgumentException("La date de debut du VISA (" + dateDebutVisaDemande + ") ne peut pas etre anterieure a la date d'entree du visa transformable (" + dateEntreeVT + ")");
+            }
         }
     }
 }
