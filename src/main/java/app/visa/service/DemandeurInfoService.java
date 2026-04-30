@@ -24,9 +24,9 @@ public class DemandeurInfoService {
     private final PasseportRepository passeportRepository;
 
     @Transactional(readOnly = true)
-    public Map<String, Object> getInfos(String numero) {
+    public Map<String, Object> getInfos(String numero, LocalDateTime dateDebut, LocalDateTime dateFin) {
         Demandeur demandeur = getDemandeurByNumero(numero);
-        Map<String, Object> infos = buildDemandeurInfos(demandeur, numero);
+        Map<String, Object> infos = buildDemandeurInfos(demandeur, numero, dateDebut, dateFin);
         return infos;
     }
 
@@ -50,7 +50,7 @@ public class DemandeurInfoService {
         return demandeur;
     }
 
-    private Map<String, Object> buildDemandeurInfos(Demandeur demandeur, String numeroPrioritaire) {
+    private Map<String, Object> buildDemandeurInfos(Demandeur demandeur, String numeroPrioritaire, LocalDateTime dateDebut, LocalDateTime dateFin) {
         Map<String, Object> result = new LinkedHashMap<>();
         result.put("demandeur", Map.of(
             "id", demandeur.getId(),
@@ -65,7 +65,17 @@ public class DemandeurInfoService {
         toutesLesDemandes.addAll(getTransferts(demandeur.getId()));
         toutesLesDemandes.addAll(getDuplicatas(demandeur.getId()));
 
-        // Tri decroissante, fa demande.numero == numeroPrioritaire no mandeha aloha
+        // Filtre an'ny kamo, TODO: mikitika base
+        if (dateDebut != null || dateFin != null) {
+            toutesLesDemandes.removeIf(d -> {
+                LocalDateTime dateCreation = d.getDateCreation();
+                boolean isBeforeDebut = dateDebut != null && dateCreation.isBefore(dateDebut);
+                boolean isAfterFin = dateFin != null && dateCreation.isAfter(dateFin);
+                return isBeforeDebut || isAfterFin;
+            });
+        }
+
+        // Tri decroissant, fa demande.numero == numeroPrioritaire no mandeha aloha
         toutesLesDemandes.sort((a, b) -> {
             String numA = a.getNumero();
             String numB = b.getNumero();
