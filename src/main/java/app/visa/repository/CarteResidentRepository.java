@@ -10,4 +10,5 @@ import java.util.Optional;
 @Repository
 public interface CarteResidentRepository extends JpaRepository<CarteResident, Integer> {
     Optional<CarteResident> findFirstByPasseportIdOrderByDateCreationAsc(Integer passeportId);
+    java.util.List<CarteResident> findByPasseportId(Integer passeportId);
 }

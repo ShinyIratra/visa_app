@@ -9,16 +9,27 @@ import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
 import java.util.Map;
+import java.util.List;
 
 @RestController
-@RequestMapping("/api/demandeur")
+@RequestMapping("/api/demandeurs")
 @RequiredArgsConstructor
 public class DetailsDemandeurController {
 
     private final DemandeurInfoService demandeurInfoService;
 
-    // http://localhost:8080/api/demandeur/infos/DEM-00001?dateDebut=2026-01-01T00:00:00&dateFin=2026-12-31T23:59:59
-    @GetMapping("/infos/{numero}")
+    @GetMapping("/list")
+    public ResponseEntity<ApiResponse<List<Map<String, Object>>>> getAllDemandeurs() {
+        try {
+            List<Map<String, Object>> list = demandeurInfoService.getAllDemandeurs();
+            return ResponseEntity.ok(new ApiResponse<>(true, list, null));
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().body(new ApiResponse<>(false, null, e.getMessage()));
+        }
+    }
+
+    // http://localhost:8080/api/demandeurs/DEM-00001/historique?dateDebut=2026-01-01T00:00:00&dateFin=2026-12-31T23:59:59
+    @GetMapping("/{numero}/historique")
     public ResponseEntity<ApiResponse<Map<String, Object>>> getInfos(
             @PathVariable String numero,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime dateDebut,
@@ -29,7 +40,7 @@ public class DetailsDemandeurController {
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(new ApiResponse<>(false, null, e.getMessage()));
         } catch (Exception e) {
-            return ResponseEntity.internalServerError().body(new ApiResponse<>(false, null, "Une erreur est survenue : " + e.getMessage()));
+            return ResponseEntity.internalServerError().body(new ApiResponse<>(false, null, e.getMessage()));
         }
     }
 }

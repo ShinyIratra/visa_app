@@ -22,6 +22,14 @@ public class DemandeurInfoService {
     private final TransfertVisaService transfertVisaService;
     private final DuplicataService duplicataService;
     private final PasseportRepository passeportRepository;
+    private final DemandeurRepository demandeurRepository;
+    private final CarteResidentRepository carteResidentRepository;
+
+    /**
+     * 
+     * Mamoka ny liste demandes ho an'ny front office ito
+     * 
+     */
 
     @Transactional(readOnly = true)
     public Map<String, Object> getInfos(String numero, LocalDateTime dateDebut, LocalDateTime dateFin) {
@@ -188,5 +196,94 @@ public class DemandeurInfoService {
             return s != null ? s.getLibelle() : "Aucun";
         }
         return "Inconnu";
+    }
+
+    /**
+     * 
+     * Ho an le liste demandeurs ao @ backoffice ny ato
+     * 
+     */
+
+    
+    @Transactional(readOnly = true)
+    public List<Map<String, Object>> getAllDemandeurs() {
+        return demandeurRepository.findAll().stream()
+                .map(this::buildDemandeurMap)
+                .toList();
+    }
+
+    private Map<String, Object> buildDemandeurMap(Demandeur demandeur) {
+        Map<String, Object> map = new LinkedHashMap<>();
+        map.put("id", demandeur.getId());
+        map.put("nom", demandeur.getNom());
+        map.put("prenom", demandeur.getPrenom() != null ? demandeur.getPrenom() : "");
+        
+        Passeport currentPasseport = getPasseportActuel(demandeur.getId());
+        Passeport originalPasseport = getPasseportOriginal(demandeur.getId());
+
+        map.put("passeportActuel", formatPasseport(currentPasseport));
+        map.put("passeportOriginal", formatPasseport(originalPasseport));
+        
+        if (currentPasseport != null) {
+            map.put("visas", buildVisasMap(currentPasseport));
+            map.put("cartesResident", buildCartesResidentMap(currentPasseport));
+        } else {
+            map.put("visas", Collections.emptyList());
+            map.put("cartesResident", Collections.emptyList());
+        }
+        return map;
+    }
+
+    private Passeport getPasseportActuel(Integer demandeurId) {
+        Passeport actuelFromVisa = passeportRepository.findActuelByVisapasseport(demandeurId).orElse(null);
+        if (actuelFromVisa != null) {
+            return actuelFromVisa;
+        }
+
+        // Fallback demande en cours
+        List<Passeport> passeports = passeportRepository.findByDemandeurId(demandeurId);
+        if (passeports == null || passeports.isEmpty()) return null;
+
+        return passeports.stream()
+                .max(Comparator.comparing(Passeport::getDateExpiration))
+                .orElse(null);
+    }
+
+    private Passeport getPasseportOriginal(Integer demandeurId) {
+        List<Passeport> passeports = passeportRepository.findByDemandeurId(demandeurId);
+        if (passeports == null || passeports.isEmpty()) return null;
+        
+        return passeports.stream()
+                .min(Comparator.comparing(Passeport::getDateDelivrance))
+                .orElse(null);
+    }
+
+    private Map<String, Object> formatPasseport(Passeport passeport) {
+        if (passeport == null) return null;
+        Map<String, Object> map = new LinkedHashMap<>();
+        map.put("numero", passeport.getNumero());
+        map.put("dateDelivrance", passeport.getDateDelivrance());
+        map.put("dateExpiration", passeport.getDateExpiration());
+        return map;
+    }
+
+    private List<Map<String, Object>> buildVisasMap(Passeport passeport) {
+        return passeport.getVisas().stream().map(v -> {
+            Map<String, Object> vMap = new LinkedHashMap<>();
+            vMap.put("numero", v.getNumero() != null ? v.getNumero() : "");
+            vMap.put("dateDebut", v.getDateDebut());
+            vMap.put("dateExpiration", v.getDateExpiration());
+            return vMap;
+        }).toList();
+    }
+
+    private List<Map<String, Object>> buildCartesResidentMap(Passeport passeport) {
+        return carteResidentRepository.findByPasseportId(passeport.getId()).stream().map(c -> {
+            Map<String, Object> cMap = new LinkedHashMap<>();
+            cMap.put("numero", c.getNumero() != null ? c.getNumero() : "");
+            if (c.getDateDebut() != null) cMap.put("dateDebut", c.getDateDebut());
+            if (c.getDateExpiration() != null) cMap.put("dateExpiration", c.getDateExpiration());
+            return cMap;
+        }).toList();
     }
 }
