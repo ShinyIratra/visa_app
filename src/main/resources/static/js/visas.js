@@ -27,10 +27,13 @@ document.addEventListener('DOMContentLoaded', function() {
                     const row = document.createElement('tr');
                     
                     const dateStr = visa.dateCreation ? new Date(visa.dateCreation).toLocaleString() : '-';
+                    const dateDebutStr = visa.dateDebut ? new Date(visa.dateDebut).toLocaleString() : '-';
+                    const dateExpirationStr = visa.dateExpiration ? new Date(visa.dateExpiration).toLocaleString() : '-';
                     
                     row.innerHTML = `
                         <td>${visa.id}</td>
                         <td>${dateStr}</td>
+                        <td>${dateDebutStr} <br> ${dateExpirationStr}</td>
                         <td>${visa.nomComplet || 'Inconnu'}</td>
                         <td>${visa.ancienPasseport || '-'}</td>
                         <td>${visa.nouveauPasseport || '-'}</td>

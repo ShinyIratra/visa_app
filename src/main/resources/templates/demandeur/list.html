@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{layout}">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title layout:fragment="title">Liste des demandeurs</title>
+</head>
+<body>
+    <div layout:fragment="content">
+        <div class="document-card">
+            <div class="doc-header">
+                <h1 class="doc-title">Liste des demandeurs</h1>
+                <p class="doc-subtitle">Registre des demandeurs et documents</p>
+            </div>
+
+            <p class="lead-text">Consultez la liste des demandeurs avec leur passeport actuel, visas et cartes de resident.</p>
+
+            <div class="table-wrapper">
+                <table class="data-table" style="min-width: 1000px;">
+                    <thead>
+                        <tr>
+                            <th>Nom & Prenom</th>
+                            <th>Passeport original</th>
+                            <th>Passeport actuel</th>
+                            <th>Visas</th>
+                            <th>Cartes de resident</th>
+                        </tr>
+                    </thead>
+                    <tbody id="demandeurTableBody">
+                        <tr>
+                            <td colspan="5" class="empty">Chargement...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <script th:src="@{/js/demandeurs.js}"></script>
+        </div>
+    </div>
+</body>
+</html>

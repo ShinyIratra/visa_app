@@ -44,6 +44,8 @@ public class VisaService {
         
         map.put("id", visa.getId());
         map.put("dateCreation", visa.getDateCreation());
+        map.put("dateDebut", visa.getDateDebut());
+        map.put("dateExpiration", visa.getDateExpiration());
         
         if (demande != null) {
             map.put("demandeId", demande.getId());

@@ -48,6 +48,9 @@ public class Visa {
     @JoinColumn(name = "id_demande", nullable = false)
     private Demande demande;
 
+    @Column(name = "numero", unique = true)
+    private String numero;
+
     @Column(name = "datedebut")
     private LocalDateTime dateDebut;
 

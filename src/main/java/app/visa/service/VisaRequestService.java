@@ -408,6 +408,10 @@ public class VisaRequestService {
         }
     }
 
+    public String getDernierStatus(Integer demandeId) {
+        return getDernierStatutLibelle(demandeId);
+    }
+
     private String getDernierStatutLibelle(Integer demandeId) {
         return historiqueStatutRepository.findLatestByDemandeId(demandeId)
             .map(HistoriqueStatut::getStatut)
