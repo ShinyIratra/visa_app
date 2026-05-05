@@ -47,6 +47,7 @@ public class VisaRequestService {
     protected final DemandeurService demandeurService;
     protected final PasseportService passeportService;
     protected final VisaTransformableService visaTransformableService;
+    protected final CodeQrService codeQrService;
 
     public List<Demande> findAll() {
         return visaRequestRepository.findAll();
@@ -75,6 +76,7 @@ public class VisaRequestService {
             Demandeur demandeur = demande.getPasseport() != null ? demande.getPasseport().getDemandeur() : null;
 
             item.put("demandeId", demande.getId());
+            item.put("numeroDemande", demande.getNumero());
             item.put("nomDemandeur", demandeur != null ? demandeur.getNom() : null);
             item.put("prenomDemandeur", demandeur != null ? demandeur.getPrenom() : null);
             item.put("referencePasseport", demande.getPasseport() != null ? demande.getPasseport().getNumero() : null);

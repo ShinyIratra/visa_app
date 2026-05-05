@@ -26,10 +26,11 @@ public class VisaRequestEditService extends VisaRequestService { // (Kamo be han
                                   DemandeurService demandeurService,
                                   PasseportService passeportService,
                                   VisaTransformableService visaTransformableService,
+                                  CodeQrService codeQrService,
                                   DemandeService demandeService) {
         super(visaRequestRepository, typeDemandeRepository, categorieRepository, dossierRepository,
               reponseStatutVisaRepository, historiqueStatutRepository, statutRepository,
-              demandeurService, passeportService, visaTransformableService);
+              demandeurService, passeportService, visaTransformableService, codeQrService);
         this.demandeService = demandeService;
     }
 
