@@ -88,9 +88,6 @@ public class VisaRequestService {
             item.put("typeDemande", demande.getTypeDemande() != null ? demande.getTypeDemande().getLibelle() : null);
             item.put("statut", getDernierStatutLibelle(demande.getId()));
             item.put("dateCreation", demande.getDateCreation());
-            
-            String qr = codeQrService.genererCodeQrDemande(demande.getNumero());
-            item.put("codeQr", qr);
 
             result.add(item);
         }

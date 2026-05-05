@@ -4,29 +4,20 @@ import java.util.List;
 import java.util.Map;
 
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import app.visa.controller.response.ApiResponse;
-import app.visa.service.VisaRequestService;
-import app.visa.service.VisaRequestEditService;
+import app.visa.service.*;
+import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequestMapping("/api/demandes-visa")
+@RequiredArgsConstructor
 public class DemandeVisaController {
 
 	private final VisaRequestService visaRequestService;
 	private final VisaRequestEditService visaRequestEditService;
-
-	public DemandeVisaController(VisaRequestService visaRequestService, VisaRequestEditService visaRequestEditService) {
-		this.visaRequestService = visaRequestService;
-		this.visaRequestEditService = visaRequestEditService;
-	}
+	private final CodeQrService codeQrService;
 
 	@GetMapping
 	public ResponseEntity<ApiResponse<List<Map<String, Object>>>> list() {
@@ -77,4 +68,9 @@ public class DemandeVisaController {
 				.body(new ApiResponse<>(false, null, "Erreur lors de la mise a jour de la demande (id=" + id + "): " + e.getMessage()));
 		}
 	}
+	
+    @GetMapping(value = "/qr/{numero}", produces = "image/png")
+    public byte[] showQr(@PathVariable String numero) {
+        return codeQrService.genererCodeQrDemandeBytes(numero);
+    }
 }

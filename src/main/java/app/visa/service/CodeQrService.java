@@ -20,15 +20,27 @@ import lombok.RequiredArgsConstructor;
 @Service
 @RequiredArgsConstructor
 public class CodeQrService {
-    @Value("${app.front-base-url}")
-    private String frontBaseUrl;
+    @Value("${app.frontend-base-url}")
+    private String frontEndBaseUrl;
 
-    public String genererCodeQrDemande(String numeroDemande) {
-        String url = frontBaseUrl + "/details/" + numeroDemande;
-        return "data:image/png;base64," + genererCodeQr(url);
+    // Ito no miasa raha tonga dia image/png no tiana averin'ny navigateur 
+    // (aleoko ito amzay tsy mivaky loha css)
+    public byte[] genererCodeQrDemandeBytes(String numeroDemande) {
+        String url = frontEndBaseUrl + "/details/" + numeroDemande;
+        return genererCodeQrBytes(url);
     }
 
-    public String genererCodeQr(String text) {
+    // ito no miasa raha tiana apoitra anaty balise img le izy
+    public String genererCodeQrDemandeString(String numeroDemande) {
+        String url = frontEndBaseUrl + "/details/" + numeroDemande;
+        return "data:image/png;base64," + genererCodeQrString(url);
+    }
+
+    private String genererCodeQrString(String text) {
+        return Base64.getEncoder().encodeToString(genererCodeQrBytes(text));
+    }
+
+    private byte[] genererCodeQrBytes(String text) {
         try {
             QRCodeWriter qrCodeWriter = new QRCodeWriter();
 
@@ -48,7 +60,7 @@ public class CodeQrService {
 
             byte[] qrBytes = outputStream.toByteArray();
 
-            return Base64.getEncoder().encodeToString(qrBytes);
+            return qrBytes;
 
         } catch (Exception e) {
             throw new RuntimeException("Erreur génération QR Code", e);
