@@ -20,19 +20,19 @@ import lombok.RequiredArgsConstructor;
 @Service
 @RequiredArgsConstructor
 public class CodeQrService {
-    @Value("${app.frontend-base-url}")
-    private String frontEndBaseUrl;
+    @Value("${app.frontoffice-base-url}")
+    private String frontofficeBaseUrl;
 
     // Ito no miasa raha tonga dia image/png no tiana averin'ny navigateur 
     // (aleoko ito amzay tsy mivaky loha css)
     public byte[] genererCodeQrDemandeBytes(String numeroDemande) {
-        String url = frontEndBaseUrl + "/details/" + numeroDemande;
+        String url = frontofficeBaseUrl + "/details/" + numeroDemande;
         return genererCodeQrBytes(url);
     }
 
     // ito no miasa raha tiana apoitra anaty balise img le izy
     public String genererCodeQrDemandeString(String numeroDemande) {
-        String url = frontEndBaseUrl + "/details/" + numeroDemande;
+        String url = frontofficeBaseUrl + "/details/" + numeroDemande;
         return "data:image/png;base64," + genererCodeQrString(url);
     }
 
