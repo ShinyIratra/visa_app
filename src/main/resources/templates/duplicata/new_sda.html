@@ -190,7 +190,11 @@
             loadDonneesStatiques();
             typeSelect.addEventListener('change', updateDossiersAFournir);
             demandeForm.addEventListener('submit', function(event) {
-                handleFormSubmit(event, '/duplicata', '/duplicata/new/sda'); // Vous pouvez modifier le lien ici
+                const extras = {
+                    dateDebutVisa: document.getElementById('dateDebutVisa').value,
+                    dateExpirationVisa: document.getElementById('dateExpirationVisa').value
+                };
+                handleFormSubmit(event, '/duplicata', '/duplicata/new/sda', extras);
             });
         }
     </script>
