@@ -13,5 +13,6 @@ import java.util.List;
 @Repository
 public interface DemandeDuplicataRepository extends JpaRepository<DemandeDuplicata, Integer> {
     Optional<DemandeDuplicata> findByNumero(String numero);
+    Optional<DemandeDuplicata> findFirstByNumero(String numero);
     List<DemandeDuplicata> findByDemandePasseportDemandeurId(Integer demandeurId);
 }
