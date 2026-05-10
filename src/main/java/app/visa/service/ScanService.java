@@ -45,7 +45,7 @@ public class ScanService {
         effectuerPersistancePhysique(uploads);
     }
 
-    private void validerFichiers(Map<String, MultipartFile> files) {
+    public void validerFichiers(Map<String, MultipartFile> files) {
         for (MultipartFile file : files.values()) {
             if (file != null && !file.isEmpty()) {
                 if (file.getSize() > MAX_FILE_SIZE) {

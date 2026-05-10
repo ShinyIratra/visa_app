@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import app.visa.controller.response.ApiResponse;
 import app.visa.entity.Demande;
+import app.visa.service.UtilService;
 import app.visa.service.ScanService;
 import app.visa.service.VisaRequestService;
 import app.visa.service.DemandeService;
@@ -37,7 +38,7 @@ public class ScanController {
                 return "visa-requests/scan-error";
             }
 
-            if (demandeService.isScanTermineOuPlus(demande.getId())) {
+            if (demandeService.isStatusOuPlus(demande.getId(), UtilService.STATUS_SCAN_TERMINE)) {
                 return "redirect:/visa-requests?error=scan_termine";
             }
 

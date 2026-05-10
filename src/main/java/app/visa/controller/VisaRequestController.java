@@ -79,6 +79,9 @@ public class VisaRequestController {
         if ("scan_termine".equals(error)) {
             model.addAttribute("errorMessage", "Action interdite. La demande est deja au statut Scan termine.");
         }
+        else if ("photo_termine".equals(error)) {
+            model.addAttribute("errorMessage", "Action interdite. La demande est deja au statut Photo terminee.");
+        }
         
         List<Map<String, Object>> demandes = visaRequestService.listDemandesAvecInfos();
         
@@ -111,7 +114,7 @@ public class VisaRequestController {
         Demande demande = visaRequestService.findById(id)
             .orElseThrow(() -> new IllegalArgumentException("demande introuvable: " + id));
 
-        if (demandeService.isScanTermineOuPlus(demande.getId())) {
+        if (demandeService.isStatusOuPlus(demande.getId(), UtilService.STATUS_SCAN_TERMINE)) {
             return "redirect:/visa-requests?error=scan_termine";
         }
 

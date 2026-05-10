@@ -11,6 +11,8 @@ import app.visa.entity.*;
 import app.visa.repository.*;
 import lombok.RequiredArgsConstructor;
 
+import app.visa.service.UtilService;
+
 @Service
 public class VisaRequestEditService extends VisaRequestService { // (Kamo be hanao statique an'i VisaRequestService.getBlock, VisaRequestServicereponseCreation) dia ataoko miextends
 
@@ -165,7 +167,7 @@ public class VisaRequestEditService extends VisaRequestService { // (Kamo be han
             return;
         }
 
-        if (demandeService.isScanTermineOuPlus(demande.getId())) {
+        if (demandeService.isStatusOuPlus(demande.getId(), UtilService.STATUS_SCAN_TERMINE)) {
             Statut actuel = demandeService.getDernierStatus(demande);
             String libelleActuel = (actuel != null && actuel.getLibelle() != null)
                 ? actuel.getLibelle()

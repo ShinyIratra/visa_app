@@ -1,2 +1,2 @@
 INSERT INTO Statut (Libelle, Ordre) VALUES
-('Photo scannée', 15.0);
+('Photo scannee', 15.0);
