@@ -48,7 +48,7 @@ public class DemandeurInfoService {
                 throw new IllegalArgumentException("Aucun demandeur trouve pour le numero de demande : " + numero);
             }
         } else {
-            Passeport passeport = passeportRepository.findByNumero(numero).orElse(null);
+            Passeport passeport = passeportRepository.findFirstByNumero(numero).orElse(null);
             if (passeport == null || passeport.getDemandeur() == null) {
                 throw new IllegalArgumentException("Aucun demandeur trouve pour le numero de passeport : " + numero);
             }
