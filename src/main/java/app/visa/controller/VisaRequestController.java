@@ -50,6 +50,8 @@ public class VisaRequestController {
     private final SituationFamilialeRepository situationFamilialeRepository;
     private final TypeDemandeRepository typeDemandeRepository;
     private final CategorieRepository categorieRepository;
+    private final ScanService scanService;
+    private final PhotoService photoService;
 
     public VisaRequestController(VisaRequestService visaRequestService,
                                 DemandeurService demandeurService,
@@ -59,7 +61,9 @@ public class VisaRequestController {
                                 NationaliteRepository nationaliteRepository,
                                 SituationFamilialeRepository situationFamilialeRepository,
                                 TypeDemandeRepository typeDemandeRepository,
-                                CategorieRepository categorieRepository) {
+                                CategorieRepository categorieRepository,
+                                ScanService scanService,
+                                PhotoService photoService) {
         this.visaRequestService = visaRequestService;
         this.demandeurService = demandeurService;
         this.demandeService = demandeService;
@@ -69,6 +73,8 @@ public class VisaRequestController {
         this.situationFamilialeRepository = situationFamilialeRepository;
         this.typeDemandeRepository = typeDemandeRepository;
         this.categorieRepository = categorieRepository;
+        this.scanService = scanService;
+        this.photoService = photoService;
     }
 
     @GetMapping
@@ -120,5 +126,24 @@ public class VisaRequestController {
 
         model.addAttribute("demandeId", id);
         return "visa-requests/form-edit";
+    }
+
+    @GetMapping("/dossiers/{id}")
+    public String viewDossiers(@PathVariable Integer id, Model model) {
+        try {
+            Demande demande = visaRequestService.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Demande introuvable: " + id));
+            
+            List<Map<String, Object>> dossiers = scanService.getFichiersScannes(id);
+            Map<String, Object> photoEtSignature = photoService.getPhotoEtSignatureUrls(id);
+            
+            model.addAttribute("demande", demande);
+            model.addAttribute("dossiers", dossiers);
+            model.addAttribute("photoUrl", photoEtSignature.get("photoUrl"));
+            model.addAttribute("signatureUrl", photoEtSignature.get("signatureUrl"));
+            return "visa-requests/view-dossiers";
+        } catch (Exception e) {
+            return "redirect:/visa-requests?error=dossiers_read_error";
+        }
     }
 }

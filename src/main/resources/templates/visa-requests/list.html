@@ -74,7 +74,7 @@
                                     <a class="btn btn-outline btn-sm" th:href="@{/visa-requests/{id}/edit(id=${demande.demandeId})}">Modifier</a>
                                     <a class="btn btn-outline btn-sm" th:href="@{/visa-requests/photo-signature/{id}(id=${demande.demandeId})}">Photo et Signature</a>
                                     <a class="btn btn-outline btn-sm" th:href="@{/visa-requests/scan/{id}(id=${demande.demandeId})}">Scanner</a>
-                                    <a class="btn btn-secondary" th:href="@{/visa-requests/scan/dossiers/{id}(id=${demande.demandeId})}">Voir dossiers</a>
+                                    <a class="btn btn-secondary" th:href="@{/visa-requests/dossiers/{id}(id=${demande.demandeId})}">Voir dossiers</a>
                                     <a class="btn btn-secondary" th:href="@{/api/demandes-visa/qr/{numero}(numero=${demande.numeroDemande})}">
                                         Voir code QR
                                     </a>

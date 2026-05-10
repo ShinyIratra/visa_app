@@ -27,6 +27,41 @@ public class PhotoService {
 
     private static final String PHOTO_DIR = "uploads/photos";
 
+    public Map<String, Object> getPhotoEtSignatureUrls(Integer demandeId) {
+        Demande demande = visaRequestRepository.findById(demandeId)
+            .orElseThrow(() -> new IllegalArgumentException("Demande introuvable: " + demandeId));
+
+        Demandeur demandeur = demande.getPasseport().getDemandeur();
+        String nomComplet = (demandeur.getNom() + "_" + demandeur.getPrenom()).replaceAll("[^a-zA-Z0-9_-]", "");
+        String folderName = demandeur.getId() + "_" + nomComplet;
+
+        String rootPath = System.getProperty("user.dir");
+        Path uploadPath = Paths.get(rootPath, PHOTO_DIR, folderName).toAbsolutePath().normalize();
+
+        Map<String, Object> result = new HashMap<>();
+        if (Files.exists(uploadPath)) {
+            try {
+                // Find latest photo and signature
+                Optional<Path> photo = Files.list(uploadPath)
+                    .filter(p -> p.getFileName().toString().contains("_photo_"))
+                    .max(Comparator.comparing(p -> p.toFile().lastModified()));
+                Optional<Path> signature = Files.list(uploadPath)
+                    .filter(p -> p.getFileName().toString().contains("_signature_"))
+                    .max(Comparator.comparing(p -> p.toFile().lastModified()));
+
+                if (photo.isPresent()) {
+                    result.put("photoUrl", "/uploads/photos/" + folderName + "/" + photo.get().getFileName().toString());
+                }
+                if (signature.isPresent()) {
+                    result.put("signatureUrl", "/uploads/photos/" + folderName + "/" + signature.get().getFileName().toString());
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        return result;
+    }
+
     @Transactional(rollbackFor = Exception.class)
     public void sauvegarderPhotoEtSignature(Integer demandeId, MultipartFile photo, MultipartFile signature) throws IOException {
         Demande demande = visaRequestRepository.findById(demandeId)
