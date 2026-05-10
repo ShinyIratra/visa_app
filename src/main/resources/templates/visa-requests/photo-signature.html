@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
+<head>
+    <title>Photo & Signature</title>
+    <!-- Chargement de la librairie pour la signature -->
+    <script th:src="@{/js/signature_pad.umd.min.js}"></script>
+</head>
+<body>
+<div layout:fragment="content">
+    <div class="document-card">
+        <div class="doc-header">
+            <h1 class="doc-title">Prise de Photo et Signature</h1>
+            <p class="doc-subtitle">Acquisition des paramètres biométriques</p>
+        </div>
+        
+        <p class="info-text">Demande ID: <strong th:text="${id}"></strong></p>
+
+        <div class="alert alert-info">
+            Veuillez capturer une photo via la webcam et fournir une signature dans les zones prévues.
+        </div>
+
+        <div class="capture-container" style="display: flex; gap: 20px; margin-bottom: 20px; flex-wrap: wrap;">
+            <!-- Section Webcam -->
+            <div class="box section" style="flex: 1; border: 1px solid #e0e0e0; padding: 20px; border-radius: 8px; background: #fff;">
+                <h2 class="section-title">1. Photo (Webcam)</h2>
+                <div style="display: flex; flex-direction: column; align-items: center; gap: 15px;">
+                    <video id="webcam" autoplay playsinline style="width: 100%; max-width: 320px; border-radius: 4px; background: #000;"></video>
+                    <canvas id="canvas-photo" width="320" height="240" style="display: none;"></canvas>
+                    <button type="button" id="btn-capture" class="btn btn-primary">Capturer la photo</button>
+                    <img id="photo-result" style="display:none; margin-top:10px; border:1px solid #ccc; max-width: 100%; border-radius: 4px;" />
+                </div>
+            </div>
+
+            <!-- Section Signature -->
+            <div class="box section" style="flex: 1; border: 1px solid #e0e0e0; padding: 20px; border-radius: 8px; background: #fff;">
+                <h2 class="section-title">2. Signature manuscrite</h2>
+                <div style="display: flex; flex-direction: column; align-items: center; gap: 15px;">
+                    <canvas id="signature-pad" style="border: 1px solid #ccc; border-radius: 4px; background: #f9f9f9; width: 100%; max-width: 400px; height: 200px; cursor: crosshair; touch-action: none;"></canvas>
+                    <button type="button" id="btn-clear-sig" class="btn btn-outline">Effacer la signature</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="actions-bar">
+            <button type="button" class="btn btn-outline" onclick="window.location.href='/visa-requests'">Annuler</button>
+            <button id="btn-submit" class="btn btn-primary">Enregistrer et Terminer</button>
+        </div>
+    </div>
+
+    <script th:inline="javascript">
+        const demandeId = [[${id}]]; // Assurez-vous de passer l'ID au modèle dans le contrôleur
+
+        // --- 1. Gestion de la Webcam ---
+        const video = document.getElementById('webcam');
+        const canvasPhoto = document.getElementById('canvas-photo');
+        const photoResult = document.getElementById('photo-result');
+        let photoBlob = null;
+
+        // Demander l'accès à la caméra
+        navigator.mediaDevices.getUserMedia({ video: true })
+            .then(stream => { video.srcObject = stream; })
+            .catch(err => { console.error("Erreur webcam:", err); alert("Impossible d'accéder à la webcam"); });
+
+        document.getElementById('btn-capture').addEventListener('click', () => {
+            const context = canvasPhoto.getContext('2d');
+            context.drawImage(video, 0, 0, canvasPhoto.width, canvasPhoto.height);
+            canvasPhoto.toBlob(blob => {
+                photoBlob = blob;
+                photoResult.src = URL.createObjectURL(blob);
+                photoResult.style.display = 'block';
+            }, 'image/jpeg');
+        });
+
+        // --- 2. Gestion de la Signature ---
+        const canvasSig = document.getElementById('signature-pad');
+        const signaturePad = new SignaturePad(canvasSig);
+
+        document.getElementById('btn-clear-sig').addEventListener('click', () => {
+            signaturePad.clear();
+        });
+
+        // --- 3. Soumission au backend ---
+        document.getElementById('btn-submit').addEventListener('click', () => {
+            if (!photoBlob) {
+                alert("Veuillez capturer une photo d'abord.");
+                return;
+            }
+            if (signaturePad.isEmpty()) {
+                alert("Veuillez fournir une signature.");
+                return;
+            }
+
+            // Convertir la signature en Blob
+            canvasSig.toBlob(signatureBlob => {
+                const formData = new FormData();
+                // Noms des fichiers (doit correspondre à ce qu'attend le serveur, par ex dans Map<String, MultipartFile>)
+                const photo_name = demandeId + '_photo.jpg';
+                const signature_name = demandeId + '_signature.png';
+
+                formData.append('photo', photoBlob, photo_name);
+                formData.append('signature', signatureBlob, signature_name);
+
+                // Envoi au contrôleur Spring Boot
+                fetch(`/visa-requests/photo-signature/api/${demandeId}/terminer`, {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert('Enregistrement réussi!');
+                        window.location.href = '/visa-requests';
+                    } else {
+                        alert('Erreur: ' + data.message);
+                    }
+                })
+                .catch(err => console.error(err));
+            }, 'image/png');
+        });
+    </script>
+</div>
+</body>
+</html>

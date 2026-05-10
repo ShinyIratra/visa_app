@@ -35,14 +35,31 @@ public class DemandeService {
     }
 
     @Transactional(readOnly = true)
-    public boolean isScanTermineOuPlus(Integer demandeId) {
+    public boolean isStatusOuPlus(Integer demandeId, String status_label) {
         if (demandeId == null) {
             return false;
         }
 
-        Statut scanTermine = statutRepository.findByLibelle(UtilService.STATUS_SCAN_TERMINE)
+        Statut status = statutRepository.findByLibelle(status_label)
             .orElseThrow(() -> new IllegalArgumentException(
-                "Statut '" + UtilService.STATUS_SCAN_TERMINE + "' introuvable"
+                "Statut '" + status_label + "' introuvable"
+            ));
+
+        return historiqueStatutRepository.existsByDemandeIdAndStatutOrdreGreaterThanEqual(
+            demandeId,
+            status.getOrdre()
+        );
+    }
+
+    @Transactional(readOnly = true)
+    public boolean isStatusOuPlus(Integer demandeId, Integer ordre) {
+        if (demandeId == null) {
+            return false;
+        }
+
+        Statut scanTermine = statutRepository.findByOrdre(ordre)
+            .orElseThrow(() -> new IllegalArgumentException(
+                "Statut '" + ordre + "' introuvable"
             ));
 
         return historiqueStatutRepository.existsByDemandeIdAndStatutOrdreGreaterThanEqual(

@@ -10,7 +10,8 @@ import app.visa.entity.Statut;
 
 public interface StatutRepository extends JpaRepository<Statut, Integer> {
 
-    @Query("SELECT s FROM Statut s WHERE s.libelle = :libelle")
+    Optional<Statut> findByOrdre(Integer ordre);
 
+    @Query("SELECT s FROM Statut s WHERE s.libelle = :libelle")
     Optional<Statut> findByLibelle(@Param("libelle") String libelle);
 }

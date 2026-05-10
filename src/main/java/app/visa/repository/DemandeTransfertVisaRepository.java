@@ -13,5 +13,6 @@ import java.util.List;
 @Repository
 public interface DemandeTransfertVisaRepository extends JpaRepository<DemandeTransfertVisa, Integer> {
     Optional<DemandeTransfertVisa> findByNumero(String numero);
+    Optional<DemandeTransfertVisa> findFirstByNumero(String numero);
     List<DemandeTransfertVisa> findByDemandePasseportDemandeurId(Integer demandeurId);
 }
