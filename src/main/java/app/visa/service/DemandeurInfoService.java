@@ -35,7 +35,91 @@ public class DemandeurInfoService {
     public Map<String, Object> getInfos(String numero, LocalDateTime dateDebut, LocalDateTime dateFin) {
         Demandeur demandeur = getDemandeurByNumero(numero);
         Map<String, Object> infos = buildDemandeurInfos(demandeur, numero, dateDebut, dateFin);
+        
+        // Get demandes specifiques
+        if (numero != null) {
+            String upperNum = numero.toUpperCase();
+            if (upperNum.startsWith("DEMTRF")) {
+                Optional<DemandeTransfertVisa> transfert = transfertRepository.findByNumero(numero);
+                if (transfert.isPresent()) {
+                    infos.put("demandeSelectionnee", buildTransfertDetails(transfert.get()));
+                }
+            } else if (upperNum.startsWith("DEMDUP")) {
+                Optional<DemandeDuplicata> duplicata = duplicataRepository.findByNumero(numero);
+                if (duplicata.isPresent()) {
+                    infos.put("demandeSelectionnee", buildDuplicataDetails(duplicata.get()));
+                }
+            } else if (upperNum.startsWith("DEM")) {
+                Optional<Demande> transformation = visaRequestRepository.findByNumero(numero);
+                if (transformation.isPresent()) {
+                    infos.put("demandeSelectionnee", buildTransformationDetails(transformation.get()));
+                }
+            }
+        }
+        
         return infos;
+    }
+
+    private Map<String, Object> buildTransformationDetails(Demande d) {
+        Map<String, Object> details = new LinkedHashMap<>();
+        details.put("type", "Transformation");
+        details.put("numero", d.getNumero());
+        details.put("dateCreation", d.getDateCreation());
+        details.put("status", getStatus(d));
+        
+        if (d.getTypeDemande() != null) {
+            details.put("typeDemande", d.getTypeDemande().getLibelle());
+        }
+        
+        if (d.getPasseport() != null) {
+            details.put("passeportNumero", d.getPasseport().getNumero());
+            details.put("passeportDelivrance", d.getPasseport().getDateDelivrance());
+            details.put("passeportExpiration", d.getPasseport().getDateExpiration());
+        }
+        
+        if (d.getVisaTransformable() != null) {
+            details.put("visaReference", d.getVisaTransformable().getReference());
+            details.put("visaDateEntree", d.getVisaTransformable().getDateEntree());
+            details.put("visaLieuEntree", d.getVisaTransformable().getLieuEntree());
+            details.put("visaExpiration", d.getVisaTransformable().getDateExpiration());
+        }
+        return details;
+    }
+
+    private Map<String, Object> buildTransfertDetails(DemandeTransfertVisa t) {
+        Map<String, Object> details = new LinkedHashMap<>();
+        details.put("type", "Transfert");
+        details.put("numero", t.getNumero());
+        details.put("dateCreation", t.getDateCreation());
+        details.put("status", getStatus(t));
+        
+        if (t.getNouveauPasseport() != null) {
+            details.put("passeportNumero", t.getNouveauPasseport().getNumero());
+            details.put("passeportDelivrance", t.getNouveauPasseport().getDateDelivrance());
+            details.put("passeportExpiration", t.getNouveauPasseport().getDateExpiration());
+        } else if (t.getDemande() != null && t.getDemande().getPasseport() != null) {
+            Passeport p = t.getDemande().getPasseport();
+            details.put("passeportNumero", p.getNumero());
+            details.put("passeportDelivrance", p.getDateDelivrance());
+            details.put("passeportExpiration", p.getDateExpiration());
+        }
+        return details;
+    }
+
+    private Map<String, Object> buildDuplicataDetails(DemandeDuplicata d) {
+        Map<String, Object> details = new LinkedHashMap<>();
+        details.put("type", "Duplicata");
+        details.put("numero", d.getNumero());
+        details.put("dateCreation", d.getDateCreation());
+        details.put("status", getStatus(d));
+        
+        if (d.getDemande() != null && d.getDemande().getPasseport() != null) {
+            Passeport p = d.getDemande().getPasseport();
+            details.put("passeportNumero", p.getNumero());
+            details.put("passeportDelivrance", p.getDateDelivrance());
+            details.put("passeportExpiration", p.getDateExpiration());
+        }
+        return details;
     }
 
     private Demandeur getDemandeurByNumero(String numero) {
@@ -60,11 +144,25 @@ public class DemandeurInfoService {
 
     private Map<String, Object> buildDemandeurInfos(Demandeur demandeur, String numeroPrioritaire, LocalDateTime dateDebut, LocalDateTime dateFin) {
         Map<String, Object> result = new LinkedHashMap<>();
-        result.put("demandeur", Map.of(
-            "id", demandeur.getId(),
-            "nom", demandeur.getNom(),
-            "prenom", demandeur.getPrenom() != null ? demandeur.getPrenom() : ""
-        ));
+        
+        Map<String, Object> demandeurMap = new LinkedHashMap<>();
+        demandeurMap.put("id", demandeur.getId());
+        demandeurMap.put("nom", demandeur.getNom());
+        demandeurMap.put("prenom", demandeur.getPrenom() != null ? demandeur.getPrenom() : "");
+        demandeurMap.put("nomJeuneFille", demandeur.getNomJeuneFille());
+        demandeurMap.put("dateNaissance", demandeur.getDateNaissance());
+        demandeurMap.put("adresse", demandeur.getAdresse());
+        demandeurMap.put("email", demandeur.getEmail());
+        demandeurMap.put("numTel", demandeur.getNumTel());
+        
+        if (demandeur.getNationalite() != null) {
+            demandeurMap.put("nationalite", demandeur.getNationalite().getLibelle());
+        }
+        if (demandeur.getSituationFamiliale() != null) {
+            demandeurMap.put("situationFamiliale", demandeur.getSituationFamiliale().getLibelle());
+        }
+        
+        result.put("demandeur", demandeurMap);
 
         // 2. Get all demandes (Transformation, Transfert, Duplicata)
         List<DemandeDto> toutesLesDemandes = new ArrayList<>();
