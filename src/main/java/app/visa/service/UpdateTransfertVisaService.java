@@ -28,8 +28,8 @@ public class UpdateTransfertVisaService extends TransfertVisaService {
         DemandeTransfertVisa t = demandeTransfertVisaRepository.findById(id)
             .orElseThrow(() -> new IllegalArgumentException("Demande de transfert " + id + " introuvable"));
 
-        Statut s = getStatut(t);
-        if (s != null && s.getLibelle().equalsIgnoreCase("Demande acceptee")) {
+        Statut s = getStatutActuel(t);
+        if (s != null && s.getLibelle().equalsIgnoreCase(UtilService.STATUS_DEMANDE_ACCEPTEE)) {
             throw new IllegalStateException("Impossible de modifier une demande déjà acceptee");
         }
 
@@ -48,7 +48,7 @@ public class UpdateTransfertVisaService extends TransfertVisaService {
         DemandeTransfertVisa t = demandeTransfertVisaRepository.findById(id)
             .orElseThrow(() -> new IllegalArgumentException("Demande de transfert " + id + " introuvable"));
 
-        Statut s = getStatut(t);
+        Statut s = getStatutActuel(t);
         if (s != null && s.getLibelle().equalsIgnoreCase(UtilService.STATUS_DEMANDE_ACCEPTEE)) {
             throw new IllegalStateException("La demande a deja ete acceptee et ne peut plus etre modifiee");
         }

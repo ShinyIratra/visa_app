@@ -189,7 +189,7 @@ public class DemandeurInfoService {
         if (entity instanceof Demande d) {
             return visaRequestService.getDernierStatus(d.getId());
         } else if (entity instanceof DemandeTransfertVisa t) {
-            Statut s = transfertVisaService.getStatut(t);
+            Statut s = transfertVisaService.getStatutActuel(t);
             return s != null ? s.getLibelle() : "Aucun";
         } else if (entity instanceof DemandeDuplicata dup) {
             Statut s = duplicataService.getStatut(dup);
