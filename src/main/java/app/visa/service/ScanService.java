@@ -89,15 +89,15 @@ public class ScanService {
             MultipartFile file = entry.getValue();
             if (file != null && !file.isEmpty()) {
                 String dossierIdStr = entry.getKey().replace("dossier_", "");
-                String dossierLibelle = findDossierLibelle(dossierIdStr);
+                String dossierLibelle = getDossierLibelle(dossierIdStr);
 
                 String originalFilename = file.getOriginalFilename();
                 String extension = originalFilename != null && originalFilename.contains(".") 
                     ? originalFilename.substring(originalFilename.lastIndexOf(".")) 
                     : "";
 
-                String finalFileName = String.format("%d_%s_%s_%s%s", 
-                    demandeur.getId(), nomComplet, dossierLibelle, timestamp, extension);
+                String finalFileName = String.format("%d - %s (%s) %s%s", 
+                    demandeur.getId(), demandeur.getNom() + " " + demandeur.getPrenom(), dossierLibelle, timestamp, extension);
                 
                 uploads.put(file, uploadPath.resolve(finalFileName));
             }
@@ -105,13 +105,13 @@ public class ScanService {
         return uploads;
     }
 
-    private String findDossierLibelle(String dossierIdStr) {
+    private String getDossierLibelle(String dossierIdStr) {
         try {
             Integer dId = Integer.parseInt(dossierIdStr);
             return dossierRepository.findById(dId)
                 .map(Dossier::getLibelle)
                 .orElse("document")
-                .replaceAll("[^a-zA-Z0-9_-]", "_");
+                .replaceAll("[^a-zA-Z0-9_-]", " ");
         } catch (NumberFormatException e) {
             return "document";
         }
@@ -144,8 +144,24 @@ public class ScanService {
                 File file = path.toFile();
                 if (file.isFile()) {
                     Map<String, Object> map = new LinkedHashMap<>();
-                    map.put("nomFichier", file.getName());
+                    String fileName = file.getName();
+                    map.put("nomFichier", fileName);
                     map.put("chemin", file.getAbsolutePath());
+                    
+                    // Extraire le libellé depuis le format: ID - NOM (LIBELLE) TIMESTAMP.ext
+                    String libelleDisplay = "Document";
+                    try {
+                        if (fileName.contains("(") && fileName.contains(")")) {
+                            int start = fileName.indexOf("(") + 1;
+                            int end = fileName.lastIndexOf(")");
+                            if (start < end) {
+                                libelleDisplay = fileName.substring(start, end);
+                            }
+                        }
+                    } catch (Exception e) {
+                        // fallback to default
+                    }
+                    map.put("libelle", libelleDisplay);
                     
                     // URL 
                     String relativePath = uploadPath.relativize(path).toString().replace("\\", "/");

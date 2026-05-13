@@ -125,7 +125,7 @@
                         </div>
                     </div>
                     <div class="file-info">
-                        <span class="file-name" th:text="${doc.nomFichier}" th:title="${doc.nomFichier}"></span>
+                        <span class="file-name" th:text="${doc.libelle}" th:title="${doc.nomFichier}"></span>
                         <div class="file-meta">
                             <span th:text="${doc.taille}"></span><br/>
                             <span th:text="${#dates.format(doc.dateScan, 'dd/MM/yyyy HH:mm')}"></span>
