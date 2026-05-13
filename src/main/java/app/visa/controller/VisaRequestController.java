@@ -82,11 +82,8 @@ public class VisaRequestController {
                       @RequestParam(required = false) String error,
                       @RequestParam(required = false) String start,
                       @RequestParam(required = false) String end) {
-        if ("scan_termine".equals(error)) {
-            model.addAttribute("errorMessage", "Action interdite. La demande est deja au statut Scan termine.");
-        }
-        else if ("photo_termine".equals(error)) {
-            model.addAttribute("errorMessage", "Action interdite. La demande est deja au statut Photo terminee.");
+        if (error != null && !error.isEmpty()) {
+            model.addAttribute("errorMessage", error);
         }
         
         List<Map<String, Object>> demandes = visaRequestService.listDemandesAvecInfos();

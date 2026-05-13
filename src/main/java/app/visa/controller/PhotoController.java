@@ -29,16 +29,19 @@ public class PhotoController {
         try {
             Demande demande = visaRequestService.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Demande introuvable: " + id));
+            
+            boolean allDossiersCoches = scanService.controleAllDossiersCoches(id);
+            if (!allDossiersCoches) {
+                throw new IllegalStateException("Tous les dossiers doivent etre coches avant de scanner photo et signature");
+            }
 
             if (demandeService.isStatusOuPlus(demande.getId(), UtilService.STATUS_PHOTO_SCANNEE)) {
-                return "redirect:/visa-requests?error=photo_termine";
+                throw new IllegalStateException("Action interdite. La demande est déjà au statut Photo terminée.");
             }
 
             return "visa-requests/photo-signature";
-        } catch (IllegalArgumentException e) {
-            throw e;
         } catch (Exception e) {
-            throw new RuntimeException("Erreur lors de l'accès à la page de scan: " + e.getMessage(), e);
+            return "redirect:/visa-requests?error=" + java.net.URLEncoder.encode(e.getMessage(), java.nio.charset.StandardCharsets.UTF_8);
         }
     }
 
