@@ -192,7 +192,7 @@ public class DemandeurInfoService {
             Statut s = transfertVisaService.getStatutActuel(t);
             return s != null ? s.getLibelle() : "Aucun";
         } else if (entity instanceof DemandeDuplicata dup) {
-            Statut s = duplicataService.getStatut(dup);
+            Statut s = duplicataService.getStatutActuel(dup);
             return s != null ? s.getLibelle() : "Aucun";
         }
         return "Inconnu";

@@ -104,6 +104,18 @@ public class DuplicataController {
         }
     }
 
+    @PostMapping("/{id}/scan")
+    @ResponseBody
+    public ResponseEntity<ApiResponse<Object>> scannerDossier(@PathVariable Integer id) {
+        try {
+            duplicataService.marquerCommeScanne(id);
+            return ResponseEntity.ok(new ApiResponse<Object>(true, null, null));
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError()
+                .body(new ApiResponse<Object>(false, null, "Erreur lors du scan: " + e.getMessage()));
+        }
+    }
+
     @PostMapping("/{id}/accepter")
     @ResponseBody
     public ResponseEntity<ApiResponse<Void>> accepter(@PathVariable Integer id) {
