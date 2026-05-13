@@ -53,6 +53,7 @@ public class VisaRequestController {
     private final ScanService scanService;
     private final PhotoService photoService;
     private final DemandeurInfoService demandeurInfoService;
+    private final CodeQrService codeQrService;
 
     public VisaRequestController(VisaRequestService visaRequestService,
                                 DemandeurService demandeurService,
@@ -65,7 +66,8 @@ public class VisaRequestController {
                                 CategorieRepository categorieRepository,
                                 ScanService scanService,
                                 PhotoService photoService,
-                                DemandeurInfoService demandeurInfoService) {
+                                DemandeurInfoService demandeurInfoService,
+                                CodeQrService codeQrService) {
         this.visaRequestService = visaRequestService;
         this.demandeurService = demandeurService;
         this.demandeService = demandeService;
@@ -78,6 +80,13 @@ public class VisaRequestController {
         this.scanService = scanService;
         this.photoService = photoService;
         this.demandeurInfoService = demandeurInfoService;
+        this.codeQrService = codeQrService;
+    }
+
+    @GetMapping(value = "/qr/{numero}", produces = "image/png")
+    @ResponseBody
+    public byte[] showQr(@PathVariable String numero) {
+        return codeQrService.genererCodeQrDemandeBytes(numero);
     }
 
     @GetMapping

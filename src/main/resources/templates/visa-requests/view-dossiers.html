@@ -129,6 +129,12 @@
 
             <!-- Detailed Info Section -->
             <div class="details-container">
+                <div class="details-card" style="display: flex; flex-direction: column; align-items: center; justify-content: center; grid-column: span 2;">
+                    <h3>QR Code de la Demande</h3>
+                    <img th:src="@{/visa-requests/qr/{numero}(numero=${demande.numero})}" alt="Code QR" style="max-width: 200px; border: 1px solid #ccc; padding: 10px; background: white;" />
+                    <p style="margin-top: 10px; font-size: 0.8rem; color: #666;" th:text="${demande.numero}"></p>
+                </div>
+
                 <!-- Person Details -->
                 <div class="details-card">
                     <h3>Détails du Demandeur</h3>
