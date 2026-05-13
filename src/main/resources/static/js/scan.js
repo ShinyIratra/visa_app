@@ -67,7 +67,7 @@
                     throw new Error(result.error || result.message || 'Erreur');
                 }
                 alert('Scan terminé avec succès !');
-                window.location.href = '/visa-requests/scan/dossiers/' + demandeId;
+                window.location.href = '/visa-requests/dossiers/' + demandeId;
             })
             .catch(function (error) {
                 alert('Erreur: ' + error.message);

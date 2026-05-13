@@ -133,7 +133,7 @@ public class VisaRequestService {
 
         Demande demande = createDemande(typeDemande, "Nouveau titre", passeport, visaTransformable, dateCreation);
         saveReponseDossier(demande, dossiersApplicables, dossiersFournisIds);
-        saveStatutDemande(demande, "Demande creee", dateCreation);
+        ajouterHistoriqueStatut(demande, "Demande creee", dateCreation);
 
         return reponseCreation(demandeur, passeport, visaTransformable, demande, dossiersFournisIds);
     }
@@ -175,7 +175,7 @@ public class VisaRequestService {
 
         Demande demande = createDemande(typeDemande, categorieLibelle, passeport, visaTransformable, dateCreation);
         saveReponseDossier(demande, dossiersApplicables, dossiersFournisIds);
-        saveStatutDemande(demande, statutDemandeLibelle, dateCreation);
+        ajouterHistoriqueStatut(demande, statutDemandeLibelle, dateCreation);
 
         return demande;
     }
@@ -359,11 +359,11 @@ public class VisaRequestService {
         reponseStatutVisaRepository.saveAll(reponses);
     }
 
-    protected void saveStatutDemande(Demande dem, String statutLibelle) {
-        saveStatutDemande(dem, statutLibelle, null);
+    protected void ajouterHistoriqueStatut(Demande dem, String statutLibelle) {
+        ajouterHistoriqueStatut(dem, statutLibelle, null);
     }
 
-    protected void saveStatutDemande(Demande dem, String statutLibelle, LocalDateTime dateModification) {
+    protected void ajouterHistoriqueStatut(Demande dem, String statutLibelle, LocalDateTime dateModification) {
         Statut statut = statutRepository.findByLibelle(statutLibelle)
             .orElseThrow(() -> new IllegalArgumentException("statut '" + statutLibelle + "' introuvable."));
 
@@ -438,4 +438,47 @@ public class VisaRequestService {
         data.put("dossiersFournis", dossIds);
         return data;
     }
+
+    /**
+     * 
+     * Utils
+     * 
+     */
+
+    public void verifierDroitDePasserA(Demande demande, String libelleStatutCible) {
+        Statut actuel = getStatutActuel(demande); // TODO: getStatutACtuel ao @ page hafa -> getDernierStatus
+        Statut cible = findStatutByLibelle(libelleStatutCible);
+
+        if (actuel != null && actuel.getOrdre() >= cible.getOrdre()) {
+            throw new IllegalStateException("On ne peut pas descendre de statut: " + actuel.getLibelle() + " -> " + cible.getLibelle());
+        }
+    }
+
+    
+    public boolean isStatutDejaAtteint(Demande demande, String libelleStatut) {
+        Statut actuel = getStatutActuel(demande);
+        if (actuel == null) return false;
+        
+        Statut recherche = findStatutByLibelle(libelleStatut);
+        return actuel.getOrdre() >= recherche.getOrdre();
+    }
+
+    private Demande findDemandeById(Integer id) {
+        return visaRequestRepository.findById(id)
+            .orElseThrow(() -> new IllegalArgumentException("Demande de demande #" + id + " introuvable."));
+    }
+
+    private Statut findStatutByLibelle(String libelle) {
+        return statutRepository.findByLibelle(libelle)
+            .orElseThrow(() -> new IllegalArgumentException("Statut '" + libelle + "' introuvable."));
+    }
+
+    
+    public Statut getStatutActuel(Demande demande) {
+        if (demande == null || demande.getId() == null) return null;
+        return historiqueStatutRepository.findLatestByDemandeId(demande.getId())
+            .map(HistoriqueStatut::getStatut)
+            .orElse(null);
+    }
+
 }
