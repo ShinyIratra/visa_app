@@ -18,6 +18,7 @@ import java.util.stream.Collectors;
 public class VisaService {
 
     private final VisaRepository visaRepository;
+    private final DemandeService demandeService;
 
     public List<Visa> findAll() {
         return visaRepository.findAll();
@@ -51,10 +52,11 @@ public class VisaService {
             map.put("demandeId", demande.getId());
             
             // Ancien passeport (demande OG)
-            if (demande.getPasseport() != null) {
-                map.put("ancienPasseport", demande.getPasseport().getNumero());
+            Passeport p = demandeService.getPasseport(demande);
+            if (p != null) {
+                map.put("ancienPasseport", p.getNumero());
                 
-                Demandeur demandeur = demande.getPasseport().getDemandeur();
+                Demandeur demandeur = p.getDemandeur();
                 if (demandeur != null) {
                     map.put("nomComplet", (demandeur.getNom() != null ? demandeur.getNom() : "") + " " + 
                                          (demandeur.getPrenom() != null ? demandeur.getPrenom() : ""));
