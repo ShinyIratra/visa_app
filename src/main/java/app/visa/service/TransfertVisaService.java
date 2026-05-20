@@ -32,7 +32,9 @@ public class TransfertVisaService {
         }
 
         Demande demandeOrigine = demandeService.findDemandeByCritere(typeRecherche, valeur);
-        
+        if (!demandeOrigine.getCategorie().getLibelle().equals(UtilService.CATEGORIE_DEMANDE_NOUVEAU_TITRE)) {
+            throw new IllegalArgumentException("L'origine de la demande n'est pas une demande de nouveau titre");
+        }
         Passeport nouveauPasseport = creerNouveauPasseport(donnees, demandeOrigine);
 
         return buildDemandeTransfert(demandeOrigine, nouveauPasseport, dateCreation);

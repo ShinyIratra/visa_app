@@ -1,8 +1,6 @@
 package app.visa.service;
 
-import app.visa.entity.Demande;
-import app.visa.entity.Demandeur;
-import app.visa.entity.Passeport;
+import app.visa.entity.*;
 import app.visa.entity.Visa;
 import app.visa.repository.VisaRepository;
 import lombok.RequiredArgsConstructor;

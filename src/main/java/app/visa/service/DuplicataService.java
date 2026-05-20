@@ -33,6 +33,9 @@ public class DuplicataService {
         }
 
         Demande demandeOrigine = demandeService.findDemandeByCritere(typeRecherche, valeur);
+        if (!demandeOrigine.getCategorie().getLibelle().equals(UtilService.CATEGORIE_DEMANDE_NOUVEAU_TITRE)) {
+            throw new IllegalArgumentException("L'origine de la demande n'est pas une demande de nouveau titre");
+        }
         
         DemandeDuplicata demandeDuplicata = buildDemandeDuplicata(demandeOrigine, dateCreation);
 

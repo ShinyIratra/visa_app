@@ -19,7 +19,7 @@ import java.util.HashMap;
 
 
 public class UtilService {
-    // public static final String CATEGORIE_DEMANDE_NOUVEAU_TITRE = "Nouveau titre";
+    public static final String CATEGORIE_DEMANDE_NOUVEAU_TITRE = "Nouveau titre";
 
 
     public static final String STATUS_DEMANDE_CREEE = "Demande creee";
