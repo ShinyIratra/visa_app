@@ -24,6 +24,7 @@ public class DemandeService {
     private final VisaRepository visaRepository;
     private final PasseportRepository passeportRepository;
     private final CarteResidentService carteResidentService;
+    private final VisaRequestRepository visaRequestRepository;
 
     public Statut getDernierStatus(Demande demande) {
         if (demande == null || demande.getId() == null) return null;
@@ -75,6 +76,12 @@ public class DemandeService {
     }
 
     public DemandeNouveauTitre getDemandeNouveauTitre(Demande d) {
+        Optional<DemandeNouveauTitre> demandeNouveauTitre = visaRequestRepository.findByDemandeId(d.getId());
+        if (demandeNouveauTitre.isPresent()) {
+            return demandeNouveauTitre.get();
+        }
+
+        // Callback napetrak chat
         if (d instanceof DemandeNouveauTitre dnt) {
             return dnt;
         } else if (d instanceof DemandeTransfertVisa dtv) {

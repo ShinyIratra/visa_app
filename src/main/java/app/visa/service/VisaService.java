@@ -1,8 +1,7 @@
 package app.visa.service;
 
 import app.visa.entity.*;
-import app.visa.entity.Visa;
-import app.visa.repository.VisaRepository;
+import app.visa.repository.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -14,7 +13,6 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class VisaService {
-
     private final VisaRepository visaRepository;
     private final DemandeService demandeService;
 
@@ -51,7 +49,7 @@ public class VisaService {
             map.put("demandeId", demande.getId());
             
             // Ancien passeport (demande OG)
-            Passeport p = demandeService.getPasseport(demande);
+            Passeport p = demandeNouveauTitre.getPasseport();
             if (p != null) {
                 map.put("ancienPasseport", p.getNumero());
                 
