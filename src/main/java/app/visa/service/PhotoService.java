@@ -24,6 +24,7 @@ public class PhotoService {
     private final ReponseStatutVisaRepository reponseStatutVisaRepository;
     private final StatutRepository statutRepository;
     private final HistoriqueStatutRepository historiqueStatutRepository;
+    private final DemandeService demandeService;
 
     private static final String PHOTO_DIR = "uploads/photos";
 
@@ -31,7 +32,7 @@ public class PhotoService {
         Demande demande = visaRequestRepository.findById(demandeId)
             .orElseThrow(() -> new IllegalArgumentException("Demande introuvable: " + demandeId));
 
-        Demandeur demandeur = demande.getPasseport().getDemandeur();
+        Demandeur demandeur = demandeService.getPasseport(demande).getDemandeur();
         String nomComplet = (demandeur.getNom() + "_" + demandeur.getPrenom()).replaceAll("[^a-zA-Z0-9_-]", "");
         String folderName = demandeur.getId() + "_" + nomComplet;
 
@@ -67,7 +68,7 @@ public class PhotoService {
         Demande demande = visaRequestRepository.findById(demandeId)
             .orElseThrow(() -> new IllegalArgumentException("Demande introuvable: " + demandeId));
 
-        Demandeur demandeur = demande.getPasseport().getDemandeur();
+        Demandeur demandeur = demandeService.getPasseport(demande).getDemandeur();
         String nomComplet = (demandeur.getNom() + "_" + demandeur.getPrenom()).replaceAll("[^a-zA-Z0-9_-]", "");
         
         // Structure: uploads/photos/ID_NOM_COMPLET/

@@ -24,6 +24,7 @@ public class DemandeurInfoService {
     private final PasseportRepository passeportRepository;
     private final DemandeurRepository demandeurRepository;
     private final CarteResidentRepository carteResidentRepository;
+    private final DemandeService demandeService;
 
     /**
      * 
@@ -50,7 +51,7 @@ public class DemandeurInfoService {
                     infos.put("demandeSelectionnee", buildDuplicataDetails(duplicata.get()));
                 }
             } else if (upperNum.startsWith("DEM")) {
-                Optional<Demande> transformation = visaRequestRepository.findByNumero(numero);
+                Optional<DemandeNouveauTitre> transformation = visaRequestRepository.findByNumero(numero);
                 if (transformation.isPresent()) {
                     infos.put("demandeSelectionnee", buildTransformationDetails(transformation.get()));
                 }
@@ -60,7 +61,7 @@ public class DemandeurInfoService {
         return infos;
     }
 
-    private Map<String, Object> buildTransformationDetails(Demande d) {
+    private Map<String, Object> buildTransformationDetails(DemandeNouveauTitre d) {
         Map<String, Object> details = new LinkedHashMap<>();
         details.put("type", "Transformation");
         details.put("numero", d.getNumero());
@@ -97,11 +98,14 @@ public class DemandeurInfoService {
             details.put("passeportNumero", t.getNouveauPasseport().getNumero());
             details.put("passeportDelivrance", t.getNouveauPasseport().getDateDelivrance());
             details.put("passeportExpiration", t.getNouveauPasseport().getDateExpiration());
-        } else if (t.getDemande() != null && t.getDemande().getPasseport() != null) {
-            Passeport p = t.getDemande().getPasseport();
-            details.put("passeportNumero", p.getNumero());
-            details.put("passeportDelivrance", p.getDateDelivrance());
-            details.put("passeportExpiration", p.getDateExpiration());
+        } else {
+            DemandeNouveauTitre dnt = demandeService.getDemandeNouveauTitre(t);
+            if (dnt != null && dnt.getPasseport() != null) {
+                Passeport p = dnt.getPasseport();
+                details.put("passeportNumero", p.getNumero());
+                details.put("passeportDelivrance", p.getDateDelivrance());
+                details.put("passeportExpiration", p.getDateExpiration());
+            }
         }
         return details;
     }
@@ -113,8 +117,9 @@ public class DemandeurInfoService {
         details.put("dateCreation", d.getDateCreation());
         details.put("status", getStatus(d));
         
-        if (d.getDemande() != null && d.getDemande().getPasseport() != null) {
-            Passeport p = d.getDemande().getPasseport();
+        DemandeNouveauTitre dnt = demandeService.getDemandeNouveauTitre(d);
+        if (dnt != null && dnt.getPasseport() != null) {
+            Passeport p = dnt.getPasseport();
             details.put("passeportNumero", p.getNumero());
             details.put("passeportDelivrance", p.getDateDelivrance());
             details.put("passeportExpiration", p.getDateExpiration());
@@ -215,7 +220,7 @@ public class DemandeurInfoService {
     }
 
     private List<DemandeDto> getTransferts(Integer demandeurId) {
-        List<DemandeTransfertVisa> transferts = transfertRepository.findByDemandePasseportDemandeurId(demandeurId);
+        List<DemandeTransfertVisa> transferts = transfertRepository.findByDemandeurId(demandeurId);
         List<DemandeDto> result = new ArrayList<>();
         for (DemandeTransfertVisa t : transferts) {
             result.add(new DemandeDto(
@@ -230,7 +235,7 @@ public class DemandeurInfoService {
     }
 
     private List<DemandeDto> getDuplicatas(Integer demandeurId) {
-        List<DemandeDuplicata> duplicatas = duplicataRepository.findByDemandePasseportDemandeurId(demandeurId);
+        List<DemandeDuplicata> duplicatas = duplicataRepository.findByDemandeurId(demandeurId);
         List<DemandeDto> result = new ArrayList<>();
         for (DemandeDuplicata d : duplicatas) {
             result.add(new DemandeDto(
@@ -255,7 +260,7 @@ public class DemandeurInfoService {
     private List<HistoriqueDto> formatHistoriqueTransfert(DemandeTransfertVisa t) {
         if (t.getHistoriques() == null) return Collections.emptyList();
         return t.getHistoriques().stream()
-            .sorted(Comparator.comparing(HistoriqueStatutDemandeTransfert::getDateModification).reversed())
+            .sorted(Comparator.comparing(HistoriqueStatut::getDateModification).reversed())
             .map(h -> new HistoriqueDto(h.getStatut().getLibelle(), h.getDateModification()))
             .toList();
     }
@@ -265,32 +270,33 @@ public class DemandeurInfoService {
             return Collections.emptyList();
 
         return d.getHistoriques().stream()
-            .sorted(Comparator.comparing(HistoriqueStatutDemandeDuplicata::getDateModification).reversed())
+            .sorted(Comparator.comparing(HistoriqueStatut::getDateModification).reversed())
             .map(h -> new HistoriqueDto(h.getStatut().getLibelle(), h.getDateModification()))
             .toList();
     }
 
     private Demandeur findDemandeurByNumeroDemande(String numero) {
-        Optional<Demande> d = visaRequestRepository.findByNumero(numero);
+        Optional<DemandeNouveauTitre> d = visaRequestRepository.findByNumero(numero);
         if (d.isPresent()) return d.get().getPasseport().getDemandeur();
 
         Optional<DemandeTransfertVisa> t = transfertRepository.findByNumero(numero);
-        if (t.isPresent()) return t.get().getDemande().getPasseport().getDemandeur();
+        if (t.isPresent()) {
+            Passeport p = demandeService.getPasseport(t.get());
+            return p != null ? p.getDemandeur() : null;
+        }
 
         Optional<DemandeDuplicata> dup = duplicataRepository.findByNumero(numero);
-        if (dup.isPresent()) return dup.get().getDemande().getPasseport().getDemandeur();
+        if (dup.isPresent()) {
+            Passeport p = demandeService.getPasseport(dup.get());
+            return p != null ? p.getDemandeur() : null;
+        }
 
         return null;
     }
 
     private String getStatus(Object entity) {
         if (entity instanceof Demande d) {
-            return visaRequestService.getDernierStatus(d.getId());
-        } else if (entity instanceof DemandeTransfertVisa t) {
-            Statut s = transfertVisaService.getStatutActuel(t);
-            return s != null ? s.getLibelle() : "Aucun";
-        } else if (entity instanceof DemandeDuplicata dup) {
-            Statut s = duplicataService.getStatutActuel(dup);
+            Statut s = demandeService.getDernierStatus(d);
             return s != null ? s.getLibelle() : "Aucun";
         }
         return "Inconnu";

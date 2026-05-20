@@ -35,9 +35,7 @@ public class TransfertVisaService {
         
         Passeport nouveauPasseport = creerNouveauPasseport(donnees, demandeOrigine);
 
-        DemandeTransfertVisa demandeTransfertVisa = buildDemandeTransfert(demandeOrigine, nouveauPasseport, dateCreation);
-
-        return demandeTransfertVisaRepository.save(demandeTransfertVisa);
+        return buildDemandeTransfert(demandeOrigine, nouveauPasseport, dateCreation);
     }
 
     @Transactional(rollbackFor = Exception.class)
@@ -61,11 +59,9 @@ public class TransfertVisaService {
 
         Passeport nouveauPasseport = creerNouveauPasseport(donnees, demande);
 
-        DemandeTransfertVisa demandeTransfertVisa = buildDemandeTransfert(demande, nouveauPasseport, dateCreation);
-
         // assignerVisaAuPasseport(visa, nouveauPasseport); // Decommentena raha tonga dia omena an le visa le passeport fa tsy mandalo validation
 
-        return demandeTransfertVisaRepository.save(demandeTransfertVisa);
+        return buildDemandeTransfert(demande, nouveauPasseport, dateCreation);
     }
 
     private Passeport creerNouveauPasseport(Map<String, Object> donnees, Demande demande) {
@@ -75,7 +71,7 @@ public class TransfertVisaService {
             throw new IllegalArgumentException("Les donnees du nouveau passeport sont obligatoires pour un transfert");
         }
 
-        Passeport nouveauPasseport = visaRequestService.createPasseport(nouveauPasseportData, demande.getPasseport().getDemandeur().getId());
+        Passeport nouveauPasseport = visaRequestService.createPasseport(nouveauPasseportData, demandeService.getPasseport(demande).getDemandeur().getId());
         return nouveauPasseport;
     }
 
@@ -96,15 +92,16 @@ public class TransfertVisaService {
             }
         }
 
-        DemandeTransfertVisa demandeTransfertVisa = new DemandeTransfertVisa();
+        DemandeTransfertVisa dtv = new DemandeTransfertVisa();
+        demandeService.setupBaseDemande(dtv, "Transfert de visa", dateFinale);
         
-        demandeTransfertVisa.setDemande(demande);
-        demandeTransfertVisa.setNouveauPasseport(nouveauPasseport);
-        demandeTransfertVisa.setDateCreation(dateFinale);
+        dtv.setDemandeOrigine(demande);
+        dtv.setNouveauPasseport(nouveauPasseport);
 
-        ajouterHistoriqueStatut(demandeTransfertVisa, UtilService.STATUS_DEMANDE_CREEE, dateFinale);
+        dtv = demandeTransfertVisaRepository.save(dtv);
+        demandeService.ajouterHistoriqueStatut(dtv, UtilService.STATUS_DEMANDE_CREEE, dateFinale);
 
-        return demandeTransfertVisa;
+        return dtv;
     }
 
     /**
@@ -114,35 +111,15 @@ public class TransfertVisaService {
     public void marquerCommeScanne(Integer transferId) {
         DemandeTransfertVisa transfert = findTransfertById(transferId);
         
-        verifierDroitDePasserA(transfert, UtilService.STATUS_SCAN_TERMINE);
+        demandeService.verifierDroitDePasserA(transfert, UtilService.STATUS_SCAN_TERMINE);
         
-        ajouterHistoriqueStatut(transfert, UtilService.STATUS_SCAN_TERMINE);
+        demandeService.ajouterHistoriqueStatut(transfert, UtilService.STATUS_SCAN_TERMINE);
     }
 
-    private void ajouterHistoriqueStatut(DemandeTransfertVisa transfert, String libelleStatut, LocalDateTime date) {
-        Statut statut = findStatutByLibelle(libelleStatut);
-
-        HistoriqueStatutDemandeTransfert historique = new HistoriqueStatutDemandeTransfert();
-        historique.setTransfert(transfert);
-        historique.setStatut(statut);
-        historique.setDateModification(date != null ? date : LocalDateTime.now());
-
-        if (transfert.getHistoriques() == null) {
-            transfert.setHistoriques(new ArrayList<>());
-        }
-        transfert.getHistoriques().add(historique);
-
-        demandeTransfertVisaRepository.save(transfert);
-    }
+    /* Logic moved to VisaRequestService / DemandeService */
 
     public Statut getStatutActuel(DemandeTransfertVisa transfert) {
-        if (transfert.getHistoriques() == null || transfert.getHistoriques().isEmpty()) {
-            return null;
-        }
-        return transfert.getHistoriques().stream()
-            .max(Comparator.comparing(HistoriqueStatutDemandeTransfert::getDateModification))
-            .map(HistoriqueStatutDemandeTransfert::getStatut)
-            .orElse(null);
+        return demandeService.getDernierStatus(transfert);
     }
 
     // TODO: mitady fika tsy mampa static an'ito amzay visaRepository tsy atao argument
@@ -164,10 +141,10 @@ public class TransfertVisaService {
     public void accepterTransfert(Integer transferId) {
         DemandeTransfertVisa transfert = findTransfertById(transferId);
 
-        verifierDroitDePasserA(transfert, UtilService.STATUS_DEMANDE_ACCEPTEE);
+        demandeService.verifierDroitDePasserA(transfert, UtilService.STATUS_DEMANDE_ACCEPTEE);
 
         // Controle bonus
-        if (!isStatutDejaAtteint(transfert, UtilService.STATUS_SCAN_TERMINE)) {
+        if (!demandeService.isStatutDejaAtteint(transfert, UtilService.STATUS_SCAN_TERMINE)) {
             throw new IllegalStateException("Impossible d'accepter : le dossier doit d'abord etre scanne");
         }
 
@@ -175,7 +152,7 @@ public class TransfertVisaService {
 
         assignerVisaAuPasseport(visa, transfert.getNouveauPasseport(), visaRepository);
 
-        ajouterHistoriqueStatut(transfert, UtilService.STATUS_DEMANDE_ACCEPTEE);
+        demandeService.ajouterHistoriqueStatut(transfert, UtilService.STATUS_DEMANDE_ACCEPTEE);
     }
 
     /**
@@ -194,11 +171,11 @@ public class TransfertVisaService {
             Map<String, Object> map = new HashMap<>();
             map.put("id", t.getId());
             
-            Demande d = t.getDemande();
-            if (d != null && d.getPasseport() != null && d.getPasseport().getDemandeur() != null) {
-                Demandeur dr = d.getPasseport().getDemandeur();
-                map.put("demandeur", dr.getNom() + " " + dr.getPrenom());
-                map.put("ancienPasseport", d.getPasseport().getNumero());
+            Passeport pOld = (t.getDemandeOrigine() != null) ? demandeService.getPasseport(t.getDemandeOrigine()) : null;
+            if (pOld != null && pOld.getDemandeur() != null) {
+                Demandeur dr = pOld.getDemandeur();
+                map.put("demandeur", dr.getNom() + " " + (dr.getPrenom() != null ? dr.getPrenom() : ""));
+                map.put("ancienPasseport", pOld.getNumero());
             } else {
                 map.put("demandeur", "Inconnu");
                 map.put("ancienPasseport", "Inconnu");
@@ -236,39 +213,14 @@ public class TransfertVisaService {
      *  
      */
 
-    
-    private void ajouterHistoriqueStatut(DemandeTransfertVisa transfert, String libelleStatut) {
-        ajouterHistoriqueStatut(transfert, libelleStatut, LocalDateTime.now());
-    }
-
-    /**
-     * Tsy afaka mihidina statut
-     */
-    private void verifierDroitDePasserA(DemandeTransfertVisa transfert, String libelleStatutCible) {
-        Statut actuel = getStatutActuel(transfert);
-        Statut cible = findStatutByLibelle(libelleStatutCible);
-
-        if (actuel != null && actuel.getOrdre() >= cible.getOrdre()) {
-            throw new IllegalStateException("On ne peut pas descendre de statut: " + actuel.getLibelle() + " -> " + cible.getLibelle());
-        }
-    }
-
     private Visa getVisa(DemandeTransfertVisa transfert) {
         Visa visa = visaRepository.findAll().stream()
-            .filter(v -> v.getDemande().getId().equals(transfert.getDemande().getId()))
+            .filter(v -> v.getDemande().getId().equals(transfert.getDemandeOrigine().getId()))
             .findFirst()
-            .orElseThrow(() -> new IllegalStateException("Aucun visa trouvé pour la demande d'origine : " + transfert.getDemande().getId()));
+            .orElseThrow(() -> new IllegalStateException("Aucun visa trouvé pour la demande d'origine : " + transfert.getDemandeOrigine().getId()));
         return visa;
     }
     
-    private boolean isStatutDejaAtteint(DemandeTransfertVisa transfert, String libelleStatut) {
-        Statut actuel = getStatutActuel(transfert);
-        if (actuel == null) return false;
-        
-        Statut recherche = findStatutByLibelle(libelleStatut);
-        return actuel.getOrdre() >= recherche.getOrdre();
-    }
-
     private DemandeTransfertVisa findTransfertById(Integer id) {
         return demandeTransfertVisaRepository.findById(id)
             .orElseThrow(() -> new IllegalArgumentException("Demande de transfert #" + id + " introuvable."));

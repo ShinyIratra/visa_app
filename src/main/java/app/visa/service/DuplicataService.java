@@ -70,19 +70,22 @@ public class DuplicataService {
             throw new IllegalArgumentException("La date de demande de duplicata ne peut pas etre anterieure a la date de la demande originale (" + demande.getDateCreation() + ")");
         }
 
-        if (demande.getPasseport() != null && demande.getPasseport().getDateExpiration() != null) {
-            if (dateFinale.isAfter(demande.getPasseport().getDateExpiration())) {
-                throw new IllegalArgumentException("La date de la demande de duplicata (" + dateFinale + ") ne peut pas être postérieure à la date d'expiration du passeport (" + demande.getPasseport().getDateExpiration() + ")");
+        Passeport passeportOrigine = demandeService.getPasseport(demande);
+
+        if (passeportOrigine != null && passeportOrigine.getDateExpiration() != null) {
+            if (dateFinale.isAfter(passeportOrigine.getDateExpiration())) {
+                throw new IllegalArgumentException("La date de la demande de duplicata (" + dateFinale + ") ne peut pas être postérieure à la date d'expiration du passeport (" + passeportOrigine.getDateExpiration() + ")");
             }
         }
 
-        DemandeDuplicata demandeDuplicata = new DemandeDuplicata();
-        demandeDuplicata.setDemande(demande);
-        demandeDuplicata.setDateCreation(dateFinale);
+        DemandeDuplicata duplicata = new DemandeDuplicata();
+        demandeService.setupBaseDemande(duplicata, "Duplicata", dateFinale);
+        duplicata.setDemandeOrigine(demande);
 
-        ajouterHistoriqueStatut(demandeDuplicata, UtilService.STATUS_DEMANDE_CREEE, dateFinale);
+        duplicata = demandeDuplicataRepository.save(duplicata);
+        demandeService.ajouterHistoriqueStatut(duplicata, UtilService.STATUS_DEMANDE_CREEE, dateFinale);
 
-        return demandeDuplicata;
+        return duplicata;
     }
 
     
@@ -90,35 +93,13 @@ public class DuplicataService {
     public void marquerCommeScanne(Integer duplicataId) {
         DemandeDuplicata duplicata = findDuplicataById(duplicataId);
         
-        verifierDroitDePasserA(duplicata, UtilService.STATUS_SCAN_TERMINE);
+        demandeService.verifierDroitDePasserA(duplicata, UtilService.STATUS_SCAN_TERMINE);
         
-        ajouterHistoriqueStatut(duplicata, UtilService.STATUS_SCAN_TERMINE);
-    }
-
-    private void ajouterHistoriqueStatut(DemandeDuplicata duplicata, String libelleStatut, LocalDateTime date) {
-        Statut statut = findStatutByLibelle(libelleStatut);
-
-        HistoriqueStatutDemandeDuplicata historique = new HistoriqueStatutDemandeDuplicata();
-        historique.setDuplicata(duplicata);
-        historique.setStatut(statut);
-        historique.setDateModification(date != null ? date : LocalDateTime.now());
-
-        if (duplicata.getHistoriques() == null) {
-            duplicata.setHistoriques(new ArrayList<>());
-        }
-        duplicata.getHistoriques().add(historique);
-
-        demandeDuplicataRepository.save(duplicata);
+        demandeService.ajouterHistoriqueStatut(duplicata, UtilService.STATUS_SCAN_TERMINE);
     }
 
     public Statut getStatutActuel(DemandeDuplicata duplicata) {
-        if (duplicata.getHistoriques() == null || duplicata.getHistoriques().isEmpty()) {
-            return null;
-        }
-        return duplicata.getHistoriques().stream()
-            .max(Comparator.comparing(HistoriqueStatutDemandeDuplicata::getDateModification))
-            .map(HistoriqueStatutDemandeDuplicata::getStatut)
-            .orElse(null);
+        return demandeService.getDernierStatus(duplicata);
     }
 
     @Transactional(readOnly = true)
@@ -130,11 +111,11 @@ public class DuplicataService {
             Map<String, Object> map = new HashMap<>();
             map.put("id", d.getId());
             
-            Demande dm = d.getDemande();
-            if (dm != null && dm.getPasseport() != null && dm.getPasseport().getDemandeur() != null) {
-                Demandeur dr = dm.getPasseport().getDemandeur();
+            Passeport p = demandeService.getPasseport(d);
+            if (p != null && p.getDemandeur() != null) {
+                Demandeur dr = p.getDemandeur();
                 map.put("demandeur", dr.getNom() + " " + dr.getPrenom());
-                map.put("numeroPasseport", dm.getPasseport().getNumero());
+                map.put("numeroPasseport", p.getNumero());
                 if (dr.getNationalite() != null) {
                     map.put("nationalite", dr.getNationalite().getLibelle());
                 } else {
@@ -162,24 +143,22 @@ public class DuplicataService {
         DemandeDuplicata demandeDuplicata = demandeDuplicataRepository.findById(duplicataId)
             .orElseThrow(() -> new IllegalArgumentException("Demande de duplicata " + duplicataId + " introuvable"));
         
-        verifierDroitDePasserA(demandeDuplicata, UtilService.STATUS_DEMANDE_ACCEPTEE);
+        demandeService.verifierDroitDePasserA(demandeDuplicata, UtilService.STATUS_DEMANDE_ACCEPTEE);
             
-        if (!isStatutDejaAtteint(demandeDuplicata, UtilService.STATUS_SCAN_TERMINE)) {
+        if (!demandeService.isStatutDejaAtteint(demandeDuplicata, UtilService.STATUS_SCAN_TERMINE)) {
             throw new IllegalStateException("Impossible d'accepter : le dossier doit d'abord etre scanne");
         }
 
         // Metier
-        Demande demande = demandeDuplicata.getDemande();
-
         CarteResident nouvelleCarte = new CarteResident();
         nouvelleCarte.setDateCreation(LocalDateTime.now());
-        nouvelleCarte.setPasseport(demande.getPasseport()); // TODO: tokony dernier passeport ao @ base ?
-        nouvelleCarte.setDemande(demande);
+        nouvelleCarte.setPasseport(demandeService.getPasseport(demandeDuplicata));
+        nouvelleCarte.setDemande(demandeDuplicata);
         
         // Persistence 
         carteResidentRepository.save(nouvelleCarte);
 
-        ajouterHistoriqueStatut(demandeDuplicata, UtilService.STATUS_DEMANDE_ACCEPTEE);
+        demandeService.ajouterHistoriqueStatut(demandeDuplicata, UtilService.STATUS_DEMANDE_ACCEPTEE);
     }
 
     /***
@@ -187,28 +166,6 @@ public class DuplicataService {
      * Utils
      * 
      */
-
-    private void verifierDroitDePasserA(DemandeDuplicata duplicata, String libelleStatutCible) {
-        Statut actuel = getStatutActuel(duplicata);
-        Statut cible = findStatutByLibelle(libelleStatutCible);
-
-        if (actuel != null && actuel.getOrdre() >= cible.getOrdre()) {
-            throw new IllegalStateException("On ne peut pas descendre de statut: " + actuel.getLibelle() + " -> " + cible.getLibelle());
-        }
-    }
-
-    private void ajouterHistoriqueStatut(DemandeDuplicata duplicata, String libelleStatut) {
-        ajouterHistoriqueStatut(duplicata, libelleStatut, LocalDateTime.now());
-    }
-
-
-    private boolean isStatutDejaAtteint(DemandeDuplicata duplicata, String libelleStatut) {
-        Statut actuel = getStatutActuel(duplicata);
-        if (actuel == null) return false;
-        
-        Statut recherche = findStatutByLibelle(libelleStatut);
-        return actuel.getOrdre() >= recherche.getOrdre();
-    }
 
     private DemandeDuplicata findDuplicataById(Integer id) {
         return demandeDuplicataRepository.findById(id)

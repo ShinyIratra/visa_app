@@ -15,25 +15,23 @@ import app.visa.service.UtilService;
 
 @Service
 public class VisaRequestEditService extends VisaRequestService { // (Kamo be hanao statique an'i VisaRequestService.getBlock, VisaRequestServicereponseCreation) dia ataoko miextends
-
-    private final DemandeService demandeService;
-
-    public VisaRequestEditService(VisaRequestRepository visaRequestRepository,
-                                  TypeDemandeRepository typeDemandeRepository,
-                                  CategorieRepository categorieRepository,
-                                  DossierRepository dossierRepository,
-                                  ReponseStatutVisaRepository reponseStatutVisaRepository,
-                                  HistoriqueStatutRepository historiqueStatutRepository,
-                                  StatutRepository statutRepository,
-                                  DemandeurService demandeurService,
-                                  PasseportService passeportService,
-                                  VisaTransformableService visaTransformableService,
-                                  CodeQrService codeQrService,
-                                  DemandeService demandeService) {
-        super(visaRequestRepository, typeDemandeRepository, categorieRepository, dossierRepository,
+    public VisaRequestEditService(
+            DemandeRepository demandeRepository,
+            VisaRequestRepository visaRequestRepository,
+            TypeDemandeRepository typeDemandeRepository,
+            CategorieRepository categorieRepository,
+            DossierRepository dossierRepository,
+            ReponseStatutVisaRepository reponseStatutVisaRepository,
+            HistoriqueStatutRepository historiqueStatutRepository,
+            StatutRepository statutRepository,
+            DemandeurService demandeurService,
+            PasseportService passeportService,
+            VisaTransformableService visaTransformableService,
+            CodeQrService codeQrService,
+            DemandeService demandeService) {
+        super(demandeRepository, visaRequestRepository, typeDemandeRepository, categorieRepository, dossierRepository,
               reponseStatutVisaRepository, historiqueStatutRepository, statutRepository,
-              demandeurService, passeportService, visaTransformableService, codeQrService);
-        this.demandeService = demandeService;
+              demandeurService, passeportService, visaTransformableService, codeQrService, demandeService);
     }
 
     /**
@@ -48,7 +46,7 @@ public class VisaRequestEditService extends VisaRequestService { // (Kamo be han
 
     @Transactional(readOnly = true)
     public Map<String, Object> getDemandeFormData(Integer id) {
-        Demande demande = visaRequestRepository.findById(id)
+        DemandeNouveauTitre demande = visaRequestRepository.findById(id)
             .orElseThrow(() -> new IllegalArgumentException("demande introuvable: " + id));
 
         Passeport passeport = demande.getPasseport();
@@ -127,7 +125,7 @@ public class VisaRequestEditService extends VisaRequestService { // (Kamo be han
             throw new IllegalArgumentException("donnees de demande obligatoires.");
         }
 
-        Demande demande = visaRequestRepository.findById(id)
+        DemandeNouveauTitre demande = visaRequestRepository.findById(id)
             .orElseThrow(() -> new IllegalArgumentException("demande introuvable: " + id));
 
         controleStatut(demande);

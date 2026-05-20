@@ -42,6 +42,7 @@ public class VisaService {
     private Map<String, Object> mapToInfo(Visa visa) {
         Map<String, Object> map = new LinkedHashMap<>();
         Demande demande = visa.getDemande();
+        DemandeNouveauTitre demandeNouveauTitre = demandeService.getDemandeNouveauTitre(demande);
         
         map.put("id", visa.getId());
         map.put("dateCreation", visa.getDateCreation());

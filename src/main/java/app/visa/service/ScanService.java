@@ -1,6 +1,5 @@
 package app.visa.service;
 
-import java.util.*;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -8,6 +7,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.*;
+
 import org.springframework.web.multipart.MultipartFile;
 import app.visa.entity.*;
 import app.visa.repository.*;
@@ -70,7 +71,7 @@ public class ScanService {
 
     private Map<MultipartFile, Path> preparerUploads(Demande demande, Map<String, MultipartFile> files) throws IOException {
         String rootPath = System.getProperty("user.dir");
-        Demandeur demandeur = demande.getPasseport().getDemandeur();
+        Demandeur demandeur = demandeService.getPasseport(demande).getDemandeur();
         String nomComplet = (demandeur.getNom() + "_" + demandeur.getPrenom()).replaceAll("[^a-zA-Z0-9_-]", "");
         
         // Structure: uploads/scans/ID_NOM_COMPLET/
@@ -127,7 +128,7 @@ public class ScanService {
         Demande demande = visaRequestRepository.findById(demandeId)
             .orElseThrow(() -> new IllegalArgumentException("Demande introuvable: " + demandeId));
         
-        Demandeur demandeur = demande.getPasseport().getDemandeur();
+        Demandeur demandeur = demandeService.getPasseport(demande).getDemandeur();
         String nomComplet = (demandeur.getNom() + "_" + demandeur.getPrenom()).replaceAll("[^a-zA-Z0-9_-]", "");
         
         String rootPath = System.getProperty("user.dir");
@@ -264,7 +265,11 @@ public class ScanService {
         Demande demande = visaRequestRepository.findById(demandeId)
             .orElseThrow(() -> new IllegalArgumentException("Demande introuvable: " + demandeId));
 
-        List<Dossier> dossiers = dossierRepository.findDossiersPourTypeDemande(demande.getTypeDemande().getId());
+        if (!(demande instanceof DemandeNouveauTitre demandeNouveauTitre) || demandeNouveauTitre.getTypeDemande() == null) {
+            throw new IllegalArgumentException("Type de demande introuvable pour la demande: " + demandeId);
+        }
+
+        List<Dossier> dossiers = dossierRepository.findDossiersPourTypeDemande(demandeNouveauTitre.getTypeDemande().getId());
         List<ReponseStatutVisa> reponses = reponseStatutVisaRepository.findByDemandeId(demandeId);
 
         Map<Integer, Boolean> reponseMap = new HashMap<>();

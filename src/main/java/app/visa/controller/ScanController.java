@@ -7,7 +7,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import app.visa.controller.response.ApiResponse;
-import app.visa.entity.Demande;
+import app.visa.entity.*;
 import app.visa.service.*;
 import lombok.RequiredArgsConstructor;
 
@@ -24,12 +24,12 @@ public class ScanController {
     @GetMapping("/{id}")
     public String showScanPage(@PathVariable Integer id, Model model) {
         try {
-            Demande demande = visaRequestService.findById(id)
+            DemandeNouveauTitre demande = visaRequestService.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Demande introuvable: " + id));
 
-            visaRequestService.verifierDroitDePasserA(demande, UtilService.STATUS_SCAN_TERMINE);
+            demandeService.verifierDroitDePasserA(demande, UtilService.STATUS_SCAN_TERMINE);
 
-            if (!visaRequestService.isStatutDejaAtteint(demande, UtilService.STATUS_PHOTO_SCANNEE)) {
+            if (!demandeService.isStatutDejaAtteint(demande, UtilService.STATUS_PHOTO_SCANNEE)) {
                 model.addAttribute("error", "Photo et signature pas encore scanne");
                 model.addAttribute("demandeId", id);
                 return "visa-requests/scan-error";
