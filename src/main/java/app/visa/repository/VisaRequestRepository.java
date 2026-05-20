@@ -11,4 +11,5 @@ import app.visa.entity.DemandeNouveauTitre;
 
 public interface VisaRequestRepository extends JpaRepository<DemandeNouveauTitre, Integer> {
     List<Demande> findByPasseportDemandeurId(Integer demandeurId);
+    Optional<DemandeNouveauTitre> findByNumero(String numero);
 }
