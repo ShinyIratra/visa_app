@@ -47,6 +47,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 <td>${dateStr}</td>
                 <td>
                     <div class="actions">
+                        <button class="btn btn-outline btn-sm" onclick="scannerDossier(${item.id})">Scanner dossier</button>
                         <button class="btn btn-outline btn-sm" onclick="accepterDemande(${item.id})">Accepter demande</button>
                     </div>
                 </td>
@@ -54,6 +55,25 @@ document.addEventListener('DOMContentLoaded', function() {
             tableBody.appendChild(tr);
         });
     }
+
+    window.scannerDossier = function(id) {
+        if (!confirm('Marquer ce dossier comme scanné ?'))
+            return;
+        fetch(`/duplicata/${id}/scan`, {
+            method: 'POST'
+        })
+        .then(response => response.json())
+        .then(apiResponse => {
+            if (apiResponse.success) {
+                window.location.reload();
+            } else {
+                throw new Error(apiResponse.error || apiResponse.message);
+            }
+        })
+        .catch(error => {
+            alert(error.message);
+        });
+    };
 
     window.filterByDate = function() {
         const start = document.getElementById('dateStart').value;

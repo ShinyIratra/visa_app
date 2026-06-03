@@ -1,6 +1,5 @@
 package app.visa.service;
 
-import java.util.*;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -8,6 +7,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.*;
+
 import org.springframework.web.multipart.MultipartFile;
 import app.visa.entity.*;
 import app.visa.repository.*;
@@ -70,7 +71,7 @@ public class ScanService {
 
     private Map<MultipartFile, Path> preparerUploads(Demande demande, Map<String, MultipartFile> files) throws IOException {
         String rootPath = System.getProperty("user.dir");
-        Demandeur demandeur = demande.getPasseport().getDemandeur();
+        Demandeur demandeur = demandeService.getPasseport(demande).getDemandeur();
         String nomComplet = (demandeur.getNom() + "_" + demandeur.getPrenom()).replaceAll("[^a-zA-Z0-9_-]", "");
         
         // Structure: uploads/scans/ID_NOM_COMPLET/
@@ -89,15 +90,15 @@ public class ScanService {
             MultipartFile file = entry.getValue();
             if (file != null && !file.isEmpty()) {
                 String dossierIdStr = entry.getKey().replace("dossier_", "");
-                String dossierLibelle = findDossierLibelle(dossierIdStr);
+                String dossierLibelle = getDossierLibelle(dossierIdStr);
 
                 String originalFilename = file.getOriginalFilename();
                 String extension = originalFilename != null && originalFilename.contains(".") 
                     ? originalFilename.substring(originalFilename.lastIndexOf(".")) 
                     : "";
 
-                String finalFileName = String.format("%d_%s_%s_%s%s", 
-                    demandeur.getId(), nomComplet, dossierLibelle, timestamp, extension);
+                String finalFileName = String.format("%d - %s (%s) %s%s", 
+                    demandeur.getId(), demandeur.getNom() + " " + demandeur.getPrenom(), dossierLibelle, timestamp, extension);
                 
                 uploads.put(file, uploadPath.resolve(finalFileName));
             }
@@ -105,13 +106,13 @@ public class ScanService {
         return uploads;
     }
 
-    private String findDossierLibelle(String dossierIdStr) {
+    private String getDossierLibelle(String dossierIdStr) {
         try {
             Integer dId = Integer.parseInt(dossierIdStr);
             return dossierRepository.findById(dId)
                 .map(Dossier::getLibelle)
                 .orElse("document")
-                .replaceAll("[^a-zA-Z0-9_-]", "_");
+                .replaceAll("[^a-zA-Z0-9_-]", " ");
         } catch (NumberFormatException e) {
             return "document";
         }
@@ -127,7 +128,7 @@ public class ScanService {
         Demande demande = visaRequestRepository.findById(demandeId)
             .orElseThrow(() -> new IllegalArgumentException("Demande introuvable: " + demandeId));
         
-        Demandeur demandeur = demande.getPasseport().getDemandeur();
+        Demandeur demandeur = demandeService.getPasseport(demande).getDemandeur();
         String nomComplet = (demandeur.getNom() + "_" + demandeur.getPrenom()).replaceAll("[^a-zA-Z0-9_-]", "");
         
         String rootPath = System.getProperty("user.dir");
@@ -144,8 +145,24 @@ public class ScanService {
                 File file = path.toFile();
                 if (file.isFile()) {
                     Map<String, Object> map = new LinkedHashMap<>();
-                    map.put("nomFichier", file.getName());
+                    String fileName = file.getName();
+                    map.put("nomFichier", fileName);
                     map.put("chemin", file.getAbsolutePath());
+                    
+                    // Extraire le libellé depuis le format: ID - NOM (LIBELLE) TIMESTAMP.ext
+                    String libelleDisplay = "Document";
+                    try {
+                        if (fileName.contains("(") && fileName.contains(")")) {
+                            int start = fileName.indexOf("(") + 1;
+                            int end = fileName.lastIndexOf(")");
+                            if (start < end) {
+                                libelleDisplay = fileName.substring(start, end);
+                            }
+                        }
+                    } catch (Exception e) {
+                        // fallback to default
+                    }
+                    map.put("libelle", libelleDisplay);
                     
                     // URL 
                     String relativePath = uploadPath.relativize(path).toString().replace("\\", "/");
@@ -248,7 +265,11 @@ public class ScanService {
         Demande demande = visaRequestRepository.findById(demandeId)
             .orElseThrow(() -> new IllegalArgumentException("Demande introuvable: " + demandeId));
 
-        List<Dossier> dossiers = dossierRepository.findDossiersPourTypeDemande(demande.getTypeDemande().getId());
+        if (!(demande instanceof DemandeNouveauTitre demandeNouveauTitre) || demandeNouveauTitre.getTypeDemande() == null) {
+            throw new IllegalArgumentException("Type de demande introuvable pour la demande: " + demandeId);
+        }
+
+        List<Dossier> dossiers = dossierRepository.findDossiersPourTypeDemande(demandeNouveauTitre.getTypeDemande().getId());
         List<ReponseStatutVisa> reponses = reponseStatutVisaRepository.findByDemandeId(demandeId);
 
         Map<Integer, Boolean> reponseMap = new HashMap<>();

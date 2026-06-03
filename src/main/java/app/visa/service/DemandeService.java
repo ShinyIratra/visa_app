@@ -2,30 +2,29 @@
 package app.visa.service;
 
 import app.visa.entity.Demande;
-import app.visa.dto.VisaRequestDto;
 import app.visa.entity.Passeport;
 import app.visa.entity.VisaTransformable;
 import app.visa.entity.*;
-import app.visa.repository.DemandeurRepository;
-import app.visa.repository.NationaliteRepository;
-import app.visa.repository.SituationFamilialeRepository;
+import app.visa.repository.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
 public class DemandeService {
 
-    private final app.visa.repository.DemandeRepository demandeRepository;
-    private final app.visa.repository.TypeDemandeRepository typeDemandeRepository;
-    private final app.visa.repository.CategorieRepository categorieRepository;
-    private final app.visa.repository.HistoriqueStatutRepository historiqueStatutRepository;
-    private final app.visa.repository.StatutRepository statutRepository;
-    private final app.visa.repository.VisaRepository visaRepository;
-    private final app.visa.repository.PasseportRepository passeportRepository;
+    private final DemandeRepository demandeRepository;
+    private final TypeDemandeRepository typeDemandeRepository;
+    private final CategorieRepository categorieRepository;
+    private final HistoriqueStatutRepository historiqueStatutRepository;
+    private final StatutRepository statutRepository;
+    private final VisaRepository visaRepository;
+    private final PasseportRepository passeportRepository;
     private final CarteResidentService carteResidentService;
+    private final VisaRequestRepository visaRequestRepository;
 
     public Statut getDernierStatus(Demande demande) {
         if (demande == null || demande.getId() == null) return null;
@@ -36,14 +35,10 @@ public class DemandeService {
 
     @Transactional(readOnly = true)
     public boolean isStatusOuPlus(Integer demandeId, String status_label) {
-        if (demandeId == null) {
-            return false;
-        }
+        if (demandeId == null) return false;
 
         Statut status = statutRepository.findByLibelle(status_label)
-            .orElseThrow(() -> new IllegalArgumentException(
-                "Statut '" + status_label + "' introuvable"
-            ));
+            .orElseThrow(() -> new IllegalArgumentException("Statut '" + status_label + "' introuvable"));
 
         return historiqueStatutRepository.existsByDemandeIdAndStatutOrdreGreaterThanEqual(
             demandeId,
@@ -52,19 +47,12 @@ public class DemandeService {
     }
 
     @Transactional(readOnly = true)
-    public boolean isStatusOuPlus(Integer demandeId, Integer ordre) {
-        if (demandeId == null) {
-            return false;
-        }
-
-        Statut scanTermine = statutRepository.findByOrdre(ordre)
-            .orElseThrow(() -> new IllegalArgumentException(
-                "Statut '" + ordre + "' introuvable"
-            ));
+    public boolean isStatusOuPlus(Integer demandeId, Float ordre) {
+        if (demandeId == null) return false;
 
         return historiqueStatutRepository.existsByDemandeIdAndStatutOrdreGreaterThanEqual(
             demandeId,
-            scanTermine.getOrdre()
+            ordre
         );
     }
 
@@ -75,22 +63,44 @@ public class DemandeService {
     public Demande findById(Integer id) {
         return demandeRepository.findById(id).orElse(null);
     }
-    
-    public Demande buildDemande(VisaRequestDto dto, Passeport passeport, VisaTransformable vt) {
-        Demande demande = new Demande();
-        demande.setDateCreation(LocalDateTime.now());
-        demande.setPasseport(passeport);
-        demande.setVisaTransformable(vt);
 
-        if (dto.getTypeDemandeId() != null) {
-            demande.setTypeDemande(typeDemandeRepository.findById(dto.getTypeDemandeId()).orElse(null));
+    public Passeport getPasseport(Demande d) {
+        if (d instanceof DemandeNouveauTitre dnt) {
+            return dnt.getPasseport();
+        } else if (d instanceof DemandeTransfertVisa dtv) {
+            return dtv.getNouveauPasseport();
+        } else if (d instanceof DemandeDuplicata dd) {
+            return getPasseport(dd.getDemandeOrigine());
+        }
+        return null;
+    }
+
+    public DemandeNouveauTitre getDemandeNouveauTitre(Demande d) {
+        Optional<DemandeNouveauTitre> demandeNouveauTitre = visaRequestRepository.findByDemandeId(d.getId());
+        if (demandeNouveauTitre.isPresent()) {
+            return demandeNouveauTitre.get();
         }
 
-        demande.setCategorie(categorieRepository.findAll().stream()
-            .filter(c -> "Nouveau titre".equalsIgnoreCase(c.getLibelle()))
-            .findFirst().orElse(null));
+        // Callback napetrak chat
+        if (d instanceof DemandeNouveauTitre dnt) {
+            return dnt;
+        } else if (d instanceof DemandeTransfertVisa dtv) {
+            return getDemandeNouveauTitre(dtv.getDemandeOrigine());
+        } else if (d instanceof DemandeDuplicata dd) {
+            return getDemandeNouveauTitre(dd.getDemandeOrigine());
+        }
+        return null;
+    }
 
-        return demande;
+    public <T extends Demande> T setupBaseDemande(T d, String categorieLibelle, LocalDateTime dateCreation) {
+        Categorie categorie = categorieRepository.findByLibelle(categorieLibelle)
+            .orElseThrow(() -> new IllegalArgumentException("categorie '" + categorieLibelle + "' introuvable."));
+        d.setCategorie(categorie);
+        if (d.getCategorie() == null) {
+            throw new IllegalStateException("Failed to set categorie on Demande object!");
+        }
+        d.setDateCreation(dateCreation != null ? dateCreation : LocalDateTime.now());
+        return d;
     }
 
     public Demande findDemandeByCritere(String typeRecherche, String valeur) {
@@ -113,17 +123,22 @@ public class DemandeService {
             case "carte_resident_passeport":
                 // Otran le taloha ihany
                 CarteResident carteResident = carteResidentService.findByLastNumeroPasseport(valeur);
+                if (carteResident == null) 
+                    throw new IllegalArgumentException("Carte resident introuvable for '" + valeur + "'.");
                 return carteResident.getDemande();
             case "passeport_actuel":
                 return findDemandeByPasseportActuel(valeur);
             default:
-                throw new IllegalArgumentException("Type de recherche '" + typeRecherche + "' non supporte.");
+                throw new IllegalArgumentException("Critere de recherche inconnu: " + typeRecherche);
         }
     }
 
     private Demande findDemandeByPasseportOriginal(String numeroPasseport) {
         return demandeRepository.findAll().stream()
-            .filter(d -> d.getPasseport().getNumero().equalsIgnoreCase(numeroPasseport))
+            .filter(d -> {
+                Passeport p = getPasseport(d);
+                return p != null && p.getNumero().equalsIgnoreCase(numeroPasseport);
+            })
             .filter(d -> d.getCategorie().getLibelle().equals("Nouveau titre"))
             .findFirst()
             .orElseThrow(() -> new IllegalArgumentException("Aucune demande originale trouvee pour le passeport '" + numeroPasseport + "'."));
@@ -137,5 +152,38 @@ public class DemandeService {
             .map(Visa::getDemande)
             .findFirst()
             .orElseThrow(() -> new IllegalArgumentException("Aucune demande trouvee pour le passeport '" + numeroPasseport + "'."));
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    public void ajouterHistoriqueStatut(Demande dem, String statutLibelle) {
+        ajouterHistoriqueStatut(dem, statutLibelle, null);
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    public void ajouterHistoriqueStatut(Demande dem, String statutLibelle, LocalDateTime dateModification) {
+        Statut statut = statutRepository.findByLibelle(statutLibelle)
+            .orElseThrow(() -> new IllegalArgumentException("Statut '" + statutLibelle + "' introuvable."));
+
+        HistoriqueStatut historique = new HistoriqueStatut();
+        historique.setDemande(dem);
+        historique.setStatut(statut);
+        historique.setDateModification(dateModification != null ? dateModification : LocalDateTime.now());
+
+        historiqueStatutRepository.save(historique);
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    public void verifierDroitDePasserA(Demande dem, String statutCibleLibelle) {
+        Statut statutCible = statutRepository.findByLibelle(statutCibleLibelle)
+            .orElseThrow(() -> new IllegalArgumentException("Statut '" + statutCibleLibelle + "' introuvable."));
+        
+        Statut actuel = getDernierStatus(dem);
+        if (actuel != null && actuel.getOrdre() >= statutCible.getOrdre()) {
+            throw new IllegalStateException("La demande est deja au statut '" + actuel.getLibelle() + "' (ordre " + actuel.getOrdre() + "), ne peut pas repasser a '" + statutCibleLibelle + "' (ordre " + statutCible.getOrdre() + ").");
+        }
+    }
+
+    public boolean isStatutDejaAtteint(Demande dem, String statutLibelle) {
+        return isStatusOuPlus(dem.getId(), statutLibelle);
     }
 }

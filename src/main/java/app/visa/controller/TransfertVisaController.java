@@ -122,6 +122,18 @@ public class TransfertVisaController {
         return response;
     }
 
+    @PostMapping("/{id}/scan")
+    @ResponseBody
+    public ResponseEntity<ApiResponse> scannerDossier(@PathVariable Integer id) {
+        try {
+            transfertVisaService.marquerCommeScanne(id);
+            return ResponseEntity.ok(new ApiResponse(true, null, null));
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError()
+                .body(new ApiResponse(false, null, "Erreur lors du scan: " + e.getMessage()));
+        }
+    }
+
     @PostMapping("/{id}/accepter")
     @ResponseBody
     public ResponseEntity<ApiResponse<Void>> accepter(@PathVariable Integer id) {

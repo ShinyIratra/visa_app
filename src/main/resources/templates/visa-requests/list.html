@@ -50,14 +50,14 @@
                             <th>Categorie</th>
                             <th>Visa transformable</th>
                             <th>Statut</th>
-                            <th>Actions</th>
+                            <th style="width: 150px;">Actions</th>
                         </tr>
                     </thead>
                     <tbody>
                         <tr th:if="${#lists.isEmpty(demandes)}">
-                            <td colspan="9" class="empty">Aucune demande enregistree.</td>
+                            <td colspan="10" class="empty">Aucune demande enregistree.</td>
                         </tr>
-                        <tr th:each="demande : ${demandes}">
+                        <tr th:each="demande : ${demandes}" th:onclick="|window.location.href='/visa-requests/dossiers/' + ${demande.demandeId}|" style="cursor: pointer;">
                             <td th:text="${demande.demandeId}">1</td>
                             <td th:text="${demande.numeroDemande}">DMD-001</td>
                             <td th:text="${demande.nomDemandeur != null ? demande.nomDemandeur + ' ' + demande.prenomDemandeur : ''}">Rakoto Jean</td>
@@ -69,15 +69,11 @@
                             <td th:text="${demande.categorie != null ? demande.categorie : ''}">Nouveau Titre</td>
                             <td th:text="${demande.referenceVisaTransformable != null ? demande.referenceVisaTransformable : ''}">VT-001</td>
                             <td th:text="${demande.statut != null ? demande.statut : ''}">Demande creee</td>
-                            <td>
+                            <td th:onclick="|event.stopPropagation()|">
                                 <div class="actions">
                                     <a class="btn btn-outline btn-sm" th:href="@{/visa-requests/{id}/edit(id=${demande.demandeId})}">Modifier</a>
                                     <a class="btn btn-outline btn-sm" th:href="@{/visa-requests/photo-signature/{id}(id=${demande.demandeId})}">Photo et Signature</a>
                                     <a class="btn btn-outline btn-sm" th:href="@{/visa-requests/scan/{id}(id=${demande.demandeId})}">Scanner</a>
-                                    <a class="btn btn-secondary" th:href="@{/visa-requests/dossiers/{id}(id=${demande.demandeId})}">Voir dossiers</a>
-                                    <a class="btn btn-secondary" th:href="@{/api/demandes-visa/qr/{numero}(numero=${demande.numeroDemande})}">
-                                        Voir code QR
-                                    </a>
                                 </div>
                             </td>
                         </tr>

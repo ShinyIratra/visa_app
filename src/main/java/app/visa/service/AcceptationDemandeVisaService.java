@@ -33,13 +33,13 @@ public class AcceptationDemandeVisaService {
         visa.setDateExpiration(dateExpiration);
         
         // Assigner visa au passeport de la demande
-        TransfertVisaService.assignerVisaAuPasseport(visa, demande.getPasseport(), visaRepository);
+        TransfertVisaService.assignerVisaAuPasseport(visa, demandeService.getPasseport(demande), visaRepository);
         
         // Creation carte resident
         CarteResident carteResident = new CarteResident();
         carteResident.setDateCreation(LocalDateTime.now());
         carteResident.setDemande(demande);
-        carteResident.setPasseport(demande.getPasseport());
+        carteResident.setPasseport(demandeService.getPasseport(demande));
         carteResident.setDateDebut(dateDebut);
         carteResident.setDateExpiration(dateExpiration);
         // Integer maxLiaison = carteResidentRepository.findByLiaison().orElse(0);
@@ -61,8 +61,8 @@ public class AcceptationDemandeVisaService {
     }
 
     private void controlerDatesVisa(Demande demande, LocalDateTime dateDebutVisaDemande) {
-        if (dateDebutVisaDemande != null && demande.getVisaTransformable() != null) {
-            LocalDateTime dateEntreeVT = demande.getVisaTransformable().getDateEntree();
+        if (dateDebutVisaDemande != null && demande instanceof DemandeNouveauTitre dnt && dnt.getVisaTransformable() != null) {
+            LocalDateTime dateEntreeVT = dnt.getVisaTransformable().getDateEntree();
             if (dateDebutVisaDemande.isBefore(dateEntreeVT)) {
                 throw new IllegalArgumentException("La date de debut du VISA (" + dateDebutVisaDemande + ") ne peut pas etre anterieure a la date d'entree du visa transformable (" + dateEntreeVT + ")");
             }

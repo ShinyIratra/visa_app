@@ -52,6 +52,8 @@ public class VisaRequestController {
     private final CategorieRepository categorieRepository;
     private final ScanService scanService;
     private final PhotoService photoService;
+    private final DemandeurInfoService demandeurInfoService;
+    private final CodeQrService codeQrService;
 
     public VisaRequestController(VisaRequestService visaRequestService,
                                 DemandeurService demandeurService,
@@ -63,7 +65,9 @@ public class VisaRequestController {
                                 TypeDemandeRepository typeDemandeRepository,
                                 CategorieRepository categorieRepository,
                                 ScanService scanService,
-                                PhotoService photoService) {
+                                PhotoService photoService,
+                                DemandeurInfoService demandeurInfoService,
+                                CodeQrService codeQrService) {
         this.visaRequestService = visaRequestService;
         this.demandeurService = demandeurService;
         this.demandeService = demandeService;
@@ -75,6 +79,14 @@ public class VisaRequestController {
         this.categorieRepository = categorieRepository;
         this.scanService = scanService;
         this.photoService = photoService;
+        this.demandeurInfoService = demandeurInfoService;
+        this.codeQrService = codeQrService;
+    }
+
+    @GetMapping(value = "/qr/{numero}", produces = "image/png")
+    @ResponseBody
+    public byte[] showQr(@PathVariable String numero) {
+        return codeQrService.genererCodeQrDemandeBytes(numero);
     }
 
     @GetMapping
@@ -82,11 +94,8 @@ public class VisaRequestController {
                       @RequestParam(required = false) String error,
                       @RequestParam(required = false) String start,
                       @RequestParam(required = false) String end) {
-        if ("scan_termine".equals(error)) {
-            model.addAttribute("errorMessage", "Action interdite. La demande est deja au statut Scan termine.");
-        }
-        else if ("photo_termine".equals(error)) {
-            model.addAttribute("errorMessage", "Action interdite. La demande est deja au statut Photo terminee.");
+        if (error != null && !error.isEmpty()) {
+            model.addAttribute("errorMessage", error);
         }
         
         List<Map<String, Object>> demandes = visaRequestService.listDemandesAvecInfos();
@@ -134,10 +143,13 @@ public class VisaRequestController {
             Demande demande = visaRequestService.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Demande introuvable: " + id));
             
+            Map<String, Object> allInfos = demandeurInfoService.getInfos(demande.getNumero(), null, null);
+            
             List<Map<String, Object>> dossiers = scanService.getFichiersScannes(id);
             Map<String, Object> photoEtSignature = photoService.getPhotoEtSignatureUrls(id);
             
             model.addAttribute("demande", demande);
+            model.addAttribute("infos", allInfos); // demandeurDetails + demandeSelectionnee
             model.addAttribute("dossiers", dossiers);
             model.addAttribute("photoUrl", photoEtSignature.get("photoUrl"));
             model.addAttribute("signatureUrl", photoEtSignature.get("signatureUrl"));

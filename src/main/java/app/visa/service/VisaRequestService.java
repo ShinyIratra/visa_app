@@ -22,21 +22,17 @@ import app.visa.entity.SituationFamiliale;
 import app.visa.entity.Statut;
 import app.visa.entity.TypeDemande;
 import app.visa.entity.VisaTransformable;
-import app.visa.repository.CategorieRepository;
-import app.visa.repository.DossierRepository;
-import app.visa.repository.HistoriqueStatutRepository;
-import app.visa.repository.ReponseStatutVisaRepository;
-import app.visa.repository.StatutRepository;
-import app.visa.repository.TypeDemandeRepository;
-import app.visa.repository.VisaRequestRepository;
+import app.visa.repository.*;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import app.visa.entity.DemandeNouveauTitre;
 import lombok.RequiredArgsConstructor;
 
 @Service
-@RequiredArgsConstructor
 public class VisaRequestService {
-
+    protected final DemandeRepository demandeRepository;
     protected final VisaRequestRepository visaRequestRepository;
     protected final TypeDemandeRepository typeDemandeRepository;
     protected final CategorieRepository categorieRepository;
@@ -48,30 +44,52 @@ public class VisaRequestService {
     protected final PasseportService passeportService;
     protected final VisaTransformableService visaTransformableService;
     protected final CodeQrService codeQrService;
+    protected final DemandeService demandeService;
 
-    public List<Demande> findAll() {
+    public VisaRequestService(
+            DemandeRepository demandeRepository,
+            VisaRequestRepository visaRequestRepository,
+            TypeDemandeRepository typeDemandeRepository,
+            CategorieRepository categorieRepository,
+            DossierRepository dossierRepository,
+            ReponseStatutVisaRepository reponseStatutVisaRepository,
+            HistoriqueStatutRepository historiqueStatutRepository,
+            StatutRepository statutRepository,
+            DemandeurService demandeurService,
+            PasseportService passeportService,
+            VisaTransformableService visaTransformableService,
+            CodeQrService codeQrService,
+            DemandeService demandeService) {
+        this.demandeRepository = demandeRepository;
+        this.visaRequestRepository = visaRequestRepository;
+        this.typeDemandeRepository = typeDemandeRepository;
+        this.categorieRepository = categorieRepository;
+        this.dossierRepository = dossierRepository;
+        this.reponseStatutVisaRepository = reponseStatutVisaRepository;
+        this.historiqueStatutRepository = historiqueStatutRepository;
+        this.statutRepository = statutRepository;
+        this.demandeurService = demandeurService;
+        this.passeportService = passeportService;
+        this.visaTransformableService = visaTransformableService;
+        this.codeQrService = codeQrService;
+        this.demandeService = demandeService;
+    }
+
+    public List<DemandeNouveauTitre> findAll() {
         return visaRequestRepository.findAll();
     }
 
-    public Optional<Demande> findById(Integer id) {
+    public Optional<DemandeNouveauTitre> findById(Integer id) {
         return visaRequestRepository.findById(id);
     }
 
     @Transactional(readOnly = true)
     public List<Map<String, Object>> listDemandesAvecInfos() {
-        List<Demande> demandes = visaRequestRepository.findAll();
-        /**
-         * TODO: Atao niveau base ny filtre 
-         * fa ny filtre rehetra ao natao niveau controller 
-         * na otran zao dol satria maika hitsara
-         */
-        demandes = demandes.stream()
-            .filter(d -> d.getCategorie() != null && "Nouveau titre".equals(d.getCategorie().getLibelle()))
-            .toList();
-
+        List<DemandeNouveauTitre> demandes = visaRequestRepository.findAll();
+        
         List<Map<String, Object>> result = new ArrayList<>();
 
-        for (Demande demande : demandes) {
+        for (DemandeNouveauTitre demande : demandes) {
             Map<String, Object> item = new LinkedHashMap<>();
             Demandeur demandeur = demande.getPasseport() != null ? demande.getPasseport().getDemandeur() : null;
 
@@ -96,8 +114,13 @@ public class VisaRequestService {
     }
 
     @Transactional(rollbackFor = Exception.class)
-    public Demande save(Demande demande) {
+    public Demande save(DemandeNouveauTitre demande) {
         return visaRequestRepository.save(demande);
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    public Demande saveGeneric(Demande demande) {
+        return demandeRepository.save(demande);
     }
 
     @Transactional(rollbackFor = Exception.class)
@@ -133,7 +156,7 @@ public class VisaRequestService {
 
         Demande demande = createDemande(typeDemande, "Nouveau titre", passeport, visaTransformable, dateCreation);
         saveReponseDossier(demande, dossiersApplicables, dossiersFournisIds);
-        saveStatutDemande(demande, "Demande creee", dateCreation);
+        demandeService.ajouterHistoriqueStatut(demande, "Demande creee", dateCreation);
 
         return reponseCreation(demandeur, passeport, visaTransformable, demande, dossiersFournisIds);
     }
@@ -175,7 +198,7 @@ public class VisaRequestService {
 
         Demande demande = createDemande(typeDemande, categorieLibelle, passeport, visaTransformable, dateCreation);
         saveReponseDossier(demande, dossiersApplicables, dossiersFournisIds);
-        saveStatutDemande(demande, statutDemandeLibelle, dateCreation);
+        demandeService.ajouterHistoriqueStatut(demande, statutDemandeLibelle, dateCreation);
 
         return demande;
     }
@@ -288,16 +311,14 @@ public class VisaRequestService {
     }
 
     protected Demande createDemande(TypeDemande typeDemande, String libelle, Passeport passeport, VisaTransformable visaTransformable, LocalDateTime dateCreation) {
-        Categorie categorie = categorieRepository.findByLibelle(libelle)
-            .orElseThrow(() -> new IllegalArgumentException("categorie '" + libelle + "' introuvable."));
+        DemandeNouveauTitre dnt = new DemandeNouveauTitre();
+        demandeService.setupBaseDemande(dnt, libelle, dateCreation);
+        
+        dnt.setPasseport(passeport);
+        dnt.setTypeDemande(typeDemande);
+        dnt.setVisaTransformable(visaTransformable);
 
-        Demande demande = new Demande();
-        demande.setDateCreation(dateCreation != null ? dateCreation : LocalDateTime.now());
-        demande.setTypeDemande(typeDemande);
-        demande.setCategorie(categorie);
-        demande.setPasseport(passeport);
-        demande.setVisaTransformable(visaTransformable);
-        return visaRequestRepository.save(demande);
+        return visaRequestRepository.save(dnt);
     }
 
     protected TypeDemande getTypeDemandeValide(Integer typeId) {
@@ -357,22 +378,6 @@ public class VisaRequestService {
         }
 
         reponseStatutVisaRepository.saveAll(reponses);
-    }
-
-    protected void saveStatutDemande(Demande dem, String statutLibelle) {
-        saveStatutDemande(dem, statutLibelle, null);
-    }
-
-    protected void saveStatutDemande(Demande dem, String statutLibelle, LocalDateTime dateModification) {
-        Statut statut = statutRepository.findByLibelle(statutLibelle)
-            .orElseThrow(() -> new IllegalArgumentException("statut '" + statutLibelle + "' introuvable."));
-
-        HistoriqueStatut historique = new HistoriqueStatut();
-        historique.setDemande(dem);
-        historique.setStatut(statut);
-        historique.setDateModification(dateModification != null ? dateModification : LocalDateTime.now());
-
-        historiqueStatutRepository.save(historique);
     }
 
     protected List<Integer> getDossiersFournis(Map<String, Object> donnees) {

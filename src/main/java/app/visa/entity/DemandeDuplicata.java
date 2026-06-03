@@ -8,27 +8,18 @@ import lombok.AllArgsConstructor;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import lombok.EqualsAndHashCode;
+
 @Entity
 @Table(name = "demandeduplicata")
+@PrimaryKeyJoinColumn(name = "id_demande")
 @Data
+@EqualsAndHashCode(callSuper = true)
 @NoArgsConstructor
 @AllArgsConstructor
-public class DemandeDuplicata {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+public class DemandeDuplicata extends Demande {
 
     @ManyToOne(optional = false)
-    @JoinColumn(name = "id_demande", nullable = false)
-    private Demande demande;
-
-    @Column(name = "datecreation", nullable = false)
-    private LocalDateTime dateCreation = LocalDateTime.now();
-
-    @Column(name = "numero", unique = true)
-    private String numero;
-
-    @OneToMany(mappedBy = "duplicata", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<HistoriqueStatutDemandeDuplicata> historiques;
+    @JoinColumn(name = "id_demandeorigine", nullable = false)
+    private Demande demandeOrigine;
 }

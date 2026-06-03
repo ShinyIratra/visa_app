@@ -49,11 +49,30 @@ document.addEventListener('DOMContentLoaded', function() {
                 <td>${dateStr}</td>
                 <td>
                     <div class="actions">
+                        <button class="btn btn-outline btn-sm" onclick="scannerDossier(${item.id})">Scanner dossier</button>
                         <button class="btn btn-outline btn-sm" onclick="accepterDemande(${item.id})">Accepter demande</button>
                         <button class="btn btn-outline btn-sm" onclick="window.location.href='/transfert-visa/${item.id}/edit'">Modifier</button>
                     </div>
                 </td>
             `;
+                window.scannerDossier = function(id) {
+                    if (!confirm('Marquer ce dossier comme scanné ?'))
+                        return;
+                    fetch(`/transfert-visa/${id}/scan`, {
+                        method: 'POST'
+                    })
+                    .then(response => response.json())
+                    .then(apiResponse => {
+                        if (apiResponse.success) {
+                            window.location.reload();
+                        } else {
+                            throw new Error(apiResponse.error || apiResponse.message);
+                        }
+                    })
+                    .catch(error => {
+                        alert(error);
+                    });
+                };
             tableBody.appendChild(tr);
         });
     }

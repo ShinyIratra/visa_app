@@ -1,10 +1,7 @@
 package app.visa.service;
 
-import app.visa.entity.Demande;
-import app.visa.entity.Demandeur;
-import app.visa.entity.Passeport;
-import app.visa.entity.Visa;
-import app.visa.repository.VisaRepository;
+import app.visa.entity.*;
+import app.visa.repository.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -16,8 +13,8 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class VisaService {
-
     private final VisaRepository visaRepository;
+    private final DemandeService demandeService;
 
     public List<Visa> findAll() {
         return visaRepository.findAll();
@@ -41,6 +38,7 @@ public class VisaService {
     private Map<String, Object> mapToInfo(Visa visa) {
         Map<String, Object> map = new LinkedHashMap<>();
         Demande demande = visa.getDemande();
+        DemandeNouveauTitre demandeNouveauTitre = demandeService.getDemandeNouveauTitre(demande);
         
         map.put("id", visa.getId());
         map.put("dateCreation", visa.getDateCreation());
@@ -51,10 +49,11 @@ public class VisaService {
             map.put("demandeId", demande.getId());
             
             // Ancien passeport (demande OG)
-            if (demande.getPasseport() != null) {
-                map.put("ancienPasseport", demande.getPasseport().getNumero());
+            Passeport p = demandeNouveauTitre.getPasseport();
+            if (p != null) {
+                map.put("ancienPasseport", p.getNumero());
                 
-                Demandeur demandeur = demande.getPasseport().getDemandeur();
+                Demandeur demandeur = p.getDemandeur();
                 if (demandeur != null) {
                     map.put("nomComplet", (demandeur.getNom() != null ? demandeur.getNom() : "") + " " + 
                                          (demandeur.getPrenom() != null ? demandeur.getPrenom() : ""));

@@ -8,31 +8,22 @@ import lombok.AllArgsConstructor;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import lombok.EqualsAndHashCode;
+
 @Entity
 @Table(name = "demandetransfertvisa")
+@PrimaryKeyJoinColumn(name = "id_demande")
 @Data
+@EqualsAndHashCode(callSuper = true)
 @NoArgsConstructor
 @AllArgsConstructor
-public class DemandeTransfertVisa {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+public class DemandeTransfertVisa extends Demande {
 
     @ManyToOne(optional = false)
-    @JoinColumn(name = "id_demande", nullable = false)
-    private Demande demande;
-
-    @Column(name = "datecreation", nullable = false)
-    private LocalDateTime dateCreation = LocalDateTime.now();
-
-    @Column(name = "numero", unique = true)
-    private String numero;
+    @JoinColumn(name = "id_demandeorigine", nullable = false)
+    private Demande demandeOrigine;
 
     @ManyToOne(optional = false)
     @JoinColumn(name = "id_nouveaupasseport", nullable = false)
     private Passeport nouveauPasseport;
-
-    @OneToMany(mappedBy = "transfert", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<HistoriqueStatutDemandeTransfert> historiques;
 }
