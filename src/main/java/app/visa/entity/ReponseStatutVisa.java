@@ -7,10 +7,13 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.MapsId;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import java.util.List;
+import java.util.ArrayList;
 
 @Entity
 @Table(name = "reponsestatutvisa")
@@ -34,4 +37,7 @@ public class ReponseStatutVisa {
 
     @Column(name = "valeur", nullable = false)
     private Boolean valeur;
+
+    @OneToMany(mappedBy = "reponseStatutVisa", fetch = FetchType.LAZY)
+    private List<FichierDossier> fichiers = new ArrayList<>();
 }
